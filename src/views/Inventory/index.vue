@@ -1,6 +1,6 @@
 <template>
   <div>
-    
+    庫存管理
   </div>
 </template>
 
