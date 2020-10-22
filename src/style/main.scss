@@ -1,0 +1,30 @@
+.custom-form-item {
+  display: flex;
+  margin: 0 8px 8px 0;
+  .ant-form-item-label {
+    width: 80px;
+    text-align: left;
+  }
+  .ant-form-item-control-wrapper {
+    width: calc(100% - 80px);
+  }
+  .ant-form-item-children {
+    /*width: 100%;*/
+  }
+
+  &.address {
+    .ant-form-item-children {
+      display: flex;
+      > * {
+        &:first-child {
+          width: 120px;
+          margin-right: 6px;
+        }
+
+        &:last-child {
+          flex: 1;
+        }
+      }
+    }
+  }
+}
