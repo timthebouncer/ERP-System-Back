@@ -9,12 +9,12 @@
                             <div class="firstPart">
                                 <div class="firstPart-item">
                                     <a-form-model-item class="custom-form-item" label="客戶編號">
-                                        <div style="width: 100px">{{123}}</div>
+                                        <div style="width: 100px">{{list.id}}</div>
                                     </a-form-model-item>
                                     <a-form-model-item class="custom-form-item" label="客戶類別">
-                                        <a-select  v-model="list.classes" placeholder="請選擇">
-                                            <a-select-option value="" v-for="item in classify">
-                                                {{item.id}}
+                                        <a-select  v-model="list.classes.id" placeholder="請選擇">
+                                            <a-select-option v-for="item in classify" :key="item.id">
+                                                {{item.className}}
                                             </a-select-option>
                                         </a-select>
                                     </a-form-model-item>
@@ -31,7 +31,7 @@
                                     </a-form-model-item>
                                 </div>
                                 <a-form-model-item class="custom-form-item address" label="地址">
-                                    <div>
+                                    <div style="width: 10%">
                                         <a-input v-model="list.postcode" placeholder="郵遞區號" />
                                     </div>
                                     <div>
@@ -42,34 +42,34 @@
 
                                 <a-form-model-item label="備註">
                                     <div>
-                                        <a-input placeholder="請輸入" />
+                                        <a-input v-model="list.reference" placeholder="請輸入" />
                                     </div>
                                 </a-form-model-item>
                             </div>
                             <div class="secondPart">
                                 <div class="secondPart-item">
                                     <a-form-model-item class="custom-form-item" label="公司名稱">
-                                        <a-input v-model="list.company" placeholder="請輸入" style="width: 300px" />
+                                        <a-input v-model="list.company" placeholder="請輸入" style="width: 200px" />
                                     </a-form-model-item>
 
                                     <a-form-model-item class="custom-form-item" label="統一編號">
-                                        <a-input v-model="list.vatNumber" placeholder="請輸入" />
+                                        <a-input v-model="list.vatNumber" placeholder="請輸入" style="width: 200px" />
                                     </a-form-model-item>
 
-                                    <a-form-model-item label="聯絡人">
-                                        <a-input v-model="list.contactPerson" placeholder="請輸入" />
+                                    <a-form-model-item class="custom-form-item" label="聯絡人">
+                                        <a-input v-model="list.contactPerson" placeholder="請輸入" style="width: 200px" />
                                     </a-form-model-item>
 
-                                    <a-form-model-item label="公司電話">
-                                        <a-input v-model="list.tel" placeholder="請輸入" />
+                                    <a-form-model-item class="custom-form-item" label="公司電話">
+                                        <a-input v-model="list.tel" placeholder="請輸入" style="width: 200px" />
                                     </a-form-model-item>
 
-                                    <a-form-model-item label="傳真">
-                                        <a-input v-model="list.fax" placeholder="請輸入" />
+                                    <a-form-model-item class="custom-form-item" label="傳真">
+                                        <a-input v-model="list.fax" placeholder="請輸入" style="width: 200px" />
                                     </a-form-model-item>
 
-                                    <a-form-model-item label="公司email">
-                                        <a-input v-model="list.companyEmail" placeholder="請輸入" />
+                                    <a-form-model-item class="custom-form-item" label="公司email">
+                                        <a-input v-model="list.companyEmail" placeholder="請輸入" style="width: 200px" />
                                     </a-form-model-item>
                                 </div>
                                 <a-form-model-item class="custom-form-item address" label="公司地址">
@@ -95,11 +95,16 @@
             </div>
 
             <div class="search">
+                <a-select default-value="lucy" style="width: 100px">
+                    <a-select-option value="">
+                        批發商
+                    </a-select-option>
+                </a-select>
                 <a-input-search v-model="search" placeholder="搜尋內容" enter-button @click="onSearch" />
             </div>
         </div>
         <div class="itemMenu">
-            <a-table :columns="columns" :data-source="tableData" bordered :pagination="false">
+            <a-table :columns="columns" :data-source="filterText" bordered :pagination="false" rowKey='id'>
                 <template
                         v-for="col in ['order','id','classify','name','cellPhone','company','vatNumber','contactPerson',
                         'tel']"
@@ -119,7 +124,7 @@
                     <a-button size="small" @click="editHandler(record)">編輯</a-button>
                     <a-popconfirm
                             title="確定要刪除嗎?"
-                            @confirm="() => onDelete(record.id)"
+                            @confirm="() => onDelete(record)"
                     >
                         <a-button size="small">刪除</a-button>
                     </a-popconfirm>
@@ -159,12 +164,14 @@
                 tableData: [],
                 classify: [],
                 list: {
-                    classes: '',
+                    id:'',
+                    classes:{'id':"",'className':""},
                     name: '',
                     cellphone: '',
                     email: '',
                     address: '',
                     postcode: '',
+                    reference:'',
                     company: '',
                     vatNumber: '',
                     contactPerson: '',
@@ -239,7 +246,7 @@
                         scopedSlots: { customRender: 'tel' },
                     },
                     {
-                        title: 'operation',
+                        title: '操作',
                         dataIndex: 'operation',
                         width:'10%',
                         align:"center",
@@ -258,9 +265,21 @@
             axios.get('/erp/client/classes')
                 .then((res) => {
                     this.classify = res.data
+                    console.log(this.classify)
                 }).catch((err) => {
                 console.log(err)
             })
+        },
+        computed:{
+            filterText(){
+                if(!this.search){
+                    return this.tableData
+                }else {
+                    return this.tableData.filter(item=>{
+                        return item.name.includes(this.search)
+                    })
+                }
+            }
         },
         methods:{
             getList() {
@@ -276,8 +295,7 @@
             handleOk() {
                 if (this.changeTitle === '新增客戶') {
                     axios.post('/erp/client/addClient', {
-                        id: "",
-                        classesId: this.list.classes,
+                        classesId: this.list.classes.id,
                         name: this.list.name,
                         cellphone: this.list.cellphone,
                         company: this.list.company,
@@ -285,7 +303,12 @@
                         contactPerson: this.list.contactPerson,
                         tel: this.list.tel,
                         address: this.list.address,
-                        fax: this.list.fax
+                        fax: this.list.fax,
+                        email:this.list.email,
+                        reference:this.list.reference,
+                        companyEmail:this.list.companyEmail,
+                        companyPostcode:this.list.companyPostcode,
+                        companyAddress:this.list.companyAddress
                     }).then(() => {
                         this.getList()
                     }).catch((err) => {
@@ -330,8 +353,9 @@
                     console.log(err)
                 })
             },
-            onDelete(){
-                axios.delete('/erp/client/removeClient/'+ id)
+            onDelete(record){
+                console.log(record.id)
+                axios.delete('/erp/client/removeClient/'+ record.id)
                     .then(()=>{
                         this.getList()
                     })
@@ -340,7 +364,9 @@
                 this.pageSize = pageSize;
             },
             onSearch(){
-
+                if(this.search){
+                    this.getList()
+                }
             }
         }
     }
@@ -380,11 +406,15 @@
     }
 
     /*.secondPart{*/
-    /*    margin-top: 10px;*/
+    /*    !*margin-top: 10px;*!*/
     /*    display: flex;*/
-    /*    flex-wrap: wrap;*/
-    /*    justify-content: space-between;*/
+    /*    !*flex-wrap: wrap;*!*/
+    /*    !*justify-content: space-between;*!*/
     /*}*/
+    .secondPart-item{
+        display: flex;
+        flex-wrap: wrap;
+    }
     .pagination{
         display: flex;
         justify-content: flex-end;
