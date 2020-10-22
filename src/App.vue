@@ -14,10 +14,18 @@
           <Header />
         </a-layout-header>
         <a-layout style="padding: 0 24px 24px">
-          <a-breadcrumb style="margin: 16px 0">
-            <a-breadcrumb-item>Home</a-breadcrumb-item>
-            <a-breadcrumb-item>List</a-breadcrumb-item>
-            <a-breadcrumb-item>App</a-breadcrumb-item>
+          <a-breadcrumb style="margin: 16px 0" :routes="breadcrumbList">
+            <template
+              slot="itemRender"
+              slot-scope="{ route, params, routes, paths }"
+            >
+              <span v-if="routes.indexOf(route) === routes.length - 1">
+               {{ route.name }}
+              </span>
+              <router-link v-else :to="paths.join('/')">
+                {{ route.name }}
+              </router-link>
+            </template>
           </a-breadcrumb>
           <a-layout-content
             :style="{
@@ -41,7 +49,28 @@ import Sidebar from "./components/Sidebar";
 export default {
   components: { Sidebar, Header },
   data() {
-    return {};
+    return {
+      breadcrumbList:[],
+      routes:[]
+    };
+  },
+  mounted() {
+    // this.routes = this.$router.options.routes;
+    // this.updateList();
+    console.log(this.$route);
+  },
+  watch:{
+    '$route'(){this.updateList()}
+  },
+  methods:{
+    routeTo(pRouteTo){
+      if(this.breadcrumbList[pRouteTo].link){
+        this.$router.push(this.breadcrumbList[pRouteTo].link);
+      }
+    },
+    updateList() {
+      this.breadcrumbList = this.$route.meta.breadcrumb;
+    }
   }
 };
 </script>

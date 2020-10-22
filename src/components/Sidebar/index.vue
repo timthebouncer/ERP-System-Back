@@ -7,13 +7,13 @@
         <a-menu-item key="1" @click="()=>{$router.push('Inventory')}">
           庫存資料
         </a-menu-item>
-        <a-menu-item key="2" @click="()=>{$router.push('Inventory')}">
+        <a-menu-item key="2" >
           進銷紀錄
         </a-menu-item>
       </a-sub-menu>
       <a-sub-menu key="sub2">
         <span slot="title"><a-icon type="appstore" /><span>客戶管理</span></span>
-        <a-menu-item key="3" @click="()=>{$router.push('Customer')}">
+        <a-menu-item key="3" >
           客戶類別
         </a-menu-item>
         <a-menu-item key="4" @click="()=>{$router.push('Customer')}">
