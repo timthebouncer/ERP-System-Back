@@ -4,65 +4,53 @@
     <div class="action">
       <div class="addM">
         <a-button class="button1" @click="showModal">新增+</a-button>
-        <a-modal v-model="visible" :title="changeTitle" width="1000px" @cancel="clearInput">
+        <a-modal
+          v-model="visible"
+          :title="changeTitle"
+          width="1000px"
+          @cancel="clearInput"
+        >
           <div class="modal-body">
-            <a-input-group size="default">
-              <a-row :gutter="20">
-                <div class="allPart">
-                  <div class="firstPart">
-                    <div>
-                      商品名稱
-                    </div>
-                    <a-col :span="6">
-                      <a-input v-model="list.name" placeholder="請輸入" />
-                    </a-col>
-                    <div>商品條碼</div>
-                    <a-col :span="6">
-                      <a-input v-model="list.barCode" placeholder="請輸入" />
-                    </a-col>
-                    <div>單位</div>
-                    <a-select
-                      v-model="list.unit"
-                      style="width: 15%"
-                      placeholder="請選擇"
-                    >
-                      <a-select-option value="斤">
-                        公斤
-                      </a-select-option>
-                      <a-select-option value="克">
-                        公克
-                      </a-select-option>
-                      <a-select-option value="件">
-                        件
-                      </a-select-option>
-                      <a-select-option value="台斤">
-                        台斤
-                      </a-select-option>
-                    </a-select>
-                  </div>
-                  <div class="secondPart">
-                    <div>售價</div>
-                    <a-col :span="4">
-                      <a-input v-model="list.prices" placeholder="請輸入" />
-                    </a-col>
-                    <div>建議售價</div>
-                    <a-col :span="4">
-                      <a-input v-model="list.sprices" placeholder="請輸入" />
-                    </a-col>
-                    <div>成本售價</div>
-                    <a-col :span="4">
-                      <a-input v-model="list.oprices" placeholder="請輸入" />
-                    </a-col>
-                  </div>
-                  <div class="thirdPart">
-                    <div>商品描述</div>
-                    <a-col :span="20">
-                      <a-input v-model="list.desc" style="height: 100px;" />
-                    </a-col>
-                  </div>
-                </div>
-              </a-row>
-            </a-input-group>
+            <a-form-model
+              :model="list"
+              layout="horizontal"
+              ref="ruleForm"
+              :rules="rules"
+            >
+              <a-form-model-item
+                class="custom-form-item"
+                label="商品名稱"
+                prop="name"
+              >
+                <a-input v-model="list.name" placeholder="請輸入" />
+              </a-form-model-item>
+
+              <a-form-model-item class="custom-form-item" label="商品條碼">
+                <a-input v-model="list.barCode" placeholder="請輸入" />
+              </a-form-model-item>
+
+              <a-select v-model="list.unit" placeholder="請選擇">
+                <a-select-option>
+                  公斤
+                </a-select-option>
+              </a-select>
+
+              <a-form-model-item class="custom-form-item" label="售價">
+                <a-input v-model="list.prices" placeholder="請輸入" />
+              </a-form-model-item>
+
+              <a-form-model-item class="custom-form-item" label="建議售價">
+                <a-input v-model="list.sprices" placeholder="請輸入" />
+              </a-form-model-item>
+
+              <a-form-model-item class="custom-form-item" label="成本售價">
+                <a-input v-model="list.oprices" placeholder="請輸入" />
+              </a-form-model-item>
+
+              <a-form-model-item class="custom-form-item" label="商品描述">
+                <a-input v-model="list.desc" placeholder="請輸入" />
+              </a-form-model-item>
+            </a-form-model>
           </div>
           <template slot="footer">
             <a-button
@@ -290,7 +278,7 @@ export default {
       this.changeTitle = "新增商品";
     },
     clearInput() {
-      this.list={
+      this.list = {
         name: "",
         unit: "",
         barCode: "",
@@ -298,7 +286,7 @@ export default {
         oprices: "",
         sprices: "",
         desc: ""
-      }
+      };
     },
     submitNonstop() {
       if (this.changeTitle === "新增商品") {
@@ -359,7 +347,7 @@ export default {
               this.tableData = res.data;
             });
           });
-        this.visible = false
+        this.visible = false;
         this.loading = false;
       }
     },

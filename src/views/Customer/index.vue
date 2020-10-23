@@ -21,14 +21,22 @@
                   <a-form-model-item class="custom-form-item" label="客戶編號">
                     <div style="width: 100px">{{ list.id }}</div>
                   </a-form-model-item>
-                  <a-form-model-item class="custom-form-item" label="客戶類別">
+                  <a-form-model-item
+                    class="custom-form-item"
+                    label="客戶類別"
+                    prop="classes"
+                  >
                     <a-select v-model="list.classes.id" placeholder="請選擇">
                       <a-select-option v-for="item in classify" :key="item.id">
                         {{ item.className }}
                       </a-select-option>
                     </a-select>
                   </a-form-model-item>
-                  <a-form-model-item class="custom-form-item" label="客戶姓名">
+                  <a-form-model-item
+                    class="custom-form-item"
+                    label="客戶姓名"
+                    prop="name"
+                  >
                     <a-input v-model="list.name" placeholder="請輸入" />
                   </a-form-model-item>
                 </div>
@@ -133,7 +141,7 @@
               key="submit"
               type="primary"
               :loading="loading"
-              @click="handleOk"
+              @click="handleOk()"
             >
               儲存
             </a-button>
@@ -219,13 +227,11 @@
 </template>
 
 <script>
-import axios from "axios";
+// import axios from "axios";
 export default {
   name: "Customer",
   data() {
     return {
-      lc: { span: 6 },
-      wc: { span: 18 },
       loading: false,
       visible: false,
       changeTitle: "",
@@ -323,8 +329,8 @@ export default {
         }
       ],
       rules: {
-        name: [{ required: true, message: "Please input", trigger: "blur" }],
-        classes: [{ required: true, message: "Please input", trigger: "blur" }]
+        classes: [{ required: true, message: "請選擇", trigger: "blur" }],
+        name: [{ required: true, message: "請輸入姓名", trigger: "blur" }]
       },
       pageSizeOptions: ["10", "20", "30"],
       current: 1,
@@ -333,20 +339,20 @@ export default {
     };
   },
   created() {
-    this.getList();
-
-      // axios.get('/erp/client/classes')
-      //     .then((res) => {
-      //         this.classify = res.data
-      //         console.log(this.classify)
-      //     }).catch((err) => {
-      //     console.log(err)
-      // })
-      this.$api.Customer.getClass().then((res) => {
-          this.classify = res.data
-          console.log(this.classify)
-      }).catch((err) => {
-          console.log(err)
+    this.getCustomerList();
+    // axios.get('/erp/client/classes')
+    //     .then((res) => {
+    //         this.classify = res.data
+    //         console.log(this.classify)
+    //     }).catch((err) => {
+    //     console.log(err)
+    // })
+    this.$api.Customer.getClass()
+      .then(res => {
+        this.classify = res.data;
+      })
+      .catch(err => {
+        console.log(err);
       });
   },
   computed: {
@@ -361,10 +367,14 @@ export default {
     }
   },
   methods: {
-    getList() {
-      axios.get("/erp/client/clients?searchKeyword=").then(res => {
-        this.tableData = res.data;
-      });
+    getCustomerList() {
+      this.$api.Customer.getList()
+        .then(res => {
+          this.tableData = res.data;
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
     showModal() {
       this.visible = true;
@@ -387,12 +397,13 @@ export default {
         companyPostcode: "",
         companyAddress: ""
       };
+      this.resetForm();
     },
     handleOk() {
       this.$refs.ruleForm.validate(valid => {
-        if (valid && this.changeTitle === "新增客戶") {
-          axios
-            .post("/erp/client/addClient", {
+        if (valid) {
+          if (this.changeTitle === "新增客戶") {
+            this.$api.Customer.add({
               classesId: this.list.classes.id,
               name: this.list.name,
               cellphone: this.list.cellphone,
@@ -408,16 +419,15 @@ export default {
               companyPostcode: this.list.companyPostcode,
               companyAddress: this.list.companyAddress
             })
-            .then(() => {
-              this.getList();
-            })
-            .catch(err => {
-              console.log(err);
-            });
-          this.visible = false;
-        } else {
-          axios
-            .put("/erp/client/updateClient", {
+              .then(() => {
+                this.getCustomerList();
+              })
+              .catch(err => {
+                console.log(err);
+              });
+            this.visible = false;
+          } else {
+            this.$api.Customer.update({
               id: this.track,
               classesId: this.list.classes.id,
               name: this.list.name,
@@ -434,13 +444,14 @@ export default {
               companyPostcode: this.list.companyPostcode,
               companyAddress: this.list.companyAddress
             })
-            .then(() => {
-              this.getList();
-            })
-            .catch(err => {
-              console.log(err);
-            });
-          this.visible = false;
+              .then(() => {
+                this.getCustomerList();
+              })
+              .catch(err => {
+                console.log(err);
+              });
+            this.visible = false;
+          }
         }
       });
     },
@@ -453,8 +464,7 @@ export default {
     editHandler(record) {
       this.track = record.id;
       this.changeTitle = "編輯客戶";
-      axios
-        .get("/erp/client/" + record.id)
+      this.$api.Customer.getSingleList(record)
         .then(res => {
           if (res.data !== "") {
             this.list = res.data;
@@ -468,9 +478,8 @@ export default {
         });
     },
     onDelete(record) {
-      console.log(record.id);
-      axios.delete("/erp/client/removeClient/" + record.id).then(() => {
-        this.getList();
+      this.$api.Customer.delete(record).then(() => {
+        this.getCustomerList();
       });
     },
     onShowSizeChange(current, pageSize) {
@@ -478,7 +487,7 @@ export default {
     },
     onSearch() {
       if (this.search) {
-        this.getList();
+        this.getCustomerList();
       }
     }
   }
