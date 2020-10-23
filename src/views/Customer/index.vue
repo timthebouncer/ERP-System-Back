@@ -10,7 +10,12 @@
           @cancel="clearInput"
         >
           <div class="modal-body">
-            <a-form-model :model="list" layout="horizontal">
+            <a-form-model
+              :model="list"
+              layout="horizontal"
+              ref="ruleForm"
+              :rules="rules"
+            >
               <div class="firstPart">
                 <div class="firstPart-item">
                   <a-form-model-item class="custom-form-item" label="客戶編號">
@@ -317,6 +322,10 @@ export default {
           scopedSlots: { customRender: "operation" }
         }
       ],
+      rules: {
+        name: [{ required: true, message: "Please input", trigger: "blur" }],
+        classes: [{ required: true, message: "Please input", trigger: "blur" }]
+      },
       pageSizeOptions: ["10", "20", "30"],
       current: 1,
       pageSize: 10,
@@ -376,58 +385,63 @@ export default {
       };
     },
     handleOk() {
-      if (this.changeTitle === "新增客戶") {
-        axios
-          .post("/erp/client/addClient", {
-            classesId: this.list.classes.id,
-            name: this.list.name,
-            cellphone: this.list.cellphone,
-            company: this.list.company,
-            vatNumber: this.list.vatNumber,
-            contactPerson: this.list.contactPerson,
-            tel: this.list.tel,
-            address: this.list.address,
-            fax: this.list.fax,
-            email: this.list.email,
-            reference: this.list.reference,
-            companyEmail: this.list.companyEmail,
-            companyPostcode: this.list.companyPostcode,
-            companyAddress: this.list.companyAddress
-          })
-          .then(() => {
-            this.getList();
-          })
-          .catch(err => {
-            console.log(err);
-          });
-        this.visible = false;
-      } else {
-        axios
-          .put("/erp/client/updateClient", {
-            id: this.track,
-            classesId: this.list.classes.id,
-            name: this.list.name,
-            cellphone: this.list.cellphone,
-            company: this.list.company,
-            vatNumber: this.list.vatNumber,
-            contactPerson: this.list.contactPerson,
-            tel: this.list.tel,
-            address: this.list.address,
-            fax: this.list.fax,
-            email: this.list.email,
-            reference: this.list.reference,
-            companyEmail: this.list.companyEmail,
-            companyPostcode: this.list.companyPostcode,
-            companyAddress: this.list.companyAddress
-          })
-          .then(() => {
-            this.getList();
-          })
-          .catch(err => {
-            console.log(err);
-          });
-        this.visible = false;
-      }
+      this.$refs.ruleForm.validate(valid => {
+        if (valid && this.changeTitle === "新增客戶") {
+          axios
+            .post("/erp/client/addClient", {
+              classesId: this.list.classes.id,
+              name: this.list.name,
+              cellphone: this.list.cellphone,
+              company: this.list.company,
+              vatNumber: this.list.vatNumber,
+              contactPerson: this.list.contactPerson,
+              tel: this.list.tel,
+              address: this.list.address,
+              fax: this.list.fax,
+              email: this.list.email,
+              reference: this.list.reference,
+              companyEmail: this.list.companyEmail,
+              companyPostcode: this.list.companyPostcode,
+              companyAddress: this.list.companyAddress
+            })
+            .then(() => {
+              this.getList();
+            })
+            .catch(err => {
+              console.log(err);
+            });
+          this.visible = false;
+        } else {
+          axios
+            .put("/erp/client/updateClient", {
+              id: this.track,
+              classesId: this.list.classes.id,
+              name: this.list.name,
+              cellphone: this.list.cellphone,
+              company: this.list.company,
+              vatNumber: this.list.vatNumber,
+              contactPerson: this.list.contactPerson,
+              tel: this.list.tel,
+              address: this.list.address,
+              fax: this.list.fax,
+              email: this.list.email,
+              reference: this.list.reference,
+              companyEmail: this.list.companyEmail,
+              companyPostcode: this.list.companyPostcode,
+              companyAddress: this.list.companyAddress
+            })
+            .then(() => {
+              this.getList();
+            })
+            .catch(err => {
+              console.log(err);
+            });
+          this.visible = false;
+        }
+      });
+    },
+    resetForm() {
+      this.$refs.ruleForm.resetFields();
     },
     handleCancel() {
       this.visible = false;
