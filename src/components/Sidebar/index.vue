@@ -13,7 +13,7 @@
       </a-sub-menu>
       <a-sub-menu key="sub2">
         <span slot="title"><a-icon type="appstore" /><span>客戶管理</span></span>
-        <a-menu-item key="3" >
+        <a-menu-item key="3" @click="()=>{$router.push('Classify')}">
           客戶類別
         </a-menu-item>
         <a-menu-item key="4" @click="()=>{$router.push('Customer')}">

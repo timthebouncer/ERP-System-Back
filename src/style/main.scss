@@ -28,3 +28,20 @@
     }
   }
 }
+.button1 {
+  background-color: #1ebf1e;
+  color: #fcfcfc;
+  font-weight: bold;
+  font-size: large;
+}
+.action {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+.search-wrapper{
+  display: flex;
+  .search-select{
+   margin-right: 5px;
+  }
+}

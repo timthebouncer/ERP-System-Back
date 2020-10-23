@@ -46,7 +46,19 @@ const routes = [
         },
         {
           name: "客戶資料"
-        }
+        },
+      ]
+    }
+  },
+  {
+    path: "/Classify",
+    name: "Classify",
+    component: () => import( "../views/Customer/Classify.vue"),
+    meta: {
+      breadcrumb: [
+        {
+          name: "客戶類別"
+        },
       ]
     }
   },
