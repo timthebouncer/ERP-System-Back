@@ -50,6 +50,18 @@ const routes = [
         }
       },
       {
+        path: "/Classify",
+        name: "Classify",
+        component: () => import( "../views/Customer/Classify.vue"),
+        meta: {
+          breadcrumb: [
+            {
+              name: "客戶類別"
+            },
+          ]
+        }
+      },
+      {
         path: "/Commodity",
         name: "Commodity",
         component: () => import("../views/Commodity"),
