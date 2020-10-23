@@ -262,11 +262,17 @@
         created() {
             this.getList()
 
-            axios.get('/erp/client/classes')
-                .then((res) => {
-                    this.classify = res.data
-                    console.log(this.classify)
-                }).catch((err) => {
+            // axios.get('/erp/client/classes')
+            //     .then((res) => {
+            //         this.classify = res.data
+            //         console.log(this.classify)
+            //     }).catch((err) => {
+            //     console.log(err)
+            // })
+            this.$api.Customer.getClass().then((res) => {
+                this.classify = res.data
+                console.log(this.classify)
+            }).catch((err) => {
                 console.log(err)
             })
         },
