@@ -4,10 +4,13 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import 'ant-design-vue/dist/antd.css'
+import api from "./api/apis";
 import './style/main.scss'
 
 Vue.config.productionTip = false;
 Vue.use(Antd)
+Vue.prototype.$api = api;
+
 new Vue({
   router,
   store,
