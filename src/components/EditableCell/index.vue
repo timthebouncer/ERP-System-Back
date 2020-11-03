@@ -7,7 +7,7 @@
               :id="'input'+ inputId"
         @change="handleChange"
         @pressEnter="check"
-              @focusout="editable=false"
+              @focusout="cancel"
       />
 <!--      <a-icon type="check" class="editable-cell-icon-check" @click="check" />-->
     </div>
@@ -28,6 +28,7 @@ export default {
   data() {
     return {
       value: this.text,
+      lastValue: "",
       inputId: this.id,
       editable: false,
       inputRef:'input'+this.id,
@@ -43,23 +44,20 @@ export default {
       this.editable = false;
       this.$emit("change", this.value);
     },
+    cancel() {
+      this.value = this.lastValue;
+      this.editable = false;
+    },
     edit() {
+      console.log(this.value);
+      this.lastValue = this.value;
       this.editable = true;
-      // console.log(this);
-      console.log(this.$refs);
       this.$nextTick(() =>{
-        console.log(this.$refs[this.inputRef].focus());
         this.$refs[this.inputRef].focus();
       });
-      // this.$refs[this.inputRef].autoFocus=true;
-      // this.$refs[0].autoFocus = true;
-      // if(this.$refs[0]==this.inputId){
-      //   console.log(this.$refs[0]);
-      // }
     }
   },
   created() {
-    // this.inputId = 'input' + this.inputId;
   }
 };
 </script>
