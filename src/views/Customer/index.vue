@@ -2,7 +2,9 @@
   <div class="container">
     <div class="action">
       <div class="addM">
-        <a-button class="button1" @click="showModal">新增+</a-button>
+        <a-button class="button1" @click="showModal"
+          >新增<a-icon type="plus"
+        /></a-button>
         <a-modal
           v-model="visible"
           :title="changeTitle"
@@ -19,7 +21,7 @@
               <div class="firstPart">
                 <div class="firstPart-item">
                   <a-form-model-item class="custom-form-item" label="客戶編號">
-                    <div style="width: 100px">{{ list.id }}</div>
+                    <div>{{ list.id }}</div>
                   </a-form-model-item>
                   <a-form-model-item
                     class="custom-form-item"
@@ -60,79 +62,181 @@
                   </div>
                 </a-form-model-item>
 
-                <a-form-model-item label="備註">
+                <a-form-model-item
+                  class="custom-form-item address"
+                  label="備註"
+                >
                   <div>
                     <a-input v-model="list.reference" placeholder="請輸入" />
                   </div>
                 </a-form-model-item>
               </div>
-              <div class="secondPart">
-                <div class="secondPart-item">
-                  <a-form-model-item class="custom-form-item" label="公司名稱">
-                    <a-input
-                      v-model="list.company"
-                      placeholder="請輸入"
-                      style="width: 200px"
-                    />
-                  </a-form-model-item>
+              <a-collapse
+                class="collapse"
+                default-active-key="1"
+                :bordered="false"
+              >
+                <a-collapse-panel key="1" header="進階">
+                  <div class="secondPart">
+                    <div class="secondPart-item">
+                      <a-form-model-item
+                        class="custom-form-item"
+                        label="公司名稱"
+                      >
+                        <a-input
+                          v-model="list.company"
+                          placeholder="請輸入"
+                          style="width: 200px"
+                        />
+                      </a-form-model-item>
 
-                  <a-form-model-item class="custom-form-item" label="統一編號">
-                    <a-input
-                      v-model="list.vatNumber"
-                      placeholder="請輸入"
-                      style="width: 200px"
-                    />
-                  </a-form-model-item>
+                      <a-form-model-item
+                        class="custom-form-item"
+                        label="統一編號"
+                      >
+                        <a-input
+                          v-model="list.vatNumber"
+                          placeholder="請輸入"
+                          style="width: 200px"
+                        />
+                      </a-form-model-item>
 
-                  <a-form-model-item class="custom-form-item" label="聯絡人">
-                    <a-input
-                      v-model="list.contactPerson"
-                      placeholder="請輸入"
-                      style="width: 200px"
-                    />
-                  </a-form-model-item>
+                      <a-form-model-item
+                        class="custom-form-item"
+                        label="聯絡人"
+                      >
+                        <a-input
+                          v-model="list.contactPerson"
+                          placeholder="請輸入"
+                          style="width: 200px"
+                        />
+                      </a-form-model-item>
 
-                  <a-form-model-item class="custom-form-item" label="公司電話">
-                    <a-input
-                      v-model="list.tel"
-                      placeholder="請輸入"
-                      style="width: 200px"
-                    />
-                  </a-form-model-item>
+                      <a-form-model-item
+                        class="custom-form-item"
+                        label="公司電話"
+                      >
+                        <a-input
+                          v-model="list.tel"
+                          placeholder="請輸入"
+                          style="width: 200px"
+                        />
+                      </a-form-model-item>
 
-                  <a-form-model-item class="custom-form-item" label="傳真">
-                    <a-input
-                      v-model="list.fax"
-                      placeholder="請輸入"
-                      style="width: 200px"
-                    />
-                  </a-form-model-item>
+                      <a-form-model-item class="custom-form-item" label="傳真">
+                        <a-input
+                          v-model="list.fax"
+                          placeholder="請輸入"
+                          style="width: 200px"
+                        />
+                      </a-form-model-item>
 
-                  <a-form-model-item class="custom-form-item" label="公司email">
-                    <a-input
-                      v-model="list.companyEmail"
-                      placeholder="請輸入"
-                      style="width: 200px"
-                    />
-                  </a-form-model-item>
-                </div>
-                <a-form-model-item
-                  class="custom-form-item address"
-                  label="公司地址"
-                >
-                  <div style="width: 10%">
-                    <a-input
-                      v-model="list.companyPostcode"
-                      placeholder="郵遞區號"
-                    />
+                      <a-form-model-item
+                        class="custom-form-item"
+                        label="公司email"
+                      >
+                        <a-input
+                          v-model="list.companyEmail"
+                          placeholder="請輸入"
+                          style="width: 200px"
+                        />
+                      </a-form-model-item>
+                    </div>
+                    <a-form-model-item
+                      class="custom-form-item address"
+                      label="公司地址"
+                    >
+                      <div style="width: 10%">
+                        <a-input
+                          v-model="list.companyPostcode"
+                          placeholder="郵遞區號"
+                        />
+                      </div>
+                      <div>
+                        <a-input
+                          v-model="list.companyAddress"
+                          placeholder="請輸入"
+                        />
+                      </div>
+                    </a-form-model-item>
                   </div>
+                </a-collapse-panel>
+              </a-collapse>
+              <div class="third-part">
+                <div class="third-part-item">
                   <div>
-                    <a-input
-                      v-model="list.companyAddress"
-                      placeholder="請輸入"
-                    />
+                    商品折扣
+                    <a-button
+                      type="primary"
+                      size="small"
+                      class="editable-add-btn"
+                      @click="handleAdd"
+                    >
+                      <a-icon type="plus" />
+                    </a-button>
+                    <a-table
+                      bordered
+                      :data-source="discountTable"
+                      :columns="columns2"
+                      rowKey="productId"
+                    >
+                      <template
+                        v-for="col in [
+                          'order',
+                          'name',
+                          'unit',
+                          'salesPrice',
+                          'discountPrice',
+                          'remark',
+                          'operation'
+                        ]"
+                        :slot="col"
+                        slot-scope="text, record, index"
+                      >
+                        <div :key="col">
+                          <template v-if="col === 'order'">
+                            {{ index + 1 }}
+                          </template>
+                          <template v-else-if="col === 'name'">
+                            <a-select v-model="record[col]" placeholder="請選擇" @change="pushValue($event, record)">
+                              <a-select-option v-for="item in discountClass" :key="item.id">
+                                {{ item.name }}
+                              </a-select-option>
+                            </a-select>
+                          </template>
+                          <template v-else-if="col === 'discountPrice'||col === 'remark'">
+                            <span @click="helloWorld" v-if="switches">
+                              <input
+                                  v-model="record[col]"
+                                  placeholder="請輸入"
+                                  @blur="addNewItem"
+                                  @keyup.enter="addNewItem"
+                              />
+                              </span>
+                            <span v-else>
+                               {{text}}
+                            </span>
+                          </template>
+                          <template v-else>
+                            {{ text }}
+                          </template>
+                        </div>
+                      </template>
+                      <template
+                        slot="operation"
+                        slot-scope="text, record, index"
+                      >
+                        <a-popconfirm
+                          v-if="discountTable.length"
+                          title="Sure to delete?"
+                          @confirm="() => deleteDiscount(index)"
+                        >
+                          <a href="javascript:;">刪除</a>
+                        </a-popconfirm>
+                      </template>
+                    </a-table>
                   </div>
-                </a-form-model-item>
+                </div>
               </div>
             </a-form-model>
           </div>
@@ -153,9 +257,9 @@
       </div>
 
       <div class="search-wrapper">
-        <a-select class="search-select" style="width: 100px">
-          <a-select-option value="">
-            批發商
+        <a-select class="search-select" v-model="match.id" style="width: 100px">
+          <a-select-option v-for="item in classify" :key="item.id">
+            {{ item.className }}
           </a-select-option>
         </a-select>
         <div class="search-input">
@@ -174,15 +278,15 @@
         :data-source="filterText"
         bordered
         :pagination="false"
-        rowKey="id"
+        rowKey="list.classes.id"
       >
         <template
           v-for="col in [
             'order',
-            'id',
-            'classify',
+            'classes.id',
+            'classes.className',
             'name',
-            'cellPhone',
+            'cellphone',
             'company',
             'vatNumber',
             'contactPerson',
@@ -201,17 +305,24 @@
           </div>
         </template>
         <template slot="operation" slot-scope="text, record">
-          <a-button size="small" @click="editHandler(record)">編輯</a-button>
-          <a-popconfirm title="確定要刪除嗎?" @confirm="() => onDelete(record)">
-            <a-button size="small">刪除</a-button>
-          </a-popconfirm>
+          <a-space>
+            <a-button type="link" size="small" @click="editHandler(record)"
+              >編輯</a-button
+            >
+            <a-popconfirm
+              title="客戶資料刪除後，所有資料將清空無法還原"
+              @confirm="() => onDelete(record)"
+            >
+              <a-button type="link" size="small">刪除</a-button>
+            </a-popconfirm>
+          </a-space>
         </template>
       </a-table>
     </div>
     <!--分頁-->
     <a-pagination
       class="pagination"
-      v-model="current"
+      v-model="pageNumber"
       :page-size-options="pageSizeOptions"
       :total="total"
       show-size-changer
@@ -227,7 +338,7 @@
 </template>
 
 <script>
-// import axios from "axios";
+import axios from "axios";
 export default {
   name: "Customer",
   data() {
@@ -239,7 +350,6 @@ export default {
       tableData: [],
       classify: [],
       list: {
-        id: "",
         classes: { id: "", className: "" },
         name: "",
         cellphone: "",
@@ -256,6 +366,7 @@ export default {
         companyPostcode: "",
         companyAddress: ""
       },
+      discountClass:[],
       columns: [
         {
           title: "序",
@@ -266,31 +377,31 @@ export default {
         },
         {
           title: "客戶編號",
-          dataIndex: "id",
+          dataIndex: "classes.id",
           width: "10%",
           align: "center",
-          scopedSlots: { customRender: "id" }
+          scopedSlots: { customRender: "classes.id" }
         },
         {
           title: "客戶類別",
-          dataIndex: "classify",
-          width: "15%",
+          dataIndex: "classes.className",
+          width: "5%",
           align: "center",
-          scopedSlots: { customRender: "classify" }
+          scopedSlots: { customRender: "classes.className" }
         },
         {
           title: "客戶姓名",
           dataIndex: "name",
-          width: "15%",
+          width: "10%",
           align: "center",
           scopedSlots: { customRender: "name" }
         },
         {
           title: "電話",
-          dataIndex: "cellPhone",
-          width: "5%",
+          dataIndex: "cellphone",
+          width: "10%",
           align: "center",
-          scopedSlots: { customRender: "cellPhone" }
+          scopedSlots: { customRender: "cellphone" }
         },
         {
           title: "公司名稱",
@@ -302,7 +413,7 @@ export default {
         {
           title: "統一編號",
           dataIndex: "vatNumber",
-          width: "10%",
+          width: "7%",
           align: "center",
           scopedSlots: { customRender: "vatNumber" }
         },
@@ -316,14 +427,14 @@ export default {
         {
           title: "公司電話",
           dataIndex: "tel",
-          width: "5%",
+          width: "6%",
           align: "center",
           scopedSlots: { customRender: "tel" }
         },
         {
           title: "操作",
           dataIndex: "operation",
-          width: "10%",
+          width: "7%",
           align: "center",
           scopedSlots: { customRender: "operation" }
         }
@@ -332,21 +443,68 @@ export default {
         classes: [{ required: true, message: "請選擇", trigger: "blur" }],
         name: [{ required: true, message: "請輸入姓名", trigger: "blur" }]
       },
+      discountTable: [],
+      columns2: [
+        {
+          title: "序",
+          dataIndex: "order",
+          width: "2%",
+          align: "center",
+          scopedSlots: { customRender: "order" }
+        },
+        {
+          title: "商品名稱",
+          dataIndex: "name",
+          width: "10%",
+          align: "center",
+          scopedSlots: { customRender: "name" }
+        },
+        {
+          title: "單位",
+          dataIndex: "unit",
+          width: "2%",
+          align: "center",
+          scopedSlots: { customRender: "unit" }
+        },
+        {
+          title: "售價",
+          dataIndex: "salesPrice",
+          width: "5%",
+          align: "center",
+          scopedSlots: { customRender: "salesPrice" }
+        },
+        {
+          title: "價格",
+          dataIndex: "discountPrice",
+          width: "2%",
+          align: "center",
+          scopedSlots: { customRender: "discountPrice" }
+        },
+        {
+          title: "備註",
+          dataIndex: "remark",
+          width: "10%",
+          align: "center",
+          scopedSlots: { customRender: "remark" }
+        },
+        {
+          title: "操作",
+          dataIndex: "operation",
+          width: "2%",
+          align: "center",
+          scopedSlots: { customRender: "operation" }
+        }
+      ],
       pageSizeOptions: ["10", "20", "30"],
-      current: 1,
+      pageNumber: 0,
       pageSize: 10,
-      total: 30
+      total: 30,
+      match: { id: "", name: "" },
+      switches: true
     };
   },
   created() {
     this.getCustomerList();
-    // axios.get('/erp/client/classes')
-    //     .then((res) => {
-    //         this.classify = res.data
-    //         console.log(this.classify)
-    //     }).catch((err) => {
-    //     console.log(err)
-    // })
     this.$api.Customer.getClass()
       .then(res => {
         this.classify = res.data;
@@ -354,10 +512,15 @@ export default {
       .catch(err => {
         console.log(err);
       });
+    axios.get("/erp/product/productList?productName=&pageNumber=1&pageSize=2")
+    .then(res => {
+      // this.discountTable = res.data;
+      this.discountClass = res.data
+    });
   },
   computed: {
     filterText() {
-      if (!this.search) {
+      if (!this.match.id) {
         return this.tableData;
       } else {
         return this.tableData.filter(item => {
@@ -367,8 +530,23 @@ export default {
     }
   },
   methods: {
+    helloWorld() {
+      if(this.switches === false)
+      this.switches = true;
+    },
+    addNewItem() {
+      if(this.switches === true){
+        this.switches = false
+      }else{
+        this.switches = true
+      }
+    },
     getCustomerList() {
-      this.$api.Customer.getList()
+      this.$api.Customer.getList({
+        searchKeyword: this.search,
+        pageNumber: this.pageNumber,
+        pageSize: this.pageSize
+      })
         .then(res => {
           this.tableData = res.data;
         })
@@ -382,7 +560,7 @@ export default {
     },
     clearInput() {
       this.list = {
-        classes: "",
+        classes: {},
         name: "",
         cellphone: "",
         company: "",
@@ -397,6 +575,7 @@ export default {
         companyPostcode: "",
         companyAddress: ""
       };
+      this.discountTable = [];
       this.resetForm();
     },
     handleOk() {
@@ -404,20 +583,22 @@ export default {
         if (valid) {
           if (this.changeTitle === "新增客戶") {
             this.$api.Customer.add({
-              classesId: this.list.classes.id,
+              // ...this.list,
+              // classesId: this.list.classes.id,
+              // className: this.list.classes.className,
+              // discountList: this.discountTable
               name: this.list.name,
-              cellphone: this.list.cellphone,
-              company: this.list.company,
+              classesId: this.list.classes.id,
               vatNumber: this.list.vatNumber,
+              company: this.list.company,
               contactPerson: this.list.contactPerson,
               tel: this.list.tel,
               address: this.list.address,
+              cellphone: this.list.cellphone,
               fax: this.list.fax,
-              email: this.list.email,
-              reference: this.list.reference,
-              companyEmail: this.list.companyEmail,
-              companyPostcode: this.list.companyPostcode,
-              companyAddress: this.list.companyAddress
+              discountList: this.discountClass.map(item=>{
+                return {productId: item.id, discountPrice: item.discountPrice, remark: item.remark}
+              })
             })
               .then(() => {
                 this.getCustomerList();
@@ -430,6 +611,7 @@ export default {
             this.$api.Customer.update({
               id: this.track,
               classesId: this.list.classes.id,
+              // className: this.list.classes.className,
               name: this.list.name,
               cellphone: this.list.cellphone,
               company: this.list.company,
@@ -442,7 +624,10 @@ export default {
               reference: this.list.reference,
               companyEmail: this.list.companyEmail,
               companyPostcode: this.list.companyPostcode,
-              companyAddress: this.list.companyAddress
+              companyAddress: this.list.companyAddress,
+              discountList: this.discountClass.map(item=>{
+                return {productId: item.id, discountPrice: item.discountPrice, remark: item.remark}
+              })
             })
               .then(() => {
                 this.getCustomerList();
@@ -460,12 +645,14 @@ export default {
     },
     handleCancel() {
       this.visible = false;
+      this.clearInput();
     },
     editHandler(record) {
       this.track = record.id;
       this.changeTitle = "編輯客戶";
       this.$api.Customer.getSingleList(record)
         .then(res => {
+          console.log(res);
           if (res.data !== "") {
             this.list = res.data;
             this.visible = true;
@@ -478,60 +665,120 @@ export default {
         });
     },
     onDelete(record) {
+      console.log(record)
       this.$api.Customer.delete(record).then(() => {
         this.getCustomerList();
       });
     },
-    onShowSizeChange(current, pageSize) {
+    onShowSizeChange(pageNumber, pageSize) {
       this.pageSize = pageSize;
     },
     onSearch() {
       if (this.search) {
         this.getCustomerList();
       }
+    },
+    deleteDiscount(index) {
+      const discountTable = [...this.discountTable];
+      discountTable.splice(index, 1);
+      this.discountTable = discountTable;
+    },
+    handleAdd() {
+      const { discountTable } = this;
+      const newData = {
+        id: 0,
+        name: '',
+        unit: '',
+        salesPrice: 0,
+        discountPrice: 0,
+        remark: '',
+      };
+      this.discountTable = [...discountTable, newData];
+    },
+    pushValue(id, record){
+      const item = this.discountClass.find(item => item.id === id)
+      record.id = item.id
+      record.salesPrice = item.salesPrice
+      record.unit = item.unit
     }
   }
 };
 </script>
 
 <style scoped lang="scss">
+/*::v-deep .ant-layout{*/
+/*  height: 0%;*/
+/*}*/
 .firstPart {
+  background-color: #f5e9e9;
+  padding: 30px 20px 30px 20px;
 }
 .firstPart-item {
   display: flex;
-  justify-content: flex-start;
 }
 .firstPart-item > div {
   flex: 1;
 }
-.firstPart-item > .aaa {
-  display: flex;
-  line-height: 2;
-  font-size: medium;
-  flex: initial;
+.secondPart {
+  margin-top: 20px;
+  padding: 30px 20px 30px 20px;
+  background-color: #f5e9e9;
 }
-
-/*.secondPart{*/
-/*    !*margin-top: 10px;*!*/
-/*    display: flex;*/
-/*    !*flex-wrap: wrap;*!*/
-/*    !*justify-content: space-between;*!*/
-/*}*/
 .secondPart-item {
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
+}
+.third-part {
+  padding: 20px 20px 20px 20px;
+  /*background-color: #f5e9e9;*/
+  .editable-add-btn {
+    margin-bottom: 15px;
+    .discount {
+      display: flex;
+      align-items: center;
+    }
+    .discount > button {
+      margin-left: 5px;
+      float: left;
+    }
+    .discount-menu {
+      margin-top: 5px;
+      flex-direction: column;
+    }
+  }
 }
 .pagination {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
 }
+::v-deep .ant-collapse > .ant-collapse-item > .ant-collapse-header {
+  margin-bottom: -20px;
+}
+::v-deep .ant-collapse-content > .ant-collapse-content-box {
+  padding: 0px;
+}
+::v-deep .ant-collapse-borderless > .ant-collapse-item {
+  border-bottom: none;
+}
+::v-deep .ant-collapse > .ant-collapse-item {
+  border-bottom: none;
+}
 
-.address::v-deep .ant-form-item {
-  /*display: none;*/
+.editable-cell-text-wrapper {
+  padding: 5px 24px 5px 5px;
 }
-.address::v-deep .ant-form-item .ant-form-item-label {
+.editable-cell-icon-check {
+  line-height: 28px;
 }
-.address::v-deep .ant-form-item .ant-form-item-control {
+
+.editable-cell:hover .editable-cell-icon {
+  display: inline-block;
+}
+
+.editable-cell-icon:hover,
+.editable-cell-icon-check:hover {
+  color: #108ee9;
 }
 </style>

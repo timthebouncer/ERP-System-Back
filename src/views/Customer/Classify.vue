@@ -2,11 +2,16 @@
   <div class="container">
     <div class="action">
       <div class="action-add">
-        <a-button class="button1" @click="showModal">新增+</a-button>
+        <a-button class="button1" @click="showModal">新增<a-icon type="plus" /></a-button>
       </div>
-      <a-modal v-model="visible" width="500px" title="新增類別">
+      <a-modal v-model="visible" width="500px" :title="changeTitle">
         <div class="class-input">
-          <a-input addonBefore="類別名稱" placeholder="請輸入" />
+          <label>類別名稱:</label>
+          <a-input
+            v-model="list.className"
+            label="類別名稱"
+            placeholder="請輸入"
+          />
         </div>
         <template slot="footer">
           <a-button
@@ -40,13 +45,14 @@
         :data-source="tableData"
         bordered
         :pagination="false"
+        rowKey="id"
       >
         <template
           v-for="col in [
             'order',
             'className',
-            'customerTotal',
-            'createdTime',
+            'clientCount',
+            'updateDate',
             'operation'
           ]"
           :slot="col"
@@ -62,13 +68,17 @@
           </div>
         </template>
         <template slot="operation" slot-scope="text, record">
-          <a-button size="small" @click="editHandler(record)">編輯</a-button>
-          <a-popconfirm
-            title="確定要刪除嗎?"
-            @confirm="() => onDelete(record.id)"
-          >
-            <a-button size="small">刪除</a-button>
-          </a-popconfirm>
+          <a-space>
+            <a-button type="link" size="small" @click="editHandler(record)"
+              >編輯</a-button
+            >
+            <a-popconfirm
+              title="確定要刪除嗎?"
+              @confirm="() => onDelete(record.id)"
+            >
+              <a-button type="link" size="small">刪除</a-button>
+            </a-popconfirm>
+          </a-space>
         </template>
       </a-table>
     </div>
@@ -76,13 +86,18 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "Classify",
   data() {
     return {
       loading: false,
       visible: false,
+      search: "",
+      track: "",
       tableData: [],
+      changeTitle: "",
+      list: { id: "", className: "" },
       columns: [
         {
           title: " ",
@@ -100,17 +115,17 @@ export default {
         },
         {
           title: "客戶數量",
-          dataIndex: "customerTotal",
+          dataIndex: "clientCount",
           width: "15%",
           align: "center",
-          scopedSlots: { customRender: "customerTotal" }
+          scopedSlots: { customRender: "clientCount" }
         },
         {
           title: "最後更新時間",
-          dataIndex: "createdTime",
+          dataIndex: "updateDate",
           width: "10%",
           align: "center",
-          scopedSlots: { customRender: "createdTime" }
+          scopedSlots: { customRender: "updateDate" }
         },
         {
           title: "操作",
@@ -122,21 +137,73 @@ export default {
       ]
     };
   },
+  created() {
+    this.getClassifyList();
+  },
   methods: {
     showModal() {
+      this.changeTitle = "新增類別";
       this.visible = true;
     },
-    handleOk() {},
+    handleOk() {
+      if (this.changeTitle === "新增類別") {
+        axios
+          .post("/erp/class/addClass", { name: this.list.className })
+          .then(() => {
+            this.getClassifyList();
+          });
+        this.visible = false;
+      } else {
+        axios
+          .put("/erp/class/updateClass/", {
+            classId: this.track,
+            className: this.list.className
+          })
+          .then(() => {
+            this.getClassifyList();
+          });
+        this.visible = false;
+      }
+    },
     handleCancel() {
       this.visible = false;
     },
     onSearch() {},
-    editHandler() {},
-    onDelete() {}
+    editHandler(record) {
+      this.track = record.id;
+      this.changeTitle = "編輯類別";
+      if (record !== "") {
+        console.log(record);
+        this.list.className = record.className;
+        this.visible = true;
+      }
+    },
+    onDelete(id) {
+      axios.delete("/erp/class/deleteClass/" + id).then(() => {
+        this.getClassifyList();
+      });
+    },
+    getClassifyList() {
+      axios.get("/erp/class/classList").then(res => {
+        this.tableData = res.data;
+      });
+    }
   }
 };
 </script>
 
 <style scoped lang="scss">
-
+.class-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 50px;
+  width: 350px;
+}
+.class-input > label{
+  width: 80px
+}
+.class-input > input {
+  margin-left: 5px;
+}
 </style>
