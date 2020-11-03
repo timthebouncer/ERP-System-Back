@@ -6,10 +6,10 @@
       <a-sub-menu key="sub1">
         <span slot="title"><a-icon type="profile" /><span>庫存管理</span></span>
         <a-menu-item key="1" @click="()=>{$router.push('Inventory').catch(()=>{})}">
-          庫存資料
+          庫存清單
         </a-menu-item>
-        <a-menu-item key="2" >
-          進銷紀錄
+        <a-menu-item key="2" @click="()=>{$router.push('InventoryLog').catch(()=>{})}">
+          庫存異動紀錄
         </a-menu-item>
       </a-sub-menu>
       <a-sub-menu key="sub2">

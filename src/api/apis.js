@@ -21,6 +21,11 @@ const api = {
     delete(record) {
       return request.delete('/client/removeClient/' + record.id)
     }
+  },
+  Inventory: {
+    getList(productName,pageNumber,pageSize) {
+      return request.get("/inventory/stockList?productName="+productName+"&pageNumber="+pageNumber+"&pageSize="+pageSize);
+    }
   }
 };
 
