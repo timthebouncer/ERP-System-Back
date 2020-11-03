@@ -3,7 +3,7 @@
   <div class="container">
     <div class="action">
       <div class="addM">
-        <a-button class="button1" @click="showModal">新增+</a-button>
+        <a-button class="button1" @click="showModal">新增<a-icon type="plus" /></a-button>
         <a-modal
           v-model="visible"
           :title="changeTitle"
@@ -11,45 +11,66 @@
           @cancel="clearInput"
         >
           <div class="modal-body">
-            <a-form-model
-              :model="list"
-              layout="horizontal"
-              ref="ruleForm"
-              :rules="rules"
-            >
-              <a-form-model-item
-                class="custom-form-item"
-                label="商品名稱"
-                prop="name"
-              >
-                <a-input v-model="list.name" placeholder="請輸入" />
-              </a-form-model-item>
+            <a-form-model :model="list" ref="ruleForm" :rules="rules">
+              <div class="firstPart">
+                <div class="firstPart-item">
+                  <a-form-model-item
+                    class="custom-form-item"
+                    label="商品名稱"
+                    prop="name"
+                  >
+                    <a-input v-model="list.name" placeholder="請輸入" />
+                  </a-form-model-item>
 
-              <a-form-model-item class="custom-form-item" label="商品條碼">
-                <a-input v-model="list.barCode" placeholder="請輸入" />
-              </a-form-model-item>
+                  <a-form-model-item class="custom-form-item" label="商品條碼">
+                    <a-input v-model="list.barcode" placeholder="請輸入" />
+                  </a-form-model-item>
+                  <a-form-model-item
+                    class="custom-form-item"
+                    label="單位"
+                    prop="unit"
+                  >
+                    <a-select
+                      v-model="list.unit"
+                      placeholder="請選擇"
+                      style="width: 175px"
+                    >
+                        <a-select-option v-for="list in unitList"
+                                         :value="list.val"
+                                         :key="list.type">
+                          {{list.type}}
+                        </a-select-option>
+                    </a-select>
+                  </a-form-model-item>
+                  <a-form-model-item
+                    class="custom-form-item"
+                    label="售價"
+                    prop="salesPrice"
+                  >
+                    <a-input v-model="list.salesPrice" placeholder="請輸入" />
+                  </a-form-model-item>
 
-              <a-select v-model="list.unit" placeholder="請選擇">
-                <a-select-option>
-                  公斤
-                </a-select-option>
-              </a-select>
+                  <a-form-model-item class="custom-form-item" label="建議售價">
+                    <a-input v-model="list.listPrice" placeholder="請輸入" />
+                  </a-form-model-item>
 
-              <a-form-model-item class="custom-form-item" label="售價">
-                <a-input v-model="list.prices" placeholder="請輸入" />
-              </a-form-model-item>
+                  <a-form-model-item class="custom-form-item" label="成本售價">
+                    <a-input v-model="list.costPrice" placeholder="請輸入" />
+                  </a-form-model-item>
 
-              <a-form-model-item class="custom-form-item" label="建議售價">
-                <a-input v-model="list.sprices" placeholder="請輸入" />
-              </a-form-model-item>
-
-              <a-form-model-item class="custom-form-item" label="成本售價">
-                <a-input v-model="list.oprices" placeholder="請輸入" />
-              </a-form-model-item>
-
-              <a-form-model-item class="custom-form-item" label="商品描述">
-                <a-input v-model="list.desc" placeholder="請輸入" />
-              </a-form-model-item>
+                  <a-form-model-item
+                    class="custom-form-item"
+                    label="商品描述"
+                    style="width: 100%"
+                  >
+                    <a-input
+                      v-model="list.description"
+                      placeholder="請輸入"
+                      style="height: 100px"
+                    />
+                  </a-form-model-item>
+                </div>
+              </div>
             </a-form-model>
           </div>
           <template slot="footer">
@@ -96,12 +117,14 @@
         <template
           v-for="col in [
             'order',
-            'barCode',
+            'barcode',
             'name',
             'unit',
-            'prices',
-            'sprices',
-            'oprices'
+            'salesPrice',
+            'listPrice',
+            'costPrice',
+            'stockAmount',
+            'description'
           ]"
           :slot="col"
           slot-scope="text, record, index"
@@ -115,20 +138,21 @@
             </template>
           </div>
         </template>
+        <template slot="use">
+          <a-switch defaultChecked @change="onChange" />
+        </template>
         <template slot="operation" slot-scope="text, record">
-          <a-button size="small" @click="editHandler(record)">編輯</a-button>
-          <a-popconfirm
-            title="確定要刪除嗎?"
-            @confirm="() => onDelete(record.id)"
-          >
-            <a-button size="small">刪除</a-button>
-          </a-popconfirm>
+          <a-space>
+            <a-button type="link" size="small" @click="editHandler(record)"
+              >編輯</a-button
+            >
+          </a-space>
         </template>
       </a-table>
     </div>
     <a-pagination
       class="pagination"
-      v-model="current"
+      v-model="pageNumber"
       :page-size-options="pageSizeOptions"
       :total="total"
       show-size-changer
@@ -154,22 +178,26 @@ export default {
       visible: false,
       track: "",
       search: "",
+      check: false,
       list: {
         name: "",
         unit: "",
-        barCode: "",
-        prices: "",
-        oprices: "",
-        sprices: "",
-        desc: ""
+        unitType: undefined,
+        barcode: "",
+        salesPrice: undefined,
+        costPrice: undefined,
+        listPrice: undefined,
+        description: null,
+        use: undefined
       },
+      unitList:[{type:"公斤",val:"KG"},{type:"公克",val:"G"},{type:"件",val:"PIECE"},{type:"台斤",val:"TG"}],
       tableData: [],
       changeTitle: "",
       columns: [
         {
           title: "序",
           dataIndex: "order",
-          width: "2%",
+          width: "5%",
           align: "center",
           scopedSlots: { customRender: "order" }
         },
@@ -182,10 +210,10 @@ export default {
         },
         {
           title: "商品條碼",
-          dataIndex: "barCode",
+          dataIndex: "barcode",
           width: "15%",
           align: "center",
-          scopedSlots: { customRender: "barCode" }
+          scopedSlots: { customRender: "barcode" }
         },
         {
           title: "商品名稱",
@@ -203,38 +231,45 @@ export default {
         },
         {
           title: "售價",
-          dataIndex: "prices",
+          dataIndex: "salesPrice",
           width: "10%",
           align: "center",
-          scopedSlots: { customRender: "prices" }
+          scopedSlots: { customRender: "salesPrice" }
         },
         {
           title: "建議售價",
-          dataIndex: "sprices",
+          dataIndex: "listPrice",
           width: "10%",
           align: "center",
-          scopedSlots: { customRender: "sprices" }
+          scopedSlots: { customRender: "listPrice" }
         },
         {
           title: "成本價",
-          dataIndex: "oprices",
+          dataIndex: "costPrice",
           width: "10%",
           align: "center",
-          scopedSlots: { customRender: "oprices" }
+          scopedSlots: { customRender: "costPrice" }
         },
         {
           title: "庫存量",
-          dataIndex: "quantity",
+          dataIndex: "stockAmount",
           width: "5%",
           align: "center",
-          scopedSlots: { customRender: "quantity" }
+          scopedSlots: { customRender: "stockAmount" }
         },
         {
           title: "建立時間",
-          dataIndex: "createdTime",
+          dataIndex: "createDate",
           width: "10%",
           align: "center",
-          scopedSlots: { customRender: "createdTime" }
+          scopedSlots: { customRender: "createDate" }
+        },
+        {
+          title: "狀態",
+          dataIndex: "use",
+          width: "10%",
+          align: "center",
+          scopedSlots: { customRender: "use" }
         },
         {
           title: "操作",
@@ -244,15 +279,20 @@ export default {
           scopedSlots: { customRender: "operation" }
         }
       ],
+      rules: {
+        unit: [{ required: true, message: "請選擇", trigger: "blur" }],
+        name: [{ required: true, message: "請輸入姓名", trigger: "blur" }],
+        prices: [{ required: true, message: "請輸入售價", trigger: "blur" }]
+      },
       pageSizeOptions: ["10", "20", "30"],
-      current: 1,
+      pageNumber: 0,
       pageSize: 10,
       total: 30
     };
   },
   created() {
     axios
-      .get("http://localhost:3000/lists")
+      .get("/erp/product/productList?productName=&pageNumber=0&pageSize=10")
       .then(res => {
         console.log(res.data);
         this.tableData = res.data;
@@ -281,75 +321,88 @@ export default {
       this.list = {
         name: "",
         unit: "",
-        barCode: "",
-        prices: "",
-        oprices: "",
-        sprices: "",
-        desc: ""
+        barcode: "",
+        salesPrice: "",
+        costPrice: "",
+        listPrice: "",
+        description: ""
       };
+      this.resetForm();
     },
     submitNonstop() {
-      if (this.changeTitle === "新增商品") {
-        axios
-          .post("http://localhost:3000/lists", {
-            id: "",
-            name: this.list.name,
-            unit: this.list.unit,
-            barCode: this.list.barCode,
-            prices: this.list.prices,
-            sprices: this.list.sprices,
-            oprices: this.list.oprices,
-            desc: this.list.desc
-          })
-          .then(() => {
-            axios.get("http://localhost:3000/lists").then(res => {
-              this.tableData = res.data;
-            });
-          });
-        this.visible = true;
-      }
+      this.$refs.ruleForm.validate(valid => {
+        if (valid) {
+          if (this.changeTitle === "新增商品") {
+            axios
+              .post("/erp/product/addProduct", {
+                name: this.list.name,
+                unit: this.list.unit,
+                barcode: this.list.barcode,
+                salesPrice: this.list.salesPrice,
+                listPrice: this.list.listPrice,
+                costPrice: this.list.costPrice,
+                description: this.list.description,
+                use: this.list.use
+              })
+              .then(() => {
+                axios.get("/erp/product/productList?productName=&pageNumber=0&pageSize=10").then(res => {
+                  this.tableData = res.data;
+                });
+              });
+            this.visible = true;
+          }
+        }
+      });
     },
     handleOk() {
-      this.loading = true;
-      if (this.changeTitle === "新增商品") {
-        axios
-          .post("http://localhost:3000/lists", {
-            id: "",
-            name: this.list.name,
-            unit: this.list.unit,
-            barCode: this.list.barCode,
-            prices: this.list.prices,
-            sprices: this.list.sprices,
-            oprices: this.list.oprices,
-            desc: this.list.desc
-          })
-          .then(() => {
-            axios.get("http://localhost:3000/lists").then(res => {
-              this.tableData = res.data;
-            });
-          });
-        this.visible = false;
-        this.loading = false;
-      } else {
-        axios
-          .put("http://localhost:3000/lists/" + this.track, {
-            id: this.track,
-            name: this.list.name,
-            unit: this.list.unit,
-            barCode: this.list.barCode,
-            prices: this.list.prices,
-            sprices: this.list.sprices,
-            oprices: this.list.oprices,
-            desc: this.list.desc
-          })
-          .then(() => {
-            axios.get("http://localhost:3000/lists").then(res => {
-              this.tableData = res.data;
-            });
-          });
-        this.visible = false;
-        this.loading = false;
-      }
+      this.$refs.ruleForm.validate(valid => {
+        if (valid) {
+          if (this.changeTitle === "新增商品") {
+            axios
+              .post("/erp/product/addProduct", {
+                "name":"昇龍餃",
+                "salesPrice":122.0,
+                "unit":"KG",
+                "unitType":"WEIGHT",
+                "listPrice":null,
+                "costPrice":199.0,
+                "barcode":"dasdas",
+                "description":null,
+                "use":true
+              })
+              .then(() => {
+                axios.get("/erp/product/productList?productName=&pageNumber=0&pageSize=10").then(res => {
+                  this.tableData = res.data;
+                });
+              });
+            this.visible = false;
+          } else {
+            axios
+              .put("/erp/product/updateProduct", {
+                id: this.track,
+                name: this.list.name,
+                unit: this.list.unit,
+                unitType: this.list.unitType,
+                barcode: this.list.barcode,
+                salesPrice: this.list.salesPrice,
+                listPrice: this.list.listPrice,
+                costPrice: this.list.costPrice,
+                description: this.list.description,
+                use: this.check
+              })
+              .then(() => {
+                axios.get("/erp/product/productList?productName=&pageNumber=0&pageSize=10").then(res => {
+                  this.tableData = res.data;
+                });
+              });
+            this.visible = false;
+            this.loading = false;
+          }
+        }
+      });
+    },
+    resetForm() {
+      this.$refs.ruleForm.resetFields();
     },
     handleCancel() {
       this.visible = false;
@@ -358,27 +411,48 @@ export default {
     editHandler(record) {
       this.track = record.id;
       this.changeTitle = "編輯商品";
-      axios.get("http://localhost:3000/lists/" + record.id).then(res => {
-        this.list = res.data;
-        this.visible = true;
-      });
+      if (this.check === true) {
+        this.visible = true
+        if (record !== "") {
+          (this.list.name = record.name),
+            (this.list.barcode = record.barcode),
+            (this.list.unit = this.unitList.find(item => item.type === record.unit)),
+             this.list.unit = this.list.unit.val,
+            (this.list.salesPrice = record.salesPrice),
+            (this.list.listPrice = record.listPrice),
+            (this.list.costPrice = record.costPrice),
+            (this.list.description = record.description)
+        }
+      }
     },
-    onDelete(id) {
-      axios.delete("http://localhost:3000/lists/" + id).then(() => {
-        axios.get("http://localhost:3000/lists").then(res => {
-          this.tableData = res.data;
-        });
-      });
-    },
+    // onDelete(record) {
+    //   this.$api.Commodity.deleteCommodity(record).then(() => {
+    //     axios.get("/erp/product/productList?productName=").then(res => {
+    //       this.tableData = res.data;
+    //     });
+    //   });
+    // },
     onSearch() {
       if (this.search) {
-        axios.get("http://localhost:3000/lists").then(res => {
+        axios.get("/erp/product/productList?productName=&pageNumber=0&pageSize=10").then(res => {
           this.tableData = res.data;
         });
       }
     },
-    onShowSizeChange(current, pageSize) {
+    onShowSizeChange(pageNumber, pageSize) {
       this.pageSize = pageSize;
+    },
+    onChange(checked) {
+      this.check = checked
+      // axios.put('/erp/product/updateProduct',{use:this.list.use})
+      // .then(()=>{
+      //   this.check = check
+      //   axios.get("/erp/product/productList?productName=&pageNumber=1&pageSize=10").then(res => {
+      //     console.log(res)
+      //     this.tableData = res.data;
+      //   });
+      // })
+
     }
   }
 };
@@ -390,26 +464,17 @@ export default {
 }
 
 .modal-body {
-  background-color: #eee3e3;
+  background-color: #f5e9e9;
+  /*display: flex;*/
 }
-
-.allPart {
-  margin: 25px;
-}
-
 .firstPart {
-  display: flex;
-  justify-content: space-between;
+  padding: 30px 20px 30px 20px;
 }
-
-.secondPart {
-  margin: 25px 0px;
+.firstPart-item {
   display: flex;
+  /*flex-direction: column;*/
+  flex-wrap: wrap;
   justify-content: space-between;
-}
-
-.thirdPart {
-  display: flex;
 }
 .pagination {
   display: flex;

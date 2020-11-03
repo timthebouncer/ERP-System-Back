@@ -6,7 +6,9 @@ import store from "./store";
 import 'ant-design-vue/dist/antd.css'
 import api from "./api/apis";
 import './style/main.scss'
+import ConfigProvider from 'ant-design-vue'
 
+Vue.use(ConfigProvider)
 Vue.config.productionTip = false;
 Vue.use(Antd)
 Vue.prototype.$api = api;

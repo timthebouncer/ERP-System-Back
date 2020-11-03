@@ -54,7 +54,7 @@ export default {
     };
   },
   mounted() {
-    this.$router.push('Inventory').catch(()=>{});
+    // this.$router.push('Inventory').catch(()=>{});
     this.updateList();
     // console.log(this.$route);
   },

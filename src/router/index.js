@@ -35,6 +35,18 @@ const routes = [
         }
       },
       {
+        path: "/Distribute",
+        name: "Distribute",
+        component: () => import( "../views/Inventory/Distribute.vue"),
+        meta: {
+          breadcrumb: [
+            {
+              name: "進銷紀錄"
+            }
+          ]
+        }
+      },
+      {
         path: "/Customer",
         name: "Customer",
         component: () => import("../views/Customer"),

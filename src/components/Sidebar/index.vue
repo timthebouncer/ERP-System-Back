@@ -8,7 +8,7 @@
         <a-menu-item key="1" @click="()=>{$router.push('Inventory').catch(()=>{})}">
           庫存資料
         </a-menu-item>
-        <a-menu-item key="2" >
+        <a-menu-item key="2" @click="()=>{$router.push('Distribute').catch(()=>{})}">
           進銷紀錄
         </a-menu-item>
       </a-sub-menu>

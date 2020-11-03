@@ -2,15 +2,15 @@ import request from "./https";
 
 const api = {
   Customer: {
-    getList() {
-      return request.get("/client/clients?searchKeyword=");
+    getList(params) {
+      return request.get("/client/clients/",{params});
     },
     getSingleList(record){
       return request.get("/client/"+ record.id)
     }
     ,
     getClass() {
-      return request.get("/client/classes");
+      return request.get("/class/classList");
     },
     add(data) {
       return request.post('/client/addClient', data)
@@ -20,6 +20,17 @@ const api = {
     },
     delete(record) {
       return request.delete('/client/removeClient/' + record.id)
+    }
+  },
+  Commodity:{
+    addCommodity(){
+      return request.post('/product/addProduct')
+    },
+    updateCommodity(data){
+      return request.put('/product/updateProduct/',data)
+    },
+    deleteCommodity(record) {
+      return Promise.resolve('/product/deleteProduct/'+ record.id);
     }
   }
 };
