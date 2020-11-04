@@ -21,7 +21,7 @@
         <a-form-item label="高" v-if="itemType === 'barcode'">
           <a-input-number v-model="item.height" />
         </a-form-item>
-        <a-form-item label="字型">
+        <a-form-item label="字型" v-if="itemType !== 'barcode'">
           <a-space>
             <a-button size="small" :type="isBold" @click="item.bold = !item.bold">
               <a-icon type="bold" />
