@@ -25,7 +25,14 @@ const api = {
   Inventory: {
     getList(productName,pageNumber,pageSize) {
       return request.get("/inventory/stockList?productName="+productName+"&pageNumber="+pageNumber+"&pageSize="+pageSize);
+    },
+    edit(data){
+      return request.put("/inventory/updateStock", data);
+    },
+    searchProduct(searchKey){
+      return request.get("/product/getProduct?searchKey="+searchKey);
     }
+
   },
   Commodity:{
     addCommodity(){
