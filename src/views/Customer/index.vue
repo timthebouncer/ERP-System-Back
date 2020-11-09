@@ -1,10 +1,16 @@
 <template>
   <div class="container">
+    <!--    <div class="login">-->
+    <!--      <div class="account">帳號<input v-model="login.username" type="text"/></div>-->
+    <!--      <div class="password">密碼<input v-model="login.password" type="text"/></div>-->
+    <!--      <button @submit="loginHandler">登入</button>-->
+    <!--    </div>-->
     <div class="action">
       <div class="addM">
         <a-button class="button1" @click="showModal"
-          >新增<a-icon type="plus"
-        /></a-button>
+          >新增
+          <a-icon type="plus" />
+        </a-button>
         <a-modal
           v-model="visible"
           :title="changeTitle"
@@ -178,63 +184,80 @@
                       bordered
                       :data-source="discountTable"
                       :columns="columns2"
-                      rowKey="productId"
+                      :rowKey="record => record.id"
+                      :pagination="false"
                     >
-                      <template
-                        v-for="col in [
-                          'order',
-                          'name',
-                          'unit',
-                          'salesPrice',
-                          'discountPrice',
-                          'remark',
-                          'operation'
-                        ]"
-                        :slot="col"
-                        slot-scope="text, record, index"
-                      >
-                        <div :key="col">
-                          <template v-if="col === 'order'">
-                            {{ index + 1 }}
-                          </template>
-                          <template v-else-if="col === 'name'">
-                            <a-select v-model="record[col]" placeholder="請選擇" @change="pushValue($event, record)">
-                              <a-select-option v-for="item in discountClass" :key="item.id">
-                                {{ item.name }}
-                              </a-select-option>
-                            </a-select>
-                          </template>
-                          <template v-else-if="col === 'discountPrice'||col === 'remark'">
-                            <span @click="helloWorld" v-if="switches">
-                              <input
-                                  v-model="record[col]"
-                                  placeholder="請輸入"
-                                  @blur="addNewItem"
-                                  @keyup.enter="addNewItem"
-                              />
-                              </span>
-                            <span v-else>
-                               {{text}}
-                            </span>
-                          </template>
-                          <template v-else>
-                            {{ text }}
-                          </template>
-                        </div>
-                      </template>
-                      <template
-                        slot="operation"
-                        slot-scope="text, record, index"
-                      >
-                        <a-popconfirm
-                          v-if="discountTable.length"
-                          title="Sure to delete?"
-                          @confirm="() => deleteDiscount(index)"
-                        >
-                          <a href="javascript:;">刪除</a>
-                        </a-popconfirm>
-                      </template>
+                      <!--                      <template-->
+                      <!--                        v-for="col in [-->
+                      <!--                          'order',-->
+                      <!--                          'name',-->
+                      <!--                          'unit',-->
+                      <!--                          'salesPrice',-->
+                      <!--                          'discountPrice',-->
+                      <!--                          'remark',-->
+                      <!--                          'operation'-->
+                      <!--                        ]"-->
+                      <!--                        :slot="col"-->
+                      <!--                        slot-scope="text, record, index"-->
+                      <!--                      >-->
+                      <!--                        <div :key="col">-->
+                      <!--                          <template v-if="col === 'order'">-->
+                      <!--                            {{ index + 1 }}-->
+                      <!--                          </template>-->
+                      <!--                          <template v-else-if="col === 'name'">-->
+                      <!--                                                  <a-select v-model="record[col]" placeholder="請選擇" @change="pushValue($event, record)">-->
+                      <!--                                                    <a-select-option v-for="item in discountClass" :key="item.id">-->
+                      <!--                                                      {{ item.name }}-->
+                      <!--                                                    </a-select-option>-->
+                      <!--                                                  </a-select>-->
+                      <!--                          </template>-->
+                      <!--                          <template v-else-if="col === 'discountPrice'||col === 'remark'">-->
+                      <!--                            <div v-if="switches">-->
+                      <!--                              <a-input-->
+                      <!--                                  v-model="record[col]"-->
+                      <!--                                  placeholder="請輸入"-->
+                      <!--                                  @keyup.enter="addNewItem"-->
+                      <!--                              />-->
+                      <!--                              </div>-->
+                      <!--                            <span v-else @click="helloWorld">-->
+                      <!--                               {{text}}-->
+                      <!--                            </span>-->
+                      <!--                          </template>-->
+                      <!--                          <template v-else>-->
+                      <!--                            <span>{{ text }}</span>-->
+                      <!--                          </template>-->
+                      <!--                        </div>-->
+                      <!--                      </template>-->
+                      <!--                      <template-->
+                      <!--                        slot="operation"-->
+                      <!--                        slot-scope="text, record, index"-->
+                      <!--                      >-->
+                      <!--                        <a-popconfirm-->
+                      <!--                          v-if="discountTable.length"-->
+                      <!--                          title="Sure to delete?"-->
+                      <!--                          @confirm="() => deleteDiscount(index)"-->
+                      <!--                        >-->
+                      <!--                          <a href="javascript:;">刪除</a>-->
+                      <!--                        </a-popconfirm>-->
+                      <!--                      </template>-->
                     </a-table>
+                    <a-pagination
+                      class="pagination"
+                      v-model="current"
+                      :page-size-options="pageSizeOptions"
+                      :total="total"
+                      show-size-changer
+                      :page-size="pageSize"
+                      @change="discountTableChange"
+                      @showSizeChange="discountTableChange"
+                    >
+                      <template slot="buildOptionText" slot-scope="props">
+                        <span v-if="props.value !== '50'"
+                          >{{ props.value }}筆/頁</span
+                        >
+                        <span v-if="props.value === '50'">全部</span>
+                      </template>
+                    </a-pagination>
                   </div>
                 </div>
               </div>
@@ -257,7 +280,7 @@
       </div>
 
       <div class="search-wrapper">
-        <a-select class="search-select" v-model="match.id" style="width: 100px">
+        <a-select class="search-select" v-model="match.name" style="width: 100px">
           <a-select-option v-for="item in classify" :key="item.id">
             {{ item.className }}
           </a-select-option>
@@ -267,7 +290,7 @@
             v-model="search"
             placeholder="搜尋內容"
             enter-button
-            @click="onSearch"
+            @click="searchHandler"
           />
         </div>
       </div>
@@ -278,12 +301,12 @@
         :data-source="filterText"
         bordered
         :pagination="false"
-        rowKey="list.classes.id"
+        :rowKey="record => record.id"
       >
         <template
           v-for="col in [
             'order',
-            'classes.id',
+            'id',
             'classes.className',
             'name',
             'cellphone',
@@ -307,8 +330,8 @@
         <template slot="operation" slot-scope="text, record">
           <a-space>
             <a-button type="link" size="small" @click="editHandler(record)"
-              >編輯</a-button
-            >
+              >編輯
+            </a-button>
             <a-popconfirm
               title="客戶資料刪除後，所有資料將清空無法還原"
               @confirm="() => onDelete(record)"
@@ -322,11 +345,12 @@
     <!--分頁-->
     <a-pagination
       class="pagination"
-      v-model="pageNumber"
+      v-model="current"
       :page-size-options="pageSizeOptions"
       :total="total"
       show-size-changer
       :page-size="pageSize"
+      @change="onShowSizeChange"
       @showSizeChange="onShowSizeChange"
     >
       <template slot="buildOptionText" slot-scope="props">
@@ -339,10 +363,13 @@
 
 <script>
 import axios from "axios";
+import { computedWeight } from "@/unit/dictionary/computed";
+
 export default {
   name: "Customer",
   data() {
     return {
+      // login:{username:'',password: ""},
       loading: false,
       visible: false,
       changeTitle: "",
@@ -366,7 +393,7 @@ export default {
         companyPostcode: "",
         companyAddress: ""
       },
-      discountClass:[],
+      discountClass: [],
       columns: [
         {
           title: "序",
@@ -377,10 +404,10 @@ export default {
         },
         {
           title: "客戶編號",
-          dataIndex: "classes.id",
+          dataIndex: "id",
           width: "10%",
           align: "center",
-          scopedSlots: { customRender: "classes.id" }
+          scopedSlots: { customRender: "id" }
         },
         {
           title: "客戶類別",
@@ -448,55 +475,104 @@ export default {
         {
           title: "序",
           dataIndex: "order",
-          width: "2%",
           align: "center",
+          // eslint-disable-next-line no-unused-vars
+          customRender: (_, __, i) => {
+            return {
+              children: <div>{i + 1}</div>
+            };
+          },
           scopedSlots: { customRender: "order" }
         },
         {
           title: "商品名稱",
-          dataIndex: "name",
-          width: "10%",
+          dataIndex: "productName",
           align: "center",
-          scopedSlots: { customRender: "name" }
+          customRender: (value, row, index) => {
+            console.log(row, 4465);
+            return {
+              children: (
+                <div>
+                  <a-select
+                    value={row.productId}
+                    placeholder="請選擇"
+                    onChange={id => this.pushValue(id, index)}
+                    show-search
+                    filter-option={this.filterOption}
+                  >
+                    {this.discountClass.map(item => (
+                      <a-select-option value={item.id}>
+                        {item.name}
+                      </a-select-option>
+                    ))}
+                  </a-select>
+                </div>
+              )
+            };
+          },
+          scopedSlots: { customRender: "productName" }
         },
         {
           title: "單位",
           dataIndex: "unit",
-          width: "2%",
           align: "center",
           scopedSlots: { customRender: "unit" }
         },
         {
           title: "售價",
           dataIndex: "salesPrice",
-          width: "5%",
           align: "center",
           scopedSlots: { customRender: "salesPrice" }
         },
         {
           title: "價格",
           dataIndex: "discountPrice",
-          width: "2%",
           align: "center",
+          width: 100,
+          customRender: (val, row) => {
+            return this.priceAndRemarkEditor(val, row, "discountPrice");
+          },
           scopedSlots: { customRender: "discountPrice" }
         },
         {
           title: "備註",
           dataIndex: "remark",
-          width: "10%",
+          // width: "10%",
           align: "center",
+          width: 200,
+          customRender: (val, row) => {
+            return this.priceAndRemarkEditor(val, row, "remark");
+          },
           scopedSlots: { customRender: "remark" }
         },
         {
           title: "操作",
           dataIndex: "operation",
-          width: "2%",
+          // width: "2%",
           align: "center",
+          customRender: (value, row, index) => ({
+            children: (
+              <div>
+                {this.discountTable.length ? (
+                  <div>
+                    <a-popconfirm
+                      title="Sure to delete?"
+                      onConfirm={() => this.deleteDiscount(index)}
+                    >
+                      <a>刪除</a>
+                    </a-popconfirm>
+                  </div>
+                ) : (
+                  <span>{row}</span>
+                )}
+              </div>
+            )
+          }),
           scopedSlots: { customRender: "operation" }
         }
       ],
       pageSizeOptions: ["10", "20", "30"],
-      pageNumber: 0,
+      current: 1,
       pageSize: 10,
       total: 30,
       match: { id: "", name: "" },
@@ -512,43 +588,80 @@ export default {
       .catch(err => {
         console.log(err);
       });
-    axios.get("/erp/product/productList?productName=&pageNumber=1&pageSize=2")
-    .then(res => {
-      // this.discountTable = res.data;
-      this.discountClass = res.data
+    axios("/erp/product/getProduct?searchKey=").then(res => {
+      this.discountClass = res.data;
+      console.log(this.discountClass);
     });
+    axios
+      .get("/erp/product/productList?productName=&pageNumber=1&pageSize=10")
+      .then(res => {
+        // this.discountTable = res.data;
+        // this.discountClass = res.data.content
+        console.log(res);
+      });
   },
   computed: {
+    changeClass(){
+     if(!this.match.name){
+       return this.tableData
+     }else {
+       return this.tableData.filter(item => {
+         return item.classes.id === this.match.name
+       })
+     }
+    },
     filterText() {
-      if (!this.match.id) {
-        return this.tableData;
-      } else {
+      if (this.search) {
         return this.tableData.filter(item => {
           return item.name.includes(this.search);
         });
+      } else {
+        return this.changeClass;
       }
+    },
+    priceAndRemarkEditor() {
+      return (val, row, key) => ({
+        children: (
+          <div>
+            {this.switches ? (
+              <div>
+                <a-input
+                  placeholder="請輸入"
+                  value={row[key]}
+                  vModel={row[key]}
+                  vOn:Keyup_enter={() => this.addNewItem()}
+                />
+              </div>
+            ) : (
+              <span onClick={() => this.helloWorld()}>{val}</span>
+            )}
+          </div>
+        )
+      });
     }
   },
   methods: {
-    helloWorld() {
-      if(this.switches === false)
-      this.switches = true;
+    filterOption(input, option) {
+      return (
+        option.componentOptions.children[0].text
+          .toLowerCase()
+          .indexOf(input.toLowerCase()) >= 0
+      );
     },
     addNewItem() {
-      if(this.switches === true){
-        this.switches = false
-      }else{
-        this.switches = true
-      }
+      this.switches = false;
+    },
+    helloWorld() {
+      this.switches = true;
     },
     getCustomerList() {
       this.$api.Customer.getList({
         searchKeyword: this.search,
-        pageNumber: this.pageNumber,
+        pageNumber: this.current,
         pageSize: this.pageSize
       })
         .then(res => {
-          this.tableData = res.data;
+          this.tableData = res.data.content;
         })
         .catch(err => {
           console.log(err);
@@ -583,10 +696,6 @@ export default {
         if (valid) {
           if (this.changeTitle === "新增客戶") {
             this.$api.Customer.add({
-              // ...this.list,
-              // classesId: this.list.classes.id,
-              // className: this.list.classes.className,
-              // discountList: this.discountTable
               name: this.list.name,
               classesId: this.list.classes.id,
               vatNumber: this.list.vatNumber,
@@ -596,22 +705,29 @@ export default {
               address: this.list.address,
               cellphone: this.list.cellphone,
               fax: this.list.fax,
-              discountList: this.discountClass.map(item=>{
-                return {productId: item.id, discountPrice: item.discountPrice, remark: item.remark}
+              discountList: this.discountTable.map(item => {
+                return {
+                  discountId: "",
+                  productId: item.productId,
+                  discountPrice: item.discountPrice,
+                  remark: item.remark,
+                  unit: item.unit
+                };
               })
             })
               .then(() => {
                 this.getCustomerList();
+                this.$message.info("新增客戶成功");
               })
               .catch(err => {
                 console.log(err);
+                this.$message.error("新增客戶失敗");
               });
             this.visible = false;
           } else {
             this.$api.Customer.update({
-              id: this.track,
+              clientId: this.track,
               classesId: this.list.classes.id,
-              // className: this.list.classes.className,
               name: this.list.name,
               cellphone: this.list.cellphone,
               company: this.list.company,
@@ -625,15 +741,23 @@ export default {
               companyEmail: this.list.companyEmail,
               companyPostcode: this.list.companyPostcode,
               companyAddress: this.list.companyAddress,
-              discountList: this.discountClass.map(item=>{
-                return {productId: item.id, discountPrice: item.discountPrice, remark: item.remark}
+              discountList: this.discountTable.map(item => {
+                console.log(item, 9999);
+                return {
+                  discountId: item.id,
+                  productId: item.productId,
+                  discountPrice: item.discountPrice,
+                  remark: item.remark
+                };
               })
             })
               .then(() => {
                 this.getCustomerList();
+                this.$message.info("編輯客戶成功");
               })
               .catch(err => {
                 console.log(err);
+                this.$message.error("編輯客戶失敗");
               });
             this.visible = false;
           }
@@ -648,14 +772,25 @@ export default {
       this.clearInput();
     },
     editHandler(record) {
+      console.log(record.discountList);
       this.track = record.id;
       this.changeTitle = "編輯客戶";
       this.$api.Customer.getSingleList(record)
         .then(res => {
-          console.log(res);
           if (res.data !== "") {
             this.list = res.data;
+            this.discountTableChange(1, 10)
+            // this.discountTable = record.discountList.map(d => ({
+            //   id: d.id,
+            //   name: d.productName,
+            //   productId: d.productId,
+            //   unit: computedWeight(d.productUnit),
+            //   salesPrice: d.productPrice,
+            //   discountPrice: d.discountPrice,
+            //   remark: d.remark
+            // }));
             this.visible = true;
+            console.log(this.discountTable, 132);
           } else {
             alert("123");
           }
@@ -665,15 +800,46 @@ export default {
         });
     },
     onDelete(record) {
-      console.log(record)
-      this.$api.Customer.delete(record).then(() => {
-        this.getCustomerList();
+      this.$api.Customer.delete(record)
+        .then(() => {
+          this.getCustomerList();
+          this.$message.info("刪除客戶成功");
+        })
+        .catch(err => {
+          console.log(err);
+          this.$message.error("刪除客戶失敗");
+        });
+    },
+    onShowSizeChange(current, pageSize) {
+      this.$api.Customer.getList({
+        searchKeyword: this.search,
+        pageNumber: current,
+        pageSize: pageSize
+      }).then(res => {
+        this.tableData = res.data.content;
       });
     },
-    onShowSizeChange(pageNumber, pageSize) {
-      this.pageSize = pageSize;
+    discountTableChange(current, pageSize) {
+      this.$api.Customer.discount({
+        clientId: this.track,
+        pageNumber: current,
+        pageSize: pageSize
+      }).then(res => {
+        console.log(res.data.content,666)
+        this.discountTable = res.data.content.map(d => ({
+          id: d.discountId,
+          name: d.productName,
+          productId: d.productId,
+          unit: computedWeight(d.productUnit),
+          salesPrice: d.productPrice,
+          discountPrice: d.discountPrice,
+          remark: d.remark
+        }));
+        // console.log(res,999)
+        // this.discountTable = res.data.content;
+      });
     },
-    onSearch() {
+    searchHandler() {
       if (this.search) {
         this.getCustomerList();
       }
@@ -686,21 +852,37 @@ export default {
     handleAdd() {
       const { discountTable } = this;
       const newData = {
-        id: 0,
-        name: '',
-        unit: '',
-        salesPrice: 0,
-        discountPrice: 0,
-        remark: '',
+        productId: undefined,
+        name: "",
+        unit: "",
+        salesPrice: null,
+        discountPrice: undefined,
+        remark: ""
       };
       this.discountTable = [...discountTable, newData];
+      console.log(this.discountTable);
     },
-    pushValue(id, record){
-      const item = this.discountClass.find(item => item.id === id)
-      record.id = item.id
-      record.salesPrice = item.salesPrice
-      record.unit = item.unit
+    pushValue(id, index) {
+      const item = this.discountClass.find(item => item.id === id);
+      axios
+        .get(
+          `/erp/product/productList?productName=${item.name}&pageNumber=1&pageSize=10`
+        )
+        .then(res => {
+          let content = res.data.content;
+          let result = content.find(item => item.id === id);
+          let rows = this.discountTable[index];
+          rows.productId = result.id;
+          rows.unit = result.unit;
+          rows.salesPrice = result.salesPrice;
+        });
     }
+    // handleSearch(){
+    //   axios.get('/erp/product/getProduct?searchKey='+ this.search)
+    //   .then((res)=>{
+    //     this.discountClass = res.data
+    //   })
+    // }
   }
 };
 </script>
@@ -713,55 +895,68 @@ export default {
   background-color: #f5e9e9;
   padding: 30px 20px 30px 20px;
 }
+
 .firstPart-item {
   display: flex;
 }
+
 .firstPart-item > div {
   flex: 1;
 }
+
 .secondPart {
   margin-top: 20px;
   padding: 30px 20px 30px 20px;
   background-color: #f5e9e9;
 }
+
 .secondPart-item {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
 }
+
 .third-part {
   padding: 20px 20px 20px 20px;
   /*background-color: #f5e9e9;*/
   .editable-add-btn {
     margin-bottom: 15px;
+
     .discount {
       display: flex;
       align-items: center;
     }
+
     .discount > button {
       margin-left: 5px;
       float: left;
     }
+
     .discount-menu {
       margin-top: 5px;
       flex-direction: column;
     }
   }
 }
+
 .pagination {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
 }
+
 ::v-deep .ant-collapse > .ant-collapse-item > .ant-collapse-header {
   margin-bottom: -20px;
 }
+
 ::v-deep .ant-collapse-content > .ant-collapse-content-box {
   padding: 0px;
 }
+
 ::v-deep .ant-collapse-borderless > .ant-collapse-item {
   border-bottom: none;
 }
+
 ::v-deep .ant-collapse > .ant-collapse-item {
   border-bottom: none;
 }
@@ -769,6 +964,7 @@ export default {
 .editable-cell-text-wrapper {
   padding: 5px 24px 5px 5px;
 }
+
 .editable-cell-icon-check {
   line-height: 28px;
 }

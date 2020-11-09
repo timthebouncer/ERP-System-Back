@@ -2,23 +2,8 @@
   <div class="container">
     <div class="distribute-action">
       <div class="calendar">
-        <a-date-picker>
-          <template slot="dateRender" slot-scope="current, today">
-            <div
-              class="ant-calendar-date"
-              :style="getCurrentStyle(current, today)"
-            >
-              {{ current.date() }}
-            </div>
-          </template>
-        </a-date-picker>
-        <a-range-picker>
-          <template slot="dateRender" slot-scope="current">
-            <div class="ant-calendar-date" :style="getCurrentStyle(current)">
-              {{ current.date() }}
-            </div>
-          </template>
-        </a-range-picker>
+        <a-date-picker @change="onChange" />
+        <a-range-picker @change="onChange" />
       </div>
       <div class="search-wrapper">
         <div class="search-input">
@@ -40,24 +25,71 @@
       >
         <template
           v-for="col in [
-            'order',
-            'barcode',
-            'name',
-            'unit',
-            'salesPrice',
-            'listPrice',
-            'costPrice',
-            'stockAmount',
-            'description'
+            'date',
+            'orderNo',
+            'clientName',
+            'productAmount',
+            'totalPrice',
+            'remark',
+            'operation'
           ]"
           :slot="col"
-          slot-scope="text, record, index"
+          slot-scope="text"
         >
           <div :key="col">
-            <template v-if="col === 'order'">
-              {{ index + 1 }}
+            <template v-if="col === 'orderNo'">
+              <a-popover placement="bottom" trigger="click">
+                <template slot="content">
+                  <div>
+                    <template>
+                      <div
+                        class="detail-menu"
+                        v-for="item in tableData"
+                        :key="item.id"
+                      >
+                        <span> 銷貨日期: {{ item.salesDay }} </span>
+                        <span> 銷貨單號: {{ item.orderNo }} </span>
+                        <span> 客戶姓名: {{ item.clientName }} </span>
+                      </div>
+                    </template>
+                    <a-table
+                      :columns="columns2"
+                      :data-source="orderList"
+                      bordered
+                      rowKey="id"
+                      :pagination="false"
+                    >
+                      <template
+                        v-for="col in [
+                          'order',
+                          'productName',
+                          'unit',
+                          'salesPrice',
+                          'amount'
+                        ]"
+                        :slot="col"
+                        slot-scope="text, record, index"
+                      >
+                        <div :key="col">
+                          <template v-if="col === 'order'">
+                            {{ index + 1 }}
+                          </template>
+                          <template v-else>
+                            {{ text }}
+                          </template>
+                        </div>
+                      </template>
+                    </a-table>
+                    <template>
+                      <span> 總數:{{ Calculate.count }} </span>
+                      <span> 總金額:{{ Calculate.total }} </span>
+                    </template>
+                  </div>
+                </template>
+                <a-button type="link">{{ text }}</a-button>
+              </a-popover>
             </template>
-            <template>
+            <template v-else>
               {{ text }}
             </template>
           </div>
@@ -74,7 +106,7 @@
     <div class="pagination">
       <a-pagination
         class="pagination"
-        v-model="current"
+        v-model="pageNumber"
         :page-size-options="pageSizeOptions"
         :total="total"
         show-size-changer
@@ -86,86 +118,139 @@
   </div>
 </template>
 <script>
-  import axios from 'axios'
+import axios from "axios";
+import moment from 'moment'
 export default {
   data() {
+    const date = moment().format("YYYY/MM/DD")
     return {
-      tableData:[],
+      tableData: [],
+      orderList: [],
+      Calculate: {},
       columns: [
         {
           title: "日期",
           dataIndex: "date",
-          width: "2%",
           align: "center",
           scopedSlots: { customRender: "date" }
         },
         {
           title: "單號",
-          dataIndex: "",
-          width: "10%",
+          dataIndex: "orderNo",
           align: "center",
-          scopedSlots: { customRender: "" }
+          scopedSlots: { customRender: "orderNo" }
         },
         {
           title: "客戶",
-          dataIndex: "",
-          width: "15%",
+          dataIndex: "clientName",
           align: "center",
-          scopedSlots: { customRender: "" }
+          scopedSlots: { customRender: "clientName" }
         },
         {
-          title: "商品",
-          dataIndex: "",
-          width: "15%",
+          title: "商品數量",
+          dataIndex: "productAmount",
           align: "center",
-          scopedSlots: { customRender: "" }
+          scopedSlots: { customRender: "productAmount" }
         },
         {
           title: "金額",
-          dataIndex: "",
-          width: "5%",
+          dataIndex: "totalPrice",
           align: "center",
-          scopedSlots: { customRender: "" }
+          scopedSlots: { customRender: "totalPrice" }
         },
         {
           title: "操作",
           dataIndex: "operation",
-          width: "10%",
           align: "center",
           scopedSlots: { customRender: "operation" }
         },
         {
           title: "備註",
-          dataIndex: "reference",
-          width: "10%",
+          dataIndex: "remark",
           align: "center",
-          scopedSlots: { customRender: "reference" }
+          scopedSlots: { customRender: "remark" }
+        }
+      ],
+      columns2: [
+        {
+          title: "#",
+          dataIndex: "order",
+          align: "center",
+          scopedSlots: { customRender: "order" }
+        },
+        {
+          title: "商品名稱",
+          dataIndex: "productName",
+          align: "center",
+          scopedSlots: { customRender: "productName" }
+        },
+        {
+          title: "單位量",
+          dataIndex: "unit",
+          align: "center",
+          scopedSlots: { customRender: "unit" }
+        },
+        {
+          title: "售價",
+          dataIndex: "salesPrice",
+          align: "center",
+          scopedSlots: { customRender: "salesPrice" }
+        },
+        {
+          title: "數量",
+          dataIndex: "amount",
+          align: "center",
+          scopedSlots: { customRender: "amount" }
         }
       ],
       search: "",
       pageSizeOptions: ["10", "20", "30"],
-      current: 1,
+      pageNumber: 1,
       pageSize: 10,
-      total: 30
+      total: 30,
+      startDate:date,
+      endDate:date
     };
   },
   created() {
-    axios.get('/erp/deliveryOrder/orderList')
-    .then((res)=>{
-      this.tableData = res.data
-    })
+    this.distributeList();
+    axios
+      .get(
+        "/erp/deliveryOrder/getDetail?orderId=402828337596ee6e017596ef27a00001"
+      )
+      .then(res => {
+        this.orderList = res.data.orderDetailItemResponseList;
+        let count = 0;
+        let total = 0;
+        this.orderList.forEach(item => {
+          count += item.amount;
+          total += item.salesPrice;
+        });
+        this.Calculate = { count, total };
+      });
   },
   methods: {
-    getCurrentStyle(current) {
-      const style = {};
-      if (current.date() === 1) {
-        style.border = "1px solid #1890ff";
-        style.borderRadius = "50%";
-      }
-      return style;
+    onChange(date, dateString) {
+      this.startDate = dateString[0],
+      this.endDate = dateString[1]
     },
-    cancelHandler() {},
-    onShowSizeChange(current, pageSize) {
+    distributeList(){
+      this.$api.Distribute.getDistributeList({
+      starDate:this.startDate,
+      endDate:this.endDate,
+      pageNumber:this.pageNumber,
+      pageSize:this.pageSize,})
+      .then(res => {
+          console.log(res);
+          this.tableData = res.data.content;
+        });
+    },
+    cancelHandler() {
+      axios.delete("/erp/deliveryOrder/deleteOrder").then(res => {
+        console.log(res);
+      });
+    },
+    onShowSizeChange(pageNumber, pageSize) {
       this.pageSize = pageSize;
     }
   }
@@ -185,12 +270,16 @@ export default {
 .distribute-action .calendar {
   margin-right: 10px;
 }
-.pagination{
+.pagination {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
 }
 .ant-calendar-picker {
-padding: 5px;
+  padding: 5px;
+}
+.detail-menu {
+  display: flex;
+  flex-direction: column;
 }
 </style>

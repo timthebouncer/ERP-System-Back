@@ -3,7 +3,9 @@
   <div class="container">
     <div class="action">
       <div class="addM">
-        <a-button class="button1" @click="showModal">新增<a-icon type="plus" /></a-button>
+        <a-button class="button1" @click="showModal"
+          >新增<a-icon type="plus"
+        /></a-button>
         <a-modal
           v-model="visible"
           :title="changeTitle"
@@ -30,17 +32,7 @@
                     label="單位"
                     prop="unit"
                   >
-                    <a-select
-                      v-model="list.unit"
-                      placeholder="請選擇"
-                      style="width: 175px"
-                    >
-                        <a-select-option v-for="list in unitList"
-                                         :value="list.val"
-                                         :key="list.type">
-                          {{list.type}}
-                        </a-select-option>
-                    </a-select>
+                    <NNN v-model="list.unit" style="width: 175px" />
                   </a-form-model-item>
                   <a-form-model-item
                     class="custom-form-item"
@@ -138,8 +130,8 @@
             </template>
           </div>
         </template>
-        <template slot="use">
-          <a-switch defaultChecked @change="onChange" />
+        <template slot="use" slot-scope="use, record">
+          <a-switch :checked="use" @change="onChange($event, record)" />
         </template>
         <template slot="operation" slot-scope="text, record">
           <a-space>
@@ -152,11 +144,12 @@
     </div>
     <a-pagination
       class="pagination"
-      v-model="pageNumber"
+      v-model="current"
       :page-size-options="pageSizeOptions"
       :total="total"
       show-size-changer
       :page-size="pageSize"
+      @change="onShowSizeChange"
       @showSizeChange="onShowSizeChange"
     >
       <template slot="buildOptionText" slot-scope="props">
@@ -164,21 +157,24 @@
         <span v-if="props.value === '50'">全部</span>
       </template>
     </a-pagination>
+    <!--    <AAA v-model="list.unit" />-->
   </div>
 </template>
 
 <script>
 import axios from "axios";
-
+import NNN from "@/components/NNN";
+import { computedWeight } from "@/unit/dictionary/computed";
+// import AAA from "@/components/AAA";
 export default {
   name: "Merchant",
+  components: { NNN },
   data() {
     return {
       loading: false,
       visible: false,
       track: "",
       search: "",
-      check: false,
       list: {
         name: "",
         unit: "",
@@ -190,7 +186,6 @@ export default {
         description: null,
         use: undefined
       },
-      unitList:[{type:"公斤",val:"KG"},{type:"公克",val:"G"},{type:"件",val:"PIECE"},{type:"台斤",val:"TG"}],
       tableData: [],
       changeTitle: "",
       columns: [
@@ -284,22 +279,14 @@ export default {
         name: [{ required: true, message: "請輸入姓名", trigger: "blur" }],
         prices: [{ required: true, message: "請輸入售價", trigger: "blur" }]
       },
-      pageSizeOptions: ["10", "20", "30"],
-      pageNumber: 0,
+      pageSizeOptions: ["10", "20", "30", "40", "50"],
+      current: 1,
       pageSize: 10,
-      total: 30
+      total: 50
     };
   },
   created() {
-    axios
-      .get("/erp/product/productList?productName=&pageNumber=0&pageSize=10")
-      .then(res => {
-        console.log(res.data);
-        this.tableData = res.data;
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    this.getCommodity();
   },
   computed: {
     filterText() {
@@ -317,6 +304,19 @@ export default {
       this.visible = true;
       this.changeTitle = "新增商品";
     },
+    getCommodity() {
+      this.$api.Commodity.getCommodityList({
+        productName: this.search,
+        pageNumber: this.current,
+        pageSize: this.pageSize
+      })
+        .then(res => {
+          this.tableData = res.data.content;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
     clearInput() {
       this.list = {
         name: "",
@@ -333,22 +333,19 @@ export default {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
           if (this.changeTitle === "新增商品") {
-            axios
-              .post("/erp/product/addProduct", {
-                name: this.list.name,
-                unit: this.list.unit,
-                barcode: this.list.barcode,
-                salesPrice: this.list.salesPrice,
-                listPrice: this.list.listPrice,
-                costPrice: this.list.costPrice,
-                description: this.list.description,
-                use: this.list.use
-              })
-              .then(() => {
-                axios.get("/erp/product/productList?productName=&pageNumber=0&pageSize=10").then(res => {
-                  this.tableData = res.data;
-                });
-              });
+            this.$api.Commodity.addCommodity({
+              name: this.list.name,
+              unit: this.list.unit,
+              unitType: this.list.unitType,
+              barcode: this.list.barcode,
+              salesPrice: this.list.salesPrice,
+              listPrice: this.list.listPrice,
+              costPrice: this.list.costPrice,
+              description: this.list.description
+            }).then(() => {
+              this.getCommodity();
+              this.$message.success("新增商品成功");
+            });
             this.visible = true;
           }
         }
@@ -358,43 +355,36 @@ export default {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
           if (this.changeTitle === "新增商品") {
-            axios
-              .post("/erp/product/addProduct", {
-                "name":"昇龍餃",
-                "salesPrice":122.0,
-                "unit":"KG",
-                "unitType":"WEIGHT",
-                "listPrice":null,
-                "costPrice":199.0,
-                "barcode":"dasdas",
-                "description":null,
-                "use":true
-              })
-              .then(() => {
-                axios.get("/erp/product/productList?productName=&pageNumber=0&pageSize=10").then(res => {
-                  this.tableData = res.data;
-                });
-              });
+            this.$api.Commodity.addCommodity({
+              name: this.list.name,
+              unit: this.list.unit,
+              unitType: this.list.unitType,
+              barcode: this.list.barcode,
+              salesPrice: this.list.salesPrice,
+              listPrice: this.list.listPrice,
+              costPrice: this.list.costPrice,
+              description: this.list.description
+            }).then(() => {
+              this.getCommodity();
+              this.$message.success("新增商品成功");
+            });
             this.visible = false;
           } else {
-            axios
-              .put("/erp/product/updateProduct", {
-                id: this.track,
-                name: this.list.name,
-                unit: this.list.unit,
-                unitType: this.list.unitType,
-                barcode: this.list.barcode,
-                salesPrice: this.list.salesPrice,
-                listPrice: this.list.listPrice,
-                costPrice: this.list.costPrice,
-                description: this.list.description,
-                use: this.check
-              })
-              .then(() => {
-                axios.get("/erp/product/productList?productName=&pageNumber=0&pageSize=10").then(res => {
-                  this.tableData = res.data;
-                });
-              });
+            this.$api.Commodity.updateCommodity({
+              id: this.track,
+              name: this.list.name,
+              unit: this.list.unit,
+              unitType: this.list.unitType,
+              barcode: this.list.barcode,
+              salesPrice: this.list.salesPrice,
+              listPrice: this.list.listPrice,
+              costPrice: this.list.costPrice,
+              description: this.list.description,
+              use: true
+            }).then(() => {
+              this.getCommodity();
+              this.$message.success("修改商品成功");
+            });
             this.visible = false;
             this.loading = false;
           }
@@ -411,17 +401,16 @@ export default {
     editHandler(record) {
       this.track = record.id;
       this.changeTitle = "編輯商品";
-      if (this.check === true) {
-        this.visible = true
+      if (record.use === true) {
         if (record !== "") {
           (this.list.name = record.name),
             (this.list.barcode = record.barcode),
-            (this.list.unit = this.unitList.find(item => item.type === record.unit)),
-             this.list.unit = this.list.unit.val,
+            (this.list.unit = computedWeight(record.unit)),
             (this.list.salesPrice = record.salesPrice),
             (this.list.listPrice = record.listPrice),
             (this.list.costPrice = record.costPrice),
-            (this.list.description = record.description)
+            (this.list.description = record.description);
+          this.visible = true;
         }
       }
     },
@@ -434,25 +423,29 @@ export default {
     // },
     onSearch() {
       if (this.search) {
-        axios.get("/erp/product/productList?productName=&pageNumber=0&pageSize=10").then(res => {
-          this.tableData = res.data;
-        });
+        this.getCommodity();
       }
     },
-    onShowSizeChange(pageNumber, pageSize) {
-      this.pageSize = pageSize;
+    onShowSizeChange(current, pageSize) {
+      this.$api.Commodity.getCommodityList({
+        productName: this.search,
+        pageNumber: current,
+        pageSize: pageSize
+      }).then(res =>{
+        console.log(res)
+        this.tableData = res.data.content
+      })
     },
-    onChange(checked) {
-      this.check = checked
-      // axios.put('/erp/product/updateProduct',{use:this.list.use})
-      // .then(()=>{
-      //   this.check = check
-      //   axios.get("/erp/product/productList?productName=&pageNumber=1&pageSize=10").then(res => {
-      //     console.log(res)
-      //     this.tableData = res.data;
-      //   });
-      // })
-
+    onChange(checked, record) {
+      axios
+        .put(
+          `/erp/product/changeStatus?productId=${record.id}&status=${checked}`
+        )
+        .then(res => {
+          console.log(res);
+          record.use = checked;
+          this.$message.success("修改狀態成功");
+        });
     }
   }
 };

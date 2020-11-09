@@ -4,7 +4,7 @@
       <div class="action-add">
         <a-button class="button1" @click="showModal">新增<a-icon type="plus" /></a-button>
       </div>
-      <a-modal v-model="visible" width="500px" :title="changeTitle">
+      <a-modal v-model="visible" width="500px" :title="changeTitle" @cancel="clearInput">
         <div class="class-input">
           <label>類別名稱:</label>
           <a-input
@@ -34,7 +34,6 @@
             v-model="search"
             placeholder="搜尋內容"
             enter-button
-            @click="onSearch"
           />
         </div>
       </div>
@@ -42,7 +41,7 @@
     <div class="itemMenu">
       <a-table
         :columns="columns"
-        :data-source="tableData"
+        :data-source="filterText"
         bordered
         :pagination="false"
         rowKey="id"
@@ -86,7 +85,6 @@
 </template>
 
 <script>
-import axios from "axios";
 export default {
   name: "Classify",
   data() {
@@ -140,27 +138,39 @@ export default {
   created() {
     this.getClassifyList();
   },
+  computed:{
+    filterText(){
+      if(!this.search){
+        return this.tableData
+      }else {
+        return this.tableData.filter(item => item.className.includes(this.search))
+      }
+    }
+  },
   methods: {
     showModal() {
       this.changeTitle = "新增類別";
       this.visible = true;
     },
+    clearInput(){
+      this.list.className = ""
+    },
     handleOk() {
       if (this.changeTitle === "新增類別") {
-        axios
-          .post("/erp/class/addClass", { name: this.list.className })
+        this.$api.Classify.addClass({ name: this.list.className })
           .then(() => {
             this.getClassifyList();
+            this.$message.info('新增類別成功');
           });
         this.visible = false;
       } else {
-        axios
-          .put("/erp/class/updateClass/", {
-            classId: this.track,
-            className: this.list.className
-          })
+        this.$api.Classify.updateClass({
+          classId: this.track,
+          className: this.list.className
+        })
           .then(() => {
             this.getClassifyList();
+            this.$message.info('修改類別成功');
           });
         this.visible = false;
       }
@@ -168,23 +178,23 @@ export default {
     handleCancel() {
       this.visible = false;
     },
-    onSearch() {},
     editHandler(record) {
       this.track = record.id;
       this.changeTitle = "編輯類別";
       if (record !== "") {
-        console.log(record);
         this.list.className = record.className;
         this.visible = true;
       }
     },
     onDelete(id) {
-      axios.delete("/erp/class/deleteClass/" + id).then(() => {
+      this.$api.Classify.deleteClass(id)
+       .then(() => {
         this.getClassifyList();
+        this.$message.info('刪除類別成功');
       });
     },
     getClassifyList() {
-      axios.get("/erp/class/classList").then(res => {
+      this.$api.Customer.getClass().then(res => {
         this.tableData = res.data;
       });
     }

@@ -34,21 +34,21 @@ const routes = [
           ]
         }
       },
-      {
-        path: "/InventoryLog",
-        name: "InventoryLog",
-        component: () => import("../views/Inventory/InventoryLog"),
-        meta: {
-          breadcrumb: [
-            {
-              name: "庫存管理"
-            },
-            {
-              name: "庫存異動紀錄"
-            }
-          ]
-        }
-      },
+      // {
+      //   path: "/InventoryLog",
+      //   name: "InventoryLog",
+      //   component: () => import("../views/Inventory/InventoryLog"),
+      //   meta: {
+      //     breadcrumb: [
+      //       {
+      //         name: "庫存管理"
+      //       },
+      //       {
+      //         name: "庫存異動紀錄"
+      //       }
+      //     ]
+      //   }
+      // },
       {
         path: "/Distribute",
         name: "Distribute",

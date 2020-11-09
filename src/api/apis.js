@@ -20,17 +20,39 @@ const api = {
     },
     delete(record) {
       return request.delete('/client/removeClient/' + record.id)
+    },
+    discount(params){
+      return request.get('/discount/getClientDiscount/',{params})
+    }
+  },
+  Classify: {
+    addClass(data){
+      return request.post('/class/addClass',data)
+    },
+    updateClass(data){
+      return request.put('/class/updateClass',data)
+    },
+    deleteClass(id){
+      return request.delete('/class/deleteClass/'+ id)
     }
   },
   Commodity:{
-    addCommodity(){
-      return request.post('/product/addProduct')
+    getCommodityList(params){
+      return request.get('/product/productList', {params})
+    },
+    addCommodity(data){
+      return request.post('/product/addProduct', data)
     },
     updateCommodity(data){
       return request.put('/product/updateProduct/',data)
     },
     deleteCommodity(record) {
       return Promise.resolve('/product/deleteProduct/'+ record.id);
+    }
+  },
+  Distribute:{
+    getDistributeList(params){
+      return request.get('deliveryOrder/getDetail?orderNo="20201105A0014"',{params})
     }
   }
 };
