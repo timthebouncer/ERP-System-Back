@@ -8,25 +8,42 @@
         >
         <a-button class="addButton2" @click="showAddOrderView">銷貨+</a-button>
       </div>
-      <div class="addPurchaseView">
+      <div>
         <a-modal
           v-model="purchaseViewVisible"
           width="500px"
           :title="purchaseModalTitle"
+          @cancel="addInventoryCancel"
+          class="addPurchaseView"
         >
-          <div><span>建立日期:</span><span>2020-10-10</span></div>
-          <div class="class-input" style="display: flex;">
-            <span>商品條碼:</span
-            ><a-input placeholder="請輸入" style="width: 50%;" />
+          <div>
+            <span>建立日期:</span
+            ><span>{{ moment(new Date()).format('YYYY-MM-DD') }}</span>
           </div>
           <div class="class-input" style="display: flex;">
-            <span>商品名稱:</span>
-<!--            <a-input placeholder="請輸入" style="width: 50%;" />-->
-            <a-auto-complete v-model="addSearchValue" :data-source="addInventoryData" @search="addSearch"></a-auto-complete>
+            <span>商品條碼:</span>
+            <a-input
+              v-model="addSearchValue"
+              placeholder="請輸入商品條碼"
+              style="width: 50%;"
+              @pressEnter="addSearch"
+            />
+          </div>
+          <div class="class-input" style="display: flex;">
+            <span>商品名稱:</span>{{ addInventoryProductName }}
+            <!--            <a-input placeholder="請輸入" style="width: 50%;" />-->
+            <!--            <a-auto-complete v-model="addSearchValue" :data-source="addInventoryData" @search="addSearch"></a-auto-complete>-->
+          </div>
+          <div class="class-input" style="display: flex;">
+            <span>單位:</span>{{ addInventoryProductUnit }}
           </div>
           <div class="class-input" style="display: flex;">
             <span>數量:</span
-            ><a-input placeholder="請輸入" style="width: 20%;" v-model="addInventoryAmount"/>
+            ><a-input
+              placeholder="請輸入"
+              style="width: 20%;"
+              v-model="addInventoryAmount"
+            />
           </div>
           <template slot="footer">
             <a-button key="submit" type="primary" @click="addInventory">
@@ -34,7 +51,7 @@
               <!--              @click="handleOk"-->
               儲存
             </a-button>
-            <a-button key="back" @click="handleCancel">
+            <a-button key="back" @click="addInventoryCancel">
               取消
             </a-button>
           </template>
@@ -252,6 +269,7 @@
         class="inventoryTable"
         :columns="columns"
         bordered
+        :pagination="false"
         :data-source="tableData"
         :rowKey="record => record.id"
         :expandedRowKeys="expandIndex"
@@ -279,20 +297,35 @@
               />
             </template>
             <template slot="action" slot-scope="record">
-              <a-icon
-                type="close-square"
-                theme="twoTone"
-                two-tone-color="#eb2f96"
-                :style="{ fontSize: '25px' }"
-                @click="onDelAmount(record,0)"
-              />
+              <a-popconfirm
+                class="inventoryDeletePopconfirm"
+                @confirm="() => onDelAmount(record)"
+              >
+                <template slot="title">
+                  <span
+                    class="inventoryDeletePopTitle"
+                    style="font-size: larger;"
+                    >商品刪除後，所有資料將清空無法還原</span
+                  >
+                </template>
+                <a-icon
+                  type="close-square"
+                  theme="twoTone"
+                  two-tone-color="#eb2f96"
+                  :style="{ fontSize: '25px' }"
+                />
+              </a-popconfirm>
             </template>
           </a-table>
         </template>
         <template slot="expandAction" slot-scope="record">
           <div v-if="record.inventoryList.length">
             <a-icon
-              :type="expandIndex.indexOf(record.id)!=-1 ? 'minus-square' : 'plus-square'"
+              :type="
+                expandIndex.indexOf(record.id) != -1
+                  ? 'minus-square'
+                  : 'plus-square'
+              "
               @click="handleExpand(record.id)"
             />
           </div>
@@ -308,19 +341,48 @@
           <span v-else>{{ record.inventoryList.length }}</span>
         </template>
         <template slot="action" slot-scope="record">
-          <a-icon v-if="!record.inventoryList.length"
-            type="close-square"
-            theme="twoTone"
-            two-tone-color="#eb2f96"
-            :style="{ fontSize: '25px' }"
-          />
-          <span v-else>{{''}}</span>
+          <a-popconfirm
+            v-if="!record.inventoryList.length"
+            class="inventoryDeletePopconfirm"
+            @confirm="() => onDelAmount(record)"
+          >
+            <template slot="title">
+              <span class="inventoryDeletePopTitle" style="font-size: larger;"
+                >商品刪除後，所有資料將清空無法還原</span
+              >
+            </template>
+            <a-icon
+              type="close-square"
+              theme="twoTone"
+              two-tone-color="#eb2f96"
+              :style="{ fontSize: '25px' }"
+            />
+          </a-popconfirm>
+          <span v-else>{{ '' }}</span>
         </template>
       </a-table>
     </div>
+    <!--分頁-->
+    <a-pagination
+            class="pagination"
+            v-model="current"
+            :page-size-options="pageSizeOptions"
+            :total="total"
+            show-size-changer
+            :page-size="pageSize"
+            :show-total="total => `總共 ${total} 筆`"
+            @showSizeChange="onShowSizeChange"
+            @change="onPageChange"
+    >
+      <template slot="buildOptionText" slot-scope="props">
+        <span>{{ props.value }}筆/頁</span>
+<!--        <span v-if="props.value === '50'">全部</span>-->
+      </template>
+    </a-pagination>
   </div>
 </template>
 <script>
+import moment from 'moment'
 import EditableCell from '@/components/EditableCell'
 export default {
   name: 'Inventory',
@@ -533,16 +595,30 @@ export default {
         }
       ],
       innerTableExpanded: false,
-      addSearchValue:'',
-      addInventoryData:[],
-      addInventoryAmount:0
+      addSearchValue: '',
+      addInventoryData: [],
+      addInventoryProductId: '',
+      addInventoryProductName: '',
+      addInventoryProductUnit: '',
+      addInventoryAmount: 0,
+      pageSizeOptions: ["10", "25", "50"],
+      current: 1,
+      pageSize: 10,
+      total: 10,
+      alertMsgTitle: '',
+      alertMessage: ''
     }
   },
   computed: {},
   methods: {
+    openNotificationWithIcon(type) {
+      this.$notification[type]({
+        message: this.alertMsgTitle,
+        description:
+                this.alertMessage,
+      });
+    },
     handleExpand(index) {
-      // console.log(index);
-      // this.innerTableExpanded = !this.innerTableExpanded
       if (this.expandIndex.length > 0) {
         let id = this.expandIndex.indexOf(index)
         if (id > -1) {
@@ -557,7 +633,7 @@ export default {
     },
     getInventoryList(productName) {
       this.tableData = []
-      this.$api.Inventory.getList(productName, 1, 10)
+      this.$api.Inventory.getList(productName, this.current, this.pageSize)
         .then(res => {
           this.tableData = res.data.content.map((item, index) => {
             let obj = {
@@ -566,8 +642,8 @@ export default {
             }
             return obj
           })
+          this.total = res.data.totalElements;
           console.log(res)
-          // this.tableData = res.data;
           console.log(this.tableData)
         })
         .catch(err => {
@@ -587,7 +663,6 @@ export default {
       this.tableData[id].amount = value
     },
     onInnerCellChange(record, value) {
-      // this.tableData[]
       console.log(record, 'record')
       const data = {}
       data.id = record.inventoryId
@@ -596,18 +671,35 @@ export default {
       console.log(data)
       this.$api.Inventory.edit(data)
         .then(() => {
-          this.getInventoryList(this.search);
+          this.getInventoryList(this.search)
         })
         .catch(err => {
           console.log(err)
         })
     },
-    onDelAmount(record,value){
+    onDelAmount(record) {
       console.log('delte amount')
+      this.$api.Inventory.deleteInventory(record.inventoryId)
+        .then((res) => {
+          console.log(res);
+          this.getInventoryList(this.search)
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     handleCancel() {
       this.purchaseViewVisible = false
       this.orderViewVisible = false
+    },
+    addInventoryCancel() {
+      this.purchaseViewVisible = false
+      this.addSearchValue = ''
+      this.addInventoryData = []
+      this.addInventoryProductId = ''
+      this.addInventoryProductName = ''
+      this.addInventoryProductUnit = ''
+      this.addInventoryAmount = 0
     },
     handleAdd() {
       const { orderData } = this
@@ -629,37 +721,69 @@ export default {
       this.orderData = orderData
     },
     addSearch() {
-      this.$api.Inventory.searchProduct(this.addSearchValue).then(res=>{
-        console.log(res.data);
-        // this.addInventoryData = res.data;
-        this.addInventoryData=[];
-        res.data.map((item)=>{
-          this.addInventoryData.push(item.productName);
-        })
+      this.addInventoryProductName = ''
+      this.addInventoryProductUnit = ''
+      this.$api.Inventory.searchProduct(this.addSearchValue).then(res => {
+        console.log(res.data)
+        this.addInventoryData = res.data
+        // this.addInventoryData=[];
+        if (this.addInventoryData.length) {
+          if (
+            this.addInventoryData[0].barcode != null &&
+            this.addInventoryData[0].barcode != ''
+          ) {
+            this.addInventoryProductId = this.addInventoryData[0].id
+            this.addSearchValue = this.addInventoryData[0].barcode
+            this.addInventoryProductName = this.addInventoryData[0].name
+            this.addInventoryProductUnit = this.addInventoryData[0].unit
+          }
+        }
       })
     },
-    addSelect() {
-
-    },
-    addChange() {
-
-    },
+    addSelect() {},
+    addChange() {},
     addInventory() {
-      const data = {};
-      data.productId = '';
-      data.amount = this.addInventoryAmount;
-      data.barcode = '';
-      console.log(data);
-    }
+      const data = {}
+      data.productId = this.addInventoryProductId
+      data.amount = this.addInventoryAmount
+      data.barcode = this.addSearchValue
+      data.unit = this.addInventoryProductUnit
+      data.weight = 0
+      console.log(data)
+      this.$api.Inventory.addInventory(data)
+        .then(res => {
+          console.log(res)
+          this.purchaseViewVisible = false
+          this.addSearchValue = ''
+          this.addInventoryData = []
+          this.addInventoryProductId = ''
+          this.addInventoryProductName = ''
+          this.addInventoryProductUnit = ''
+          this.addInventoryAmount = 0
+          this.getInventoryList(this.search)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    onShowSizeChange(current, pageSize){
+      // console.log(current);
+      this.current = 1;
+      this.pageSize = pageSize;
+      this.getInventoryList(this.search);
+    },
+    onPageChange(current, pageSize){
+      console.log(current);
+      // console.log(pageSize);
+      // console.log(this.total);
+      this.getInventoryList(this.search);
+    },
+    moment
   },
   created() {
-    this.getInventoryList(this.search)
+    this.getInventoryList(this.search);
   },
-  mounted() {
-    // this.getInventoryList(this.search);
-    // document.getElementsByClassName('')
-    // document.getElementsByClassName('ant-table-expand-icon-th').
-  }
+  mounted() {}
 }
 </script>
 <style scoped lang="scss">
@@ -735,5 +859,13 @@ export default {
   width: 0;
   border-right: 0 !important;
   display: none;
+}
+.addPurchaseView /deep/ .ant-modal-body {
+  font-size: 16px;
+}
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
 }
 </style>

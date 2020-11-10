@@ -31,6 +31,12 @@ const api = {
     },
     searchProduct(searchKey){
       return request.get("/product/getProduct?searchKey="+searchKey);
+    },
+    addInventory(data){
+      return request.post("/inventory/stockIn",data);
+    },
+    deleteInventory(id){
+      return request.delete("/inventory/deleteInventory/"+id);
     }
 
   },
