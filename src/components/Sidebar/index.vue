@@ -49,7 +49,7 @@ export default {
     return {
       // current: ['mail'],
       openKeys: ['sub1'],
-    };
+    }
   },
   mounted() {
 

@@ -39,6 +39,24 @@ const api = {
       return request.delete('/class/deleteClass/'+ id)
     }
   },
+  Inventory: {
+    getList(productName,pageNumber,pageSize) {
+      return request.get("/inventory/stockList?productName="+productName+"&pageNumber="+pageNumber+"&pageSize="+pageSize);
+    },
+    edit(data){
+      return request.put("/inventory/updateStock", data);
+    },
+    searchProduct(searchKey){
+      return request.get("/product/getProduct?searchKey="+searchKey);
+    },
+    addInventory(data){
+      return request.post("/inventory/stockIn",data);
+    },
+    deleteInventory(id){
+      return request.delete("/inventory/deleteInventory/"+id);
+    }
+
+  },
   Commodity:{
     getCommodityList(params){
       return request.get('/product/productList', {params})

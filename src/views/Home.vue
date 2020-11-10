@@ -16,7 +16,7 @@
         <a-breadcrumb style="margin: 16px 0" :routes="breadcrumbList">
           <template
             slot="itemRender"
-            slot-scope="{ route, params, routes, paths }"
+            slot-scope="{ route, routes, paths }"
           >
             <span v-if="routes.indexOf(route) === routes.length - 1">
               {{ route.name }}
