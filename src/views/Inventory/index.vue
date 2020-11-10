@@ -685,7 +685,10 @@ export default {
           this.getInventoryList(this.search)
         })
         .catch(err => {
-          console.log(err)
+          console.log(err.response.data.message)
+          this.alertMsgTitle = '錯誤';
+          this.alertMessage = err.response.data.message;
+          this.openNotificationWithIcon('error');
         })
     },
     handleCancel() {
