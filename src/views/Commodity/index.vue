@@ -311,7 +311,7 @@ export default {
         pageSize: this.pageSize
       })
         .then(res => {
-          this.tableData = res.data.content;
+          this.tableData = res.data.content.map(e=>({...e,unit:computedWeight(undefined,e.unit)}));
         })
         .catch(err => {
           console.log(err);

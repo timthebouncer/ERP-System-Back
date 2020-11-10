@@ -23,6 +23,9 @@ const api = {
     },
     discount(params){
       return request.get('/discount/getClientDiscount/',{params})
+    },
+    discountRemove(row){
+      return request.delete('/discount/deleteDiscount/' + row.id)
     }
   },
   Classify: {
@@ -52,7 +55,7 @@ const api = {
   },
   Distribute:{
     getDistributeList(params){
-      return request.get('deliveryOrder/getDetail?orderNo="20201105A0014"',{params})
+      return request.get('deliveryOrder/orderList',{params})
     }
   }
 };

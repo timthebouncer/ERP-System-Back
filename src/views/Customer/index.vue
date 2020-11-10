@@ -180,7 +180,7 @@
                     >
                       <a-icon type="plus" />
                     </a-button>
-                    <a-table
+                    <a-table class="discountTable"
                       bordered
                       :data-source="discountTable"
                       :columns="columns2"
@@ -364,12 +364,12 @@
 <script>
 import axios from "axios";
 import { computedWeight } from "@/unit/dictionary/computed";
+import Fragment from "@/components/Fragment";
 
 export default {
   name: "Customer",
   data() {
     return {
-      // login:{username:'',password: ""},
       loading: false,
       visible: false,
       changeTitle: "",
@@ -557,7 +557,7 @@ export default {
                   <div>
                     <a-popconfirm
                       title="Sure to delete?"
-                      onConfirm={() => this.deleteDiscount(index)}
+                      onConfirm={() => this.deleteDiscount(row, index)}
                     >
                       <a>刪除</a>
                     </a-popconfirm>
@@ -595,8 +595,6 @@ export default {
     axios
       .get("/erp/product/productList?productName=&pageNumber=1&pageSize=10")
       .then(res => {
-        // this.discountTable = res.data;
-        // this.discountClass = res.data.content
         console.log(res);
       });
   },
@@ -622,7 +620,7 @@ export default {
     priceAndRemarkEditor() {
       return (val, row, key) => ({
         children: (
-          <div>
+          <div class="displayInput">
             {this.switches ? (
               <div>
                 <a-input
@@ -632,8 +630,11 @@ export default {
                   vOn:Keyup_enter={() => this.addNewItem()}
                 />
               </div>
-            ) : (
-              <span onClick={() => this.helloWorld()}>{val}</span>
+            ) : (<Fragment>
+              <span onClick={() => this.inputORnot()}>{val}</span>
+                <div class="displayEdit" />
+                 <a-icon class="editable-cell-icon" type="edit" onClick={() => this.inputORnot()}/>
+                 </Fragment>
             )}
           </div>
         )
@@ -649,9 +650,9 @@ export default {
       );
     },
     addNewItem() {
-      this.switches = false;
+        this.switches = false
     },
-    helloWorld() {
+    inputORnot() {
       this.switches = true;
     },
     getCustomerList() {
@@ -779,7 +780,7 @@ export default {
         .then(res => {
           if (res.data !== "") {
             this.list = res.data;
-            this.discountTableChange(1, 10)
+            this.discountTableChange(this.current, this.pageSize)
             // this.discountTable = record.discountList.map(d => ({
             //   id: d.id,
             //   name: d.productName,
@@ -825,7 +826,7 @@ export default {
         pageNumber: current,
         pageSize: pageSize
       }).then(res => {
-        console.log(res.data.content,666)
+        this.discountTable = res.data;
         this.discountTable = res.data.content.map(d => ({
           id: d.discountId,
           name: d.productName,
@@ -835,8 +836,6 @@ export default {
           discountPrice: d.discountPrice,
           remark: d.remark
         }));
-        // console.log(res,999)
-        // this.discountTable = res.data.content;
       });
     },
     searchHandler() {
@@ -844,10 +843,21 @@ export default {
         this.getCustomerList();
       }
     },
-    deleteDiscount(index) {
-      const discountTable = [...this.discountTable];
-      discountTable.splice(index, 1);
-      this.discountTable = discountTable;
+    deleteDiscount(row, index) {
+      console.log(this.discountTable)
+      if(this.changeTitle === "新增客戶"){
+        this.discountTable.splice(index, 1)
+      }else{
+        this.$api.Customer.discountRemove(row)
+            .then(() => {
+              this.discountTableChange(this.current,this.pageSize)
+              this.$message.info("刪除折扣成功");
+            })
+            .catch(err => {
+              console.log(err);
+              this.$message.error("刪除折扣失敗");
+            });
+      }
     },
     handleAdd() {
       const { discountTable } = this;
@@ -886,6 +896,8 @@ export default {
   }
 };
 </script>
+
+
 
 <style scoped lang="scss">
 /*::v-deep .ant-layout{*/
@@ -965,16 +977,39 @@ export default {
   padding: 5px 24px 5px 5px;
 }
 
-.editable-cell-icon-check {
-  line-height: 28px;
-}
-
+//.editable-cell-icon-check {
+//  //line-height: 28px;
+//}
 .editable-cell:hover .editable-cell-icon {
   display: inline-block;
 }
+.discountTable::v-deep .ant-table-row td{
+  position: relative;
+}
+.displayInput{
+  display: flex;
+  justify-content: space-between;
+}
+.displayEdit {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
+.displayEdit:hover + .editable-cell-icon{
+  display: block;
+  //position: absolute;
+}
+.editable-cell-icon {
+  display: none;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  top: 3.5px;
+}
 
-.editable-cell-icon:hover,
-.editable-cell-icon-check:hover {
-  color: #108ee9;
+.editable-cell-icon:hover{
+  display: block;
 }
 </style>

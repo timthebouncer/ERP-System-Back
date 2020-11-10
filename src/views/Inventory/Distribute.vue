@@ -34,7 +34,7 @@
             'operation'
           ]"
           :slot="col"
-          slot-scope="text"
+          slot-scope="text, record"
         >
           <div :key="col">
             <template v-if="col === 'orderNo'">
@@ -44,12 +44,10 @@
                     <template>
                       <div
                         class="detail-menu"
-                        v-for="item in tableData"
-                        :key="item.id"
                       >
-                        <span> 銷貨日期: {{ item.salesDay }} </span>
-                        <span> 銷貨單號: {{ item.orderNo }} </span>
-                        <span> 客戶姓名: {{ item.clientName }} </span>
+                        <span> 銷貨日期: {{ record.date }} </span>
+                        <span> 銷貨單號: {{ record.orderNo }} </span>
+                        <span> 客戶姓名: {{ record.clientName }} </span>
                       </div>
                     </template>
                     <a-table
@@ -111,7 +109,8 @@
         :total="total"
         show-size-changer
         :page-size="pageSize"
-        @showSizeChange="onShowSizeChange"
+        @change="distributeList"
+        @showSizeChange="distributeList"
       >
       </a-pagination>
     </div>
@@ -122,10 +121,11 @@ import axios from "axios";
 import moment from 'moment'
 export default {
   data() {
-    const date = moment().format("YYYY/MM/DD")
+    const date = moment().format("YYYY-MM-DD")
     return {
       tableData: [],
       orderList: [],
+      detailInfo:{},
       Calculate: {},
       columns: [
         {
@@ -214,9 +214,13 @@ export default {
   },
   created() {
     this.distributeList();
+    // axios.get('/erp/deliveryOrder/orderList?orderNo=&startDate=2020-10-01&endDate=2020-11-30&pageNumber=1&pageSize=10')
+    // .then((res)=>{
+    //   this.tableData = res.data.content;
+    // })
     axios
       .get(
-        "/erp/deliveryOrder/getDetail?orderId=402828337596ee6e017596ef27a00001"
+        "/erp/deliveryOrder/getDetail?orderId=4028283375ab711c0175ab74bb040001"
       )
       .then(res => {
         this.orderList = res.data.orderDetailItemResponseList;
@@ -233,25 +237,25 @@ export default {
     onChange(date, dateString) {
       this.startDate = dateString[0],
       this.endDate = dateString[1]
+      this.distributeList()
     },
-    distributeList(){
+    distributeList() {
       this.$api.Distribute.getDistributeList({
-      starDate:this.startDate,
-      endDate:this.endDate,
-      pageNumber:this.pageNumber,
-      pageSize:this.pageSize,})
-      .then(res => {
-          console.log(res);
-          this.tableData = res.data.content;
-        });
+        orderNo: "",
+        startDate: this.startDate,
+        endDate: this.endDate,
+        pageNumber: this.pageNumber,
+        pageSize: this.pageSize,
+      })
+          .then(res => {
+            console.log(res,999);
+            this.tableData = res.data.content;
+          });
     },
     cancelHandler() {
       axios.delete("/erp/deliveryOrder/deleteOrder").then(res => {
         console.log(res);
       });
-    },
-    onShowSizeChange(pageNumber, pageSize) {
-      this.pageSize = pageSize;
     }
   }
 };
