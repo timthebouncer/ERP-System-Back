@@ -635,7 +635,7 @@ export default {
       this.tableData = []
       this.$api.Inventory.getList(productName, this.current, this.pageSize)
         .then(res => {
-          this.tableData = res.data.content.map((item, index) => {
+          this.tableData = res.data.inventoryListResponseList.map((item, index) => {
             let obj = {
               id: index,
               ...item
