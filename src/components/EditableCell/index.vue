@@ -32,24 +32,31 @@ export default {
       inputId: this.id,
       editable: false,
       inputRef:'input'+this.id,
-      amountInput:[]
+      amountInput:[],
+      checkEnter:false
     };
   },
   methods: {
     handleChange(e) {
+      this.checkEnter = false;
       const value = e.target.value;
       this.value = value;
     },
     check() {
+      console.log('check')
+      this.checkEnter = true;
       this.editable = false;
       this.$emit("change", this.value);
     },
     cancel() {
-      this.value = this.lastValue;
-      this.editable = false;
+      if(!this.checkEnter){
+        console.log('focus out');
+        this.value = this.lastValue;
+        this.editable = false;
+      }
     },
     edit() {
-      console.log(this.value);
+      // console.log(this.value);
       this.lastValue = this.value;
       this.editable = true;
       this.$nextTick(() =>{
@@ -58,6 +65,7 @@ export default {
     }
   },
   created() {
+    this.checkEnter = false;
   }
 };
 </script>
