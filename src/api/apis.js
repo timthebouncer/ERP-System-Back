@@ -49,14 +49,17 @@ const api = {
     edit(data){
       return request.put("/inventory/updateStock", data);
     },
-    // searchProduct(searchKey){
-    //   return request.get("/product/getProduct?searchKey="+searchKey);
-    // },
+    searchProduct(searchKey){
+      return request.get("/product/getProduct?searchKey="+searchKey);
+    },
     addInventory(data){
       return request.post("/inventory/stockIn",data);
     },
     deleteInventory(id){
       return request.delete("/inventory/deleteInventory/"+id);
+    },
+    getInventoryLogList(data) {
+      return request.post("/inventoryLog/list",data);
     },
     onlyCustomerList() {
       return request.get('/client/clientList?searchKey=')
