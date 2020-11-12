@@ -54,6 +54,9 @@ const api = {
     },
     deleteInventory(id){
       return request.delete("/inventory/deleteInventory/"+id);
+    },
+    getInventoryLogList(data) {
+      return request.post("/inventoryLog/list",data);
     }
 
   },

@@ -257,7 +257,7 @@
         <div class="searchInput">
           <a-input-search
             v-model="search"
-            placeholder="搜尋內容"
+            placeholder="請輸入商品名稱"
             enter-button
             @search="onSearch"
           />
@@ -364,19 +364,19 @@
     </div>
     <!--分頁-->
     <a-pagination
-            class="pagination"
-            v-model="current"
-            :page-size-options="pageSizeOptions"
-            :total="total"
-            show-size-changer
-            :page-size="pageSize"
-            :show-total="total => `總共 ${total} 筆`"
-            @showSizeChange="onShowSizeChange"
-            @change="onPageChange"
+      class="pagination"
+      v-model="current"
+      :page-size-options="pageSizeOptions"
+      :total="total"
+      show-size-changer
+      :page-size="pageSize"
+      :show-total="total => `總共 ${total} 筆`"
+      @showSizeChange="onShowSizeChange"
+      @change="onPageChange"
     >
       <template slot="buildOptionText" slot-scope="props">
         <span>{{ props.value }}筆/頁</span>
-<!--        <span v-if="props.value === '50'">全部</span>-->
+        <!--        <span v-if="props.value === '50'">全部</span>-->
       </template>
     </a-pagination>
   </div>
@@ -601,7 +601,7 @@ export default {
       addInventoryProductName: '',
       addInventoryProductUnit: '',
       addInventoryAmount: 0,
-      pageSizeOptions: ["10", "25", "50"],
+      pageSizeOptions: ['10', '30', '50', '100'],
       current: 1,
       pageSize: 10,
       total: 10,
@@ -614,9 +614,8 @@ export default {
     openNotificationWithIcon(type) {
       this.$notification[type]({
         message: this.alertMsgTitle,
-        description:
-                this.alertMessage,
-      });
+        description: this.alertMessage
+      })
     },
     handleExpand(index) {
       if (this.expandIndex.length > 0) {
@@ -635,14 +634,16 @@ export default {
       this.tableData = []
       this.$api.Inventory.getList(productName, this.current, this.pageSize)
         .then(res => {
-          this.tableData = res.data.inventoryListResponseList.map((item, index) => {
-            let obj = {
-              id: index,
-              ...item
+          this.tableData = res.data.inventoryListResponseList.map(
+            (item, index) => {
+              let obj = {
+                id: index,
+                ...item
+              }
+              return obj
             }
-            return obj
-          })
-          this.total = res.data.totalElements;
+          )
+          this.total = res.data.totalElements
           console.log(res)
           console.log(this.tableData)
         })
@@ -680,15 +681,15 @@ export default {
     onDelAmount(record) {
       console.log('delte amount')
       this.$api.Inventory.deleteInventory(record.inventoryId)
-        .then((res) => {
-          console.log(res);
+        .then(res => {
+          console.log(res)
           this.getInventoryList(this.search)
         })
         .catch(err => {
           console.log(err.response.data.message)
-          this.alertMsgTitle = '錯誤';
-          this.alertMessage = err.response.data.message;
-          this.openNotificationWithIcon('error');
+          this.alertMsgTitle = '錯誤'
+          this.alertMessage = err.response.data.message
+          this.openNotificationWithIcon('error')
         })
     },
     handleCancel() {
@@ -769,22 +770,22 @@ export default {
           console.log(err)
         })
     },
-    onShowSizeChange(current, pageSize){
+    onShowSizeChange(current, pageSize) {
       // console.log(current);
-      this.current = 1;
-      this.pageSize = pageSize;
-      this.getInventoryList(this.search);
+      this.current = 1
+      this.pageSize = pageSize
+      this.getInventoryList(this.search)
     },
-    onPageChange(current, pageSize){
-      console.log(current);
+    onPageChange(current, pageSize) {
+      console.log(current)
       // console.log(pageSize);
       // console.log(this.total);
-      this.getInventoryList(this.search);
+      this.getInventoryList(this.search)
     },
     moment
   },
   created() {
-    this.getInventoryList(this.search);
+    this.getInventoryList(this.search)
   },
   mounted() {}
 }
