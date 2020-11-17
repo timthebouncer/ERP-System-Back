@@ -78,6 +78,11 @@ const api = {
     getDistributeList(params){
       return request.get('deliveryOrder/orderList',{params})
     }
+  },
+  Label:{
+    addLabel(data){
+      return request.post('/tag/addProductTag',data)
+    }
   }
 };
 
