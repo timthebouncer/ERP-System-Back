@@ -63,9 +63,6 @@ const api = {
     },
     onlyCustomerList() {
       return request.get('/client/clientList?searchKey=')
-    },
-    getInventoryLogList(data) {
-      return request.post("/inventoryLog/list",data);
     }
   },
   Commodity:{
@@ -104,11 +101,6 @@ const api = {
       return request.post('/tag/addProductTag',data)
     }
   },
-  Label:{
-    addLabel(data){
-      return request.post('/tag/addProductTag',data)
-    }
-  }
 };
 
 export default api;

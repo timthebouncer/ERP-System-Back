@@ -23,7 +23,7 @@
           <div class="class-input" style="display: flex;">
             <span>商品條碼:</span>
             <a-input
-              v-model="addSearchValue"
+              v-model="productBarcode"
               placeholder="請輸入商品條碼"
               style="width: 50%;"
               @pressEnter="addSearch"
@@ -634,7 +634,7 @@ export default {
       ],
       innerTableExpanded: false,
       addSearchValue: '',
-      barcode: '',
+      productBarcode: '',
       addInventoryData: [],
       addInventoryProductId: '',
       addInventoryProductName: '',
@@ -859,7 +859,7 @@ export default {
       this.addInventoryProductUnit = ''
       this.$api.Commodity.getCommodityDetail({
         searchKey: this.search,
-        barcode: this.barcode
+        barcode: this.productBarcode
       }).then(res => {
         this.addInventoryData = res.data
         // this.addInventoryData=[];
