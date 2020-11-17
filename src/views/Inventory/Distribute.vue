@@ -2,15 +2,23 @@
   <div class="container">
     <div class="distribute-action">
       <div class="calendar">
-        <a-date-picker @change="onChange" />
-        <a-range-picker @change="onChange" />
+        <a-select :defaultValue="1" style="width: 100px;" @change="changeDate">
+          <a-select-option :value="0">今天</a-select-option>
+          <a-select-option :value="1">本週</a-select-option>
+          <a-select-option :value="2">本月</a-select-option>
+          <a-select-option :value="3">上個月</a-select-option>
+          <a-select-option :value="4">全部</a-select-option>
+        </a-select>
+        <a-range-picker :value="differentDate" @change="onChange" />
       </div>
       <div class="search-wrapper">
         <div class="search-input">
           <a-input-search
             v-model="search"
-            placeholder="搜尋內容"
+            placeholder="搜尋單號"
             enter-button
+            autoFocus
+            @search="searchHandler"
           />
         </div>
       </div>
@@ -38,7 +46,7 @@
         >
           <div :key="col">
             <template v-if="col === 'orderNo'">
-              <a-popover placement="bottom" trigger="click">
+              <a-popover placement="bottom" trigger="click" @visibleChange="showDetail(record)">
                 <template slot="content">
                   <div>
                     <template>
@@ -93,11 +101,14 @@
           </div>
         </template>
         <template slot="operation" slot-scope="text, record">
-          <a-space>
-            <a-button type="link" size="small" @click="cancelHandler(record)"
+          <a-popconfirm
+              title="取消訂單後將無法復原"
+              @confirm="() => cancelHandler(record)"
+          >
+            <a-button type="link" size="small"
               >取消訂單</a-button
             >
-          </a-space>
+          </a-popconfirm>
         </template>
       </a-table>
     </div>
@@ -109,9 +120,13 @@
         :total="total"
         show-size-changer
         :page-size="pageSize"
-        @change="distributeList"
-        @showSizeChange="distributeList"
+        :show-total="total => `總共 ${total} 筆`"
+        @showSizeChange="onShowSizeChange"
+        @change="onPageChange"
       >
+        <template slot="buildOptionText" slot-scope="props">
+          <span>{{ props.value }}筆/頁</span>
+        </template>
       </a-pagination>
     </div>
   </div>
@@ -121,8 +136,12 @@ import axios from "axios";
 import moment from 'moment'
 export default {
   data() {
-    const date = moment().format("YYYY-MM-DD")
+    let differentDate = [
+      moment().isoWeekday(1).startOf('day'),
+      moment().isoWeekday(7).startOf('day')
+    ];
     return {
+      differentDate,
       tableData: [],
       orderList: [],
       detailInfo:{},
@@ -204,24 +223,99 @@ export default {
         }
       ],
       search: "",
-      pageSizeOptions: ["10", "20", "30"],
+      pageSizeOptions: ["10", "30", "50", "100"],
       pageNumber: 1,
       pageSize: 10,
       total: 30,
-      startDate:date,
-      endDate:date
+      startDate:differentDate[0].format("YYYY-MM-DD"),
+      endDate:differentDate[1].format("YYYY-MM-DD")
     };
   },
   created() {
     this.distributeList();
-    // axios.get('/erp/deliveryOrder/orderList?orderNo=&startDate=2020-10-01&endDate=2020-11-30&pageNumber=1&pageSize=10')
-    // .then((res)=>{
-    //   this.tableData = res.data.content;
-    // })
-    axios
-      .get(
-        "/erp/deliveryOrder/getDetail?orderId=4028283375ab711c0175ab74bb040001"
-      )
+  },
+  methods: {
+    changeDate(expression){
+      switch (expression) {
+        case 0: this.differentDate=[
+          moment().startOf('day'),
+          moment().endOf('day')
+           ]
+          this.startDate = this.differentDate[0].format("YYYY-MM-DD")
+          this.endDate = this.differentDate[1].format("YYYY-MM-DD")
+          this.distributeList()
+          break;
+        case 1: this.differentDate = [
+          moment().isoWeekday(1).startOf('day'),
+          moment().isoWeekday(7).startOf('day')
+        ]
+          this.startDate = this.differentDate[0].format("YYYY-MM-DD")
+          this.endDate = this.differentDate[1].format("YYYY-MM-DD")
+          this.distributeList()
+          break;
+        case 2:this.differentDate = [
+          moment().date(1).startOf('day'),
+          moment().endOf('month')
+        ]
+          this.startDate = this.differentDate[0].format("YYYY-MM-DD")
+          this.endDate = this.differentDate[1].format("YYYY-MM-DD")
+          this.distributeList()
+          break;
+        case 3:this.differentDate = [
+          moment()
+              .month(moment().month() - 1)
+              .date(1)
+              .startOf('day'),
+          moment()
+              .month(moment().month() - 1)
+              .endOf('month')
+        ]
+          this.startDate = this.differentDate[0].format("YYYY-MM-DD")
+          this.endDate = this.differentDate[1].format("YYYY-MM-DD")
+          this.distributeList()
+          break;
+        case 4:this.differentDate = [""]
+            this.startDate = this.differentDate[0]
+            this.endDate = this.differentDate[0]
+            this.distributeList()
+          break;
+      }
+    },
+    // formatToDate: string = 'YYYY-MM-DD'
+    onChange(date, dateString) {
+      this.startDate = dateString[0],
+      this.endDate = dateString[1]
+      this.distributeList()
+    },
+    distributeList() {
+      this.$api.Distribute.getDistributeList({
+        orderNo: this.search,
+        startDate: this.startDate,
+        endDate: this.endDate,
+        pageNumber: this.pageNumber,
+        pageSize: this.pageSize,
+      })
+          .then(res => {
+            this.total = res.data.totalElements;
+            console.log(res,999);
+            this.tableData = res.data.content;
+          });
+    },
+    onShowSizeChange(current, pageSize){
+      // console.log(current);
+      this.pageNumber = 1;
+      this.pageSize = pageSize;
+      this.distributeList(this.search);
+    },
+    onPageChange(current){
+      console.log(current);
+      // console.log(pageSize);
+      // console.log(this.total);
+      this.distributeList(this.search);
+    },
+    showDetail(record){
+      console.log(record,666)
+      this.$api.Distribute.getDistributeDetail({orderId:record.orderId})
       .then(res => {
         this.orderList = res.data.orderDetailItemResponseList;
         let count = 0;
@@ -232,30 +326,16 @@ export default {
         });
         this.Calculate = { count, total };
       });
-  },
-  methods: {
-    onChange(date, dateString) {
-      this.startDate = dateString[0],
-      this.endDate = dateString[1]
-      this.distributeList()
     },
-    distributeList() {
-      this.$api.Distribute.getDistributeList({
-        orderNo: "",
-        startDate: this.startDate,
-        endDate: this.endDate,
-        pageNumber: this.pageNumber,
-        pageSize: this.pageSize,
-      })
-          .then(res => {
-            console.log(res,999);
-            this.tableData = res.data.content;
-          });
-    },
-    cancelHandler() {
-      axios.delete("/erp/deliveryOrder/deleteOrder").then(res => {
-        console.log(res);
+    cancelHandler(record) {
+      this.$api.Distribute.deleteOrderList(record)
+     .then(() => {
+       record.remark = "註銷"
+       // this.distributeList();
       });
+    },
+    searchHandler(){
+        this.distributeList()
     }
   }
 };

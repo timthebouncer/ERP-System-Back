@@ -9,6 +9,7 @@
           <label>類別名稱:</label>
           <a-input
             v-model="list.className"
+            autoFocus
             label="類別名稱"
             placeholder="請輸入"
           />
@@ -34,6 +35,7 @@
             v-model="search"
             placeholder="搜尋內容"
             enter-button
+            autoFocus
           />
         </div>
       </div>
@@ -160,8 +162,12 @@ export default {
         this.$api.Classify.addClass({ name: this.list.className })
           .then(() => {
             this.getClassifyList();
-            this.$message.info('新增類別成功');
-          });
+            this.$message.success('新增類別成功');
+          })
+          .catch((err)=>{
+          this.$message.error('新增類別失敗');
+          console.log(err)
+        });
         this.visible = false;
       } else {
         this.$api.Classify.updateClass({
@@ -170,7 +176,11 @@ export default {
         })
           .then(() => {
             this.getClassifyList();
-            this.$message.info('修改類別成功');
+            this.$message.success('修改類別成功');
+          })
+          .catch((err)=>{
+            this.$message.error('修改類別失敗');
+            console.log(err)
           });
         this.visible = false;
       }
@@ -190,7 +200,11 @@ export default {
       this.$api.Classify.deleteClass(id)
        .then(() => {
         this.getClassifyList();
-        this.$message.info('刪除類別成功');
+        this.$message.success('刪除類別成功');
+      })
+      .catch((err)=>{
+        this.$message.error('刪除類別失敗');
+        console.log(err)
       });
     },
     getClassifyList() {

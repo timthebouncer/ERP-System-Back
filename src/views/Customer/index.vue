@@ -50,7 +50,7 @@
                 </div>
                 <div class="firstPart-item">
                   <a-form-model-item class="custom-form-item" label="電話">
-                    <a-input v-model="list.cellphone" placeholder="請輸入" />
+                    <a-input v-model="list.tel" placeholder="請輸入" />
                   </a-form-model-item>
                   <a-form-model-item class="custom-form-item" label="email">
                     <a-input v-model="list.email" placeholder="請輸入" />
@@ -61,7 +61,7 @@
                   label="地址"
                 >
                   <div style="width: 10%">
-                    <a-input v-model="list.postcode" placeholder="郵遞區號" />
+                    <a-input v-model="list.postCode" placeholder="郵遞區號" />
                   </div>
                   <div>
                     <a-input v-model="list.address" placeholder="請輸入" />
@@ -73,7 +73,7 @@
                   label="備註"
                 >
                   <div>
-                    <a-input v-model="list.reference" placeholder="請輸入" />
+                    <a-input v-model="list.remark" placeholder="請輸入" />
                   </div>
                 </a-form-model-item>
               </div>
@@ -90,7 +90,7 @@
                         label="公司名稱"
                       >
                         <a-input
-                          v-model="list.company"
+                          v-model="list.companyName"
                           placeholder="請輸入"
                           style="width: 200px"
                         />
@@ -106,7 +106,6 @@
                           style="width: 200px"
                         />
                       </a-form-model-item>
-
                       <a-form-model-item
                         class="custom-form-item"
                         label="聯絡人"
@@ -123,7 +122,7 @@
                         label="公司電話"
                       >
                         <a-input
-                          v-model="list.tel"
+                          v-model="list.companyTel"
                           placeholder="請輸入"
                           style="width: 200px"
                         />
@@ -131,7 +130,7 @@
 
                       <a-form-model-item class="custom-form-item" label="傳真">
                         <a-input
-                          v-model="list.fax"
+                          v-model="list.companyFax"
                           placeholder="請輸入"
                           style="width: 200px"
                         />
@@ -154,7 +153,7 @@
                     >
                       <div style="width: 10%">
                         <a-input
-                          v-model="list.companyPostcode"
+                          v-model="list.companyPostCode"
                           placeholder="郵遞區號"
                         />
                       </div>
@@ -180,84 +179,50 @@
                     >
                       <a-icon type="plus" />
                     </a-button>
-                    <a-table class="discountTable"
+                    <template v-if="changeTitle === '新增客戶'">
+                      <a-table
+                        class="discountTable"
+                        bordered
+                        :data-source="discountTable"
+                        :columns="columns2"
+                        :rowKey="record => record.id"
+                        :pagination="true"
+                      >
+                    </a-table>
+                    </template>
+                    <template v-else>
+                      <a-table
+                      class="discountTable"
                       bordered
                       :data-source="discountTable"
                       :columns="columns2"
                       :rowKey="record => record.id"
-                      :pagination="false"
-                    >
-                      <!--                      <template-->
-                      <!--                        v-for="col in [-->
-                      <!--                          'order',-->
-                      <!--                          'name',-->
-                      <!--                          'unit',-->
-                      <!--                          'salesPrice',-->
-                      <!--                          'discountPrice',-->
-                      <!--                          'remark',-->
-                      <!--                          'operation'-->
-                      <!--                        ]"-->
-                      <!--                        :slot="col"-->
-                      <!--                        slot-scope="text, record, index"-->
-                      <!--                      >-->
-                      <!--                        <div :key="col">-->
-                      <!--                          <template v-if="col === 'order'">-->
-                      <!--                            {{ index + 1 }}-->
-                      <!--                          </template>-->
-                      <!--                          <template v-else-if="col === 'name'">-->
-                      <!--                                                  <a-select v-model="record[col]" placeholder="請選擇" @change="pushValue($event, record)">-->
-                      <!--                                                    <a-select-option v-for="item in discountClass" :key="item.id">-->
-                      <!--                                                      {{ item.name }}-->
-                      <!--                                                    </a-select-option>-->
-                      <!--                                                  </a-select>-->
-                      <!--                          </template>-->
-                      <!--                          <template v-else-if="col === 'discountPrice'||col === 'remark'">-->
-                      <!--                            <div v-if="switches">-->
-                      <!--                              <a-input-->
-                      <!--                                  v-model="record[col]"-->
-                      <!--                                  placeholder="請輸入"-->
-                      <!--                                  @keyup.enter="addNewItem"-->
-                      <!--                              />-->
-                      <!--                              </div>-->
-                      <!--                            <span v-else @click="helloWorld">-->
-                      <!--                               {{text}}-->
-                      <!--                            </span>-->
-                      <!--                          </template>-->
-                      <!--                          <template v-else>-->
-                      <!--                            <span>{{ text }}</span>-->
-                      <!--                          </template>-->
-                      <!--                        </div>-->
-                      <!--                      </template>-->
-                      <!--                      <template-->
-                      <!--                        slot="operation"-->
-                      <!--                        slot-scope="text, record, index"-->
-                      <!--                      >-->
-                      <!--                        <a-popconfirm-->
-                      <!--                          v-if="discountTable.length"-->
-                      <!--                          title="Sure to delete?"-->
-                      <!--                          @confirm="() => deleteDiscount(index)"-->
-                      <!--                        >-->
-                      <!--                          <a href="javascript:;">刪除</a>-->
-                      <!--                        </a-popconfirm>-->
-                      <!--                      </template>-->
-                    </a-table>
-                    <a-pagination
-                      class="pagination"
-                      v-model="current"
-                      :page-size-options="pageSizeOptions"
-                      :total="total"
-                      show-size-changer
-                      :page-size="pageSize"
+                      :pagination="{
+                        current,
+                        pageSizeOptions,
+                        pageSize,
+                      }"
                       @change="discountTableChange"
-                      @showSizeChange="discountTableChange"
-                    >
-                      <template slot="buildOptionText" slot-scope="props">
-                        <span v-if="props.value !== '50'"
-                          >{{ props.value }}筆/頁</span
-                        >
-                        <span v-if="props.value === '50'">全部</span>
-                      </template>
-                    </a-pagination>
+                      >
+                      </a-table>
+<!--                      <a-pagination-->
+<!--                          class="pagination"-->
+<!--                          v-model="current"-->
+<!--                          :page-size-options="pageSizeOptions"-->
+<!--                          :total="total"-->
+<!--                          show-size-changer-->
+<!--                          :page-size="pageSize"-->
+<!--                          @change="discountTableChange"-->
+<!--                          @showSizeChange="discountTableChange"-->
+<!--                      >-->
+<!--                        <template slot="buildOptionText" slot-scope="props">-->
+<!--                        <span v-if="props.value !== '50'"-->
+<!--                        >{{ props.value }}筆/頁</span-->
+<!--                        >-->
+<!--                          <span v-if="props.value === '50'">全部</span>-->
+<!--                        </template>-->
+<!--                      </a-pagination>-->
+                    </template>
                   </div>
                 </div>
               </div>
@@ -280,8 +245,13 @@
       </div>
 
       <div class="search-wrapper">
-        <a-select class="search-select" v-model="match.name" style="width: 100px">
-          <a-select-option v-for="item in classify" :key="item.id">
+        <a-select
+          class="search-select"
+          v-model="match.name"
+          style="width: 100px"
+          @change="getCustomerList"
+        >
+          <a-select-option v-for="item in classify" :key="item.className">
             {{ item.className }}
           </a-select-option>
         </a-select>
@@ -290,7 +260,8 @@
             v-model="search"
             placeholder="搜尋內容"
             enter-button
-            @click="searchHandler"
+            AutoFoucus
+            @search="searchHandler"
           />
         </div>
       </div>
@@ -298,7 +269,7 @@
     <div class="itemMenu">
       <a-table
         :columns="columns"
-        :data-source="filterText"
+        :data-source="tableData"
         bordered
         :pagination="false"
         :rowKey="record => record.id"
@@ -307,13 +278,13 @@
           v-for="col in [
             'order',
             'id',
-            'classes.className',
+            'classes.name',
             'name',
-            'cellphone',
-            'company',
+            'tel',
+            'companyName',
             'vatNumber',
             'contactPerson',
-            'tel'
+            'companyTel'
           ]"
           :slot="col"
           slot-scope="text, record, index"
@@ -350,146 +321,147 @@
       :total="total"
       show-size-changer
       :page-size="pageSize"
-      @change="onShowSizeChange"
+      :show-total="total => `總共 ${total} 筆`"
+      @change="onPageChange"
       @showSizeChange="onShowSizeChange"
     >
       <template slot="buildOptionText" slot-scope="props">
-        <span v-if="props.value !== '50'">{{ props.value }}筆/頁</span>
-        <span v-if="props.value === '50'">全部</span>
+        <span>{{ props.value }}筆/頁</span>
+        <!--        <span v-if="props.value === '50'">全部</span>-->
       </template>
     </a-pagination>
   </div>
 </template>
 
 <script>
-import axios from "axios";
-import { computedWeight } from "@/unit/dictionary/computed";
-import Fragment from "@/components/Fragment";
+import axios from 'axios'
+import { computedWeight } from '@/unit/dictionary/computed'
+import Fragment from '@/components/Fragment'
 
 export default {
-  name: "Customer",
+  name: 'Customer',
   data() {
     return {
       loading: false,
       visible: false,
-      changeTitle: "",
-      search: "",
+      changeTitle: '',
+      search: '',
+      barcode: '',
       tableData: [],
       classify: [],
       list: {
-        classes: { id: "", className: "" },
+        classes: { id: '', className: '' },
         name: "",
-        cellphone: "",
-        email: "",
+        tel: "",
+        postCode: null,
         address: "",
-        postcode: "",
-        reference: "",
-        company: "",
+        email: null,
+        remark: null,
+        companyName: null,
         vatNumber: "",
         contactPerson: "",
-        tel: "",
-        companyEmail: "",
-        fax: "",
-        companyPostcode: "",
-        companyAddress: ""
+        companyTel: null,
+        companyFax: null,
+        companyEmail: null,
+        companyPostCode: null,
+        companyAddress: null
       },
       discountClass: [],
       columns: [
         {
-          title: "序",
-          dataIndex: "order",
-          width: "2%",
-          align: "center",
-          scopedSlots: { customRender: "order" }
+          title: '序',
+          dataIndex: 'order',
+          width: '2%',
+          align: 'center',
+          scopedSlots: { customRender: 'order' }
         },
         {
-          title: "客戶編號",
-          dataIndex: "id",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "id" }
+          title: '客戶編號',
+          dataIndex: 'id',
+          width: '10%',
+          align: 'center',
+          scopedSlots: { customRender: 'id' }
         },
         {
-          title: "客戶類別",
-          dataIndex: "classes.className",
-          width: "5%",
-          align: "center",
-          scopedSlots: { customRender: "classes.className" }
+          title: '客戶類別',
+          dataIndex: 'classes.name',
+          width: '5%',
+          align: 'center',
+          scopedSlots: { customRender: 'classes.name' }
         },
         {
-          title: "客戶姓名",
-          dataIndex: "name",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "name" }
+          title: '客戶姓名',
+          dataIndex: 'name',
+          width: '10%',
+          align: 'center',
+          scopedSlots: { customRender: 'name' }
         },
         {
-          title: "電話",
-          dataIndex: "cellphone",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "cellphone" }
+          title: '電話',
+          dataIndex: 'tel',
+          width: '10%',
+          align: 'center',
+          scopedSlots: { customRender: 'tel' }
         },
         {
-          title: "公司名稱",
-          dataIndex: "company",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "company" }
+          title: '公司名稱',
+          dataIndex: 'companyName',
+          width: '10%',
+          align: 'center',
+          scopedSlots: { customRender: 'companyName' }
         },
         {
-          title: "統一編號",
-          dataIndex: "vatNumber",
-          width: "7%",
-          align: "center",
-          scopedSlots: { customRender: "vatNumber" }
+          title: '統一編號',
+          dataIndex: 'vatNumber',
+          width: '7%',
+          align: 'center',
+          scopedSlots: { customRender: 'vatNumber' }
         },
         {
-          title: "聯絡人",
-          dataIndex: "contactPerson",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "contactPerson" }
+          title: '聯絡人',
+          dataIndex: 'contactPerson',
+          width: '10%',
+          align: 'center',
+          scopedSlots: { customRender: 'contactPerson' }
         },
         {
-          title: "公司電話",
-          dataIndex: "tel",
-          width: "6%",
-          align: "center",
-          scopedSlots: { customRender: "tel" }
+          title: '公司電話',
+          dataIndex: 'companyTel',
+          width: '6%',
+          align: 'center',
+          scopedSlots: { customRender: 'companyTel' }
         },
         {
-          title: "操作",
-          dataIndex: "operation",
-          width: "7%",
-          align: "center",
-          scopedSlots: { customRender: "operation" }
+          title: '操作',
+          dataIndex: 'operation',
+          width: '7%',
+          align: 'center',
+          scopedSlots: { customRender: 'operation' }
         }
       ],
       rules: {
-        classes: [{ required: true, message: "請選擇", trigger: "blur" }],
-        name: [{ required: true, message: "請輸入姓名", trigger: "blur" }]
+        classes: [{ required: true, message: '請選擇', trigger: 'blur' }],
+        name: [{ required: true, message: '請輸入姓名', trigger: 'blur' }]
       },
       discountTable: [],
       columns2: [
         {
-          title: "序",
-          dataIndex: "order",
-          align: "center",
+          title: '序',
+          dataIndex: 'order',
+          align: 'center',
           // eslint-disable-next-line no-unused-vars
           customRender: (_, __, i) => {
             return {
               children: <div>{i + 1}</div>
-            };
+            }
           },
-          scopedSlots: { customRender: "order" }
+          scopedSlots: { customRender: 'order' }
         },
         {
-          title: "商品名稱",
-          dataIndex: "productName",
-          align: "center",
+          title: '商品名稱',
+          dataIndex: 'productName',
+          align: 'center',
           customRender: (value, row, index) => {
-            console.log(row, 4465);
             return {
               children: (
                 <div>
@@ -501,55 +473,54 @@ export default {
                     filter-option={this.filterOption}
                   >
                     {this.discountClass.map(item => (
-                      <a-select-option value={item.id}>
+                      <a-select-option value={item.id} disabled={this.pl[item.id]}>
                         {item.name}
                       </a-select-option>
                     ))}
                   </a-select>
                 </div>
               )
-            };
+            }
           },
-          scopedSlots: { customRender: "productName" }
+          scopedSlots: { customRender: 'productName' }
         },
         {
-          title: "單位",
-          dataIndex: "unit",
-          align: "center",
-          scopedSlots: { customRender: "unit" }
+          title: '單位',
+          dataIndex: 'unit',
+          align: 'center',
+          scopedSlots: { customRender: 'unit' }
         },
         {
-          title: "售價",
-          dataIndex: "salesPrice",
-          align: "center",
-          scopedSlots: { customRender: "salesPrice" }
+          title: '售價',
+          dataIndex: 'salesPrice',
+          align: 'center',
+          scopedSlots: { customRender: 'salesPrice' }
         },
         {
-          title: "價格",
-          dataIndex: "discountPrice",
-          align: "center",
+          title: '價格',
+          dataIndex: 'discountPrice',
+          align: 'center',
           width: 100,
           customRender: (val, row) => {
-            return this.priceAndRemarkEditor(val, row, "discountPrice");
+            return this.priceAndRemarkEditor(val, row, 'discountPrice')
           },
-          scopedSlots: { customRender: "discountPrice" }
+          scopedSlots: { customRender: 'discountPrice' }
         },
         {
-          title: "備註",
-          dataIndex: "remark",
-          // width: "10%",
-          align: "center",
+          title: '備註',
+          dataIndex: 'remark',
+          align: 'center',
           width: 200,
           customRender: (val, row) => {
-            return this.priceAndRemarkEditor(val, row, "remark");
+            return this.priceAndRemarkEditor(val, row, 'remark')
           },
-          scopedSlots: { customRender: "remark" }
+          scopedSlots: { customRender: 'remark' }
         },
         {
-          title: "操作",
-          dataIndex: "operation",
+          title: '操作',
+          dataIndex: 'operation',
           // width: "2%",
-          align: "center",
+          align: 'center',
           customRender: (value, row, index) => ({
             children: (
               <div>
@@ -568,77 +539,83 @@ export default {
               </div>
             )
           }),
-          scopedSlots: { customRender: "operation" }
+          scopedSlots: { customRender: 'operation' }
         }
       ],
-      pageSizeOptions: ["10", "20", "30"],
+      pageSizeOptions: ['10', '30', '50', '100'],
       current: 1,
       pageSize: 10,
       total: 30,
-      match: { id: "", name: "" },
-      switches: true
-    };
+      match: { id: '', name: '' },
+      switches: true,
+      pl: {}
+    }
   },
   created() {
-    this.getCustomerList();
+    this.getCustomerList()
     this.$api.Customer.getClass()
       .then(res => {
-        this.classify = res.data;
+        this.classify = res.data
       })
       .catch(err => {
-        console.log(err);
-      });
-    axios("/erp/product/getProduct?searchKey=").then(res => {
-      this.discountClass = res.data;
-      console.log(this.discountClass);
-    });
-    axios
-      .get("/erp/product/productList?productName=&pageNumber=1&pageSize=10")
-      .then(res => {
-        console.log(res);
-      });
+        console.log(err)
+      })
+    this.$api.Commodity.getCommodityDetail({
+      searchKey: this.search,
+      barcode: this.barcode
+    })
+    .then(res => {
+      this.discountClass = res.data
+    })
   },
   computed: {
-    changeClass(){
-     if(!this.match.name){
-       return this.tableData
-     }else {
-       return this.tableData.filter(item => {
-         return item.classes.id === this.match.name
-       })
-     }
-    },
-    filterText() {
-      if (this.search) {
-        return this.tableData.filter(item => {
-          return item.name.includes(this.search);
-        });
-      } else {
-        return this.changeClass;
+    priceAndRemarkEditor() {
+      return (val, row, key) => {
+        let editKey =
+          'isEdit' + key[0].toUpperCase() + key.substring(1, key.length)
+        // let editKey = key==='remark'?'isEditRemark':'isEditDiscountPrice';
+        return {
+          children: (
+            <div class="displayInput">
+              {row[editKey] ? (
+                <div>
+                  <a-input
+                    autoFocus
+                    placeholder="請輸入"
+                    value={row[key]}
+                    vModel={row[key]}
+                    vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
+                  />
+                </div>
+              ) : (
+                <Fragment>
+                  <span onClick={() => this.inputORnot(row, editKey)}>
+                    {val}
+                  </span>
+                  <div class="displayEdit" />
+                  <a-icon
+                    class="editable-cell-icon"
+                    type="edit"
+                    onClick={() => this.inputORnot(row, editKey)}
+                  />
+                </Fragment>
+              )}
+            </div>
+          )
+        }
       }
     },
-    priceAndRemarkEditor() {
-      return (val, row, key) => ({
-        children: (
-          <div class="displayInput">
-            {this.switches ? (
-              <div>
-                <a-input
-                  placeholder="請輸入"
-                  value={row[key]}
-                  vModel={row[key]}
-                  vOn:Keyup_enter={() => this.addNewItem()}
-                />
-              </div>
-            ) : (<Fragment>
-              <span onClick={() => this.inputORnot()}>{val}</span>
-                <div class="displayEdit" />
-                 <a-icon class="editable-cell-icon" type="edit" onClick={() => this.inputORnot()}/>
-                 </Fragment>
-            )}
-          </div>
-        )
-      });
+    filterProductList() {
+      return this.discountClass.filter(item => {
+        /*
+         * pl
+         * {
+         *   [productId]: true,
+         * }
+         * { 1: true, 2: true... }
+         * */
+        return !this.pl[item.id]
+      })
     }
   },
   methods: {
@@ -647,257 +624,264 @@ export default {
         option.componentOptions.children[0].text
           .toLowerCase()
           .indexOf(input.toLowerCase()) >= 0
-      );
+      )
     },
-    addNewItem() {
-        this.switches = false
+    addNewItem(row, editKey) {
+      row[editKey] = false
     },
-    inputORnot() {
-      this.switches = true;
+    inputORnot(row, editKey) {
+      row[editKey] = true
     },
     getCustomerList() {
       this.$api.Customer.getList({
         searchKeyword: this.search,
+        className: this.match.name,
         pageNumber: this.current,
         pageSize: this.pageSize
       })
         .then(res => {
-          this.tableData = res.data.content;
+          this.total = res.data.totalElements
+          this.tableData = res.data.content
         })
         .catch(err => {
-          console.log(err);
-        });
+          console.log(err)
+        })
     },
     showModal() {
-      this.visible = true;
-      this.changeTitle = "新增客戶";
+      this.visible = true
+      this.changeTitle = '新增客戶'
     },
     clearInput() {
       this.list = {
         classes: {},
-        name: "",
-        cellphone: "",
-        company: "",
-        vatNumber: "",
-        contactPerson: "",
-        tel: "",
-        address: "",
-        fax: "",
-        email: "",
-        reference: "",
-        companyEmail: "",
-        companyPostcode: "",
-        companyAddress: ""
-      };
-      this.discountTable = [];
-      this.resetForm();
+        name: '',
+        cellphone: '',
+        companyName: '',
+        vatNumber: '',
+        contactPerson: '',
+        tel: '',
+        address: '',
+        fax: '',
+        email: '',
+        reference: '',
+        companyEmail: '',
+        companyPostCode: '',
+        companyAddress: ''
+      }
+      this.discountTable = []
+      this.resetForm()
     },
     handleOk() {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
-          if (this.changeTitle === "新增客戶") {
+          if (this.changeTitle === '新增客戶') {
             this.$api.Customer.add({
               name: this.list.name,
               classesId: this.list.classes.id,
               vatNumber: this.list.vatNumber,
-              company: this.list.company,
+              companyName: this.list.companyName,
               contactPerson: this.list.contactPerson,
-              tel: this.list.tel,
+              companyTel: this.list.companyTel,
+              postCode: this.list.postCode,
               address: this.list.address,
-              cellphone: this.list.cellphone,
-              fax: this.list.fax,
+              email: this.list.email,
+              remark: this.list.remark,
+              tel: this.list.tel,
+              companyFax: this.list.companyFax,
+              companyEmail: this.list.companyEmail,
+              companyPostCode: this.list.companyPostCode,
+              companyAddress: this.list.companyAddress,
               discountList: this.discountTable.map(item => {
                 return {
-                  discountId: "",
+                  discountId: '',
                   productId: item.productId,
                   discountPrice: item.discountPrice,
                   remark: item.remark,
                   unit: item.unit
-                };
+                }
               })
             })
               .then(() => {
-                this.getCustomerList();
-                this.$message.info("新增客戶成功");
+                this.getCustomerList()
+                this.$message.success('新增客戶成功')
               })
               .catch(err => {
-                console.log(err);
-                this.$message.error("新增客戶失敗");
-              });
-            this.visible = false;
+                console.log(err)
+                this.$message.error('新增客戶失敗')
+              })
+            this.visible = false
           } else {
             this.$api.Customer.update({
               clientId: this.track,
               classesId: this.list.classes.id,
               name: this.list.name,
-              cellphone: this.list.cellphone,
-              company: this.list.company,
+              tel: this.list.tel,
+              companyName: this.list.companyName,
               vatNumber: this.list.vatNumber,
               contactPerson: this.list.contactPerson,
-              tel: this.list.tel,
+              companyTel: this.list.companyTel,
               address: this.list.address,
-              fax: this.list.fax,
+              companyFax: this.list.companyFax,
               email: this.list.email,
-              reference: this.list.reference,
+              remark: this.list.remark,
               companyEmail: this.list.companyEmail,
-              companyPostcode: this.list.companyPostcode,
+              companyPostCode: this.list.companyPostCode,
               companyAddress: this.list.companyAddress,
               discountList: this.discountTable.map(item => {
-                console.log(item, 9999);
                 return {
                   discountId: item.id,
                   productId: item.productId,
                   discountPrice: item.discountPrice,
                   remark: item.remark
-                };
+                }
               })
             })
               .then(() => {
-                this.getCustomerList();
-                this.$message.info("編輯客戶成功");
+                this.getCustomerList()
+                this.$message.success('編輯客戶成功')
               })
               .catch(err => {
-                console.log(err);
-                this.$message.error("編輯客戶失敗");
-              });
-            this.visible = false;
+                console.log(err)
+                this.$message.error('編輯客戶失敗')
+              })
+            this.visible = false
           }
         }
-      });
+      })
     },
     resetForm() {
-      this.$refs.ruleForm.resetFields();
+      this.$refs.ruleForm.resetFields()
     },
     handleCancel() {
-      this.visible = false;
-      this.clearInput();
+      this.visible = false
+      this.clearInput()
     },
     editHandler(record) {
-      console.log(record.discountList);
-      this.track = record.id;
-      this.changeTitle = "編輯客戶";
+      this.track = record.id
+      this.changeTitle = '編輯客戶'
       this.$api.Customer.getSingleList(record)
         .then(res => {
-          if (res.data !== "") {
-            this.list = res.data;
-            this.discountTableChange(this.current, this.pageSize)
-            // this.discountTable = record.discountList.map(d => ({
-            //   id: d.id,
-            //   name: d.productName,
-            //   productId: d.productId,
-            //   unit: computedWeight(d.productUnit),
-            //   salesPrice: d.productPrice,
-            //   discountPrice: d.discountPrice,
-            //   remark: d.remark
-            // }));
-            this.visible = true;
-            console.log(this.discountTable, 132);
+          if (res.data !== '') {
+            this.list = res.data
+            this.$api.Customer.discountNoPages({
+              clientId: this.track,
+            }).then((res) => {
+              this.total = res.data.length
+              this.discountTable = res.data.map(d => ({
+                id: d.discountId,
+                name: d.productName,
+                productId: d.productId,
+                unit: computedWeight(d.productUnit),
+                salesPrice: d.productPrice,
+                discountPrice: d.discountPrice,
+                remark: d.remark,
+                isEditDiscountPrice: true,
+                isEditRemark: true
+              }))
+            })
+            this.visible = true
           } else {
-            alert("123");
+            alert('123')
           }
         })
         .catch(err => {
-          console.log(err);
-        });
+          console.log(err)
+        })
     },
     onDelete(record) {
       this.$api.Customer.delete(record)
         .then(() => {
-          this.getCustomerList();
-          this.$message.info("刪除客戶成功");
+          this.getCustomerList()
+          this.$message.success('刪除客戶成功')
         })
         .catch(err => {
-          console.log(err);
-          this.$message.error("刪除客戶失敗");
-        });
+          console.log(err)
+          this.$message.error('刪除客戶失敗')
+        })
     },
     onShowSizeChange(current, pageSize) {
-      this.$api.Customer.getList({
-        searchKeyword: this.search,
-        pageNumber: current,
-        pageSize: pageSize
-      }).then(res => {
-        this.tableData = res.data.content;
-      });
+      // console.log(current);
+      this.current = 1
+      this.pageSize = pageSize
+      this.getCustomerList(this.search)
     },
-    discountTableChange(current, pageSize) {
-      this.$api.Customer.discount({
-        clientId: this.track,
-        pageNumber: current,
-        pageSize: pageSize
-      }).then(res => {
-        this.discountTable = res.data;
-        this.discountTable = res.data.content.map(d => ({
-          id: d.discountId,
-          name: d.productName,
-          productId: d.productId,
-          unit: computedWeight(d.productUnit),
-          salesPrice: d.productPrice,
-          discountPrice: d.discountPrice,
-          remark: d.remark
-        }));
-      });
+    onPageChange(current) {
+      console.log(current)
+      // console.log(pageSize);
+      // console.log(this.total);
+      this.getCustomerList(this.search)
+    },
+    discountTableChange({current,pageSize}) {
+      this.current = current;
+      this.pageSize = pageSize;
     },
     searchHandler() {
-      if (this.search) {
-        this.getCustomerList();
-      }
+      this.getCustomerList()
     },
     deleteDiscount(row, index) {
-      console.log(this.discountTable)
-      if(this.changeTitle === "新增客戶"){
+      if (this.changeTitle === '新增客戶') {
         this.discountTable.splice(index, 1)
-      }else{
-        this.$api.Customer.discountRemove(row)
+        this.keepSelection()
+      } else {
+        if(row.id){
+          this.$api.Customer.discountRemove(row)
             .then(() => {
-              this.discountTableChange(this.current,this.pageSize)
-              this.$message.info("刪除折扣成功");
+              this.discountTable.splice(index, 1)
+              this.$message.success('刪除折扣成功')
+              this.keepSelection()
             })
             .catch(err => {
-              console.log(err);
-              this.$message.error("刪除折扣失敗");
-            });
+              console.log(err)
+              this.$message.error('刪除折扣失敗')
+            })
+        }else{
+          this.discountTable.splice(index, 1)
+          this.keepSelection()
+        }
       }
     },
+    keepSelection(){
+      this.pl = this.discountTable.reduce((p, v) => {
+        return  !!v.productId ? {...p, [v.productId]: true} : p
+      }, {})
+    },
     handleAdd() {
-      const { discountTable } = this;
+      const { discountTable } = this
       const newData = {
         productId: undefined,
-        name: "",
-        unit: "",
+        name: '',
+        unit: '',
         salesPrice: null,
         discountPrice: undefined,
-        remark: ""
-      };
-      this.discountTable = [...discountTable, newData];
-      console.log(this.discountTable);
+        remark: '',
+        isEditDiscountPrice: true,
+        isEditRemark: true
+      }
+      this.discountTable = [...discountTable, newData]
+      this.total ++
     },
     pushValue(id, index) {
-      const item = this.discountClass.find(item => item.id === id);
+      const item = this.discountClass.find(item => item.id === id)
+      this.discountTable[index].productId = id
+      this.pl = this.discountTable.reduce((p, v) => { console.log(p)
+       return  !!v.productId ? {...p, [v.productId]: true} : p
+      }, {})
       axios
         .get(
           `/erp/product/productList?productName=${item.name}&pageNumber=1&pageSize=10`
         )
         .then(res => {
-          let content = res.data.content;
-          let result = content.find(item => item.id === id);
-          let rows = this.discountTable[index];
-          rows.productId = result.id;
-          rows.unit = result.unit;
-          rows.salesPrice = result.salesPrice;
-        });
+          let content = res.data.content
+          let result = content.find(item => item.id === id)
+          let rows = this.discountTable[index]
+          rows.productId = result.id
+          rows.unit = computedWeight(undefined, result.unit)
+          rows.salesPrice = result.salesPrice
+        })
     }
-    // handleSearch(){
-    //   axios.get('/erp/product/getProduct?searchKey='+ this.search)
-    //   .then((res)=>{
-    //     this.discountClass = res.data
-    //   })
-    // }
   }
-};
+}
 </script>
-
-
 
 <style scoped lang="scss">
 /*::v-deep .ant-layout{*/
@@ -977,16 +961,13 @@ export default {
   padding: 5px 24px 5px 5px;
 }
 
-//.editable-cell-icon-check {
-//  //line-height: 28px;
-//}
 .editable-cell:hover .editable-cell-icon {
   display: inline-block;
 }
-.discountTable::v-deep .ant-table-row td{
+.discountTable::v-deep .ant-table-row td {
   position: relative;
 }
-.displayInput{
+.displayInput {
   display: flex;
   justify-content: space-between;
 }
@@ -997,7 +978,7 @@ export default {
   width: 100%;
   height: 100%;
 }
-.displayEdit:hover + .editable-cell-icon{
+.displayEdit:hover + .editable-cell-icon {
   display: block;
   //position: absolute;
 }
@@ -1009,7 +990,7 @@ export default {
   top: 3.5px;
 }
 
-.editable-cell-icon:hover{
+.editable-cell-icon:hover {
   display: block;
 }
 </style>

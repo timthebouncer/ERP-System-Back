@@ -46,9 +46,10 @@
             />
           </div>
           <template slot="footer">
+            <a-button type="primary" @click="submitNonStop">
+              儲存並新增
+            </a-button>
             <a-button key="submit" type="primary" @click="addInventory">
-              <!--              :loading="loading"-->
-              <!--              @click="handleOk"-->
               儲存
             </a-button>
             <a-button key="back" @click="addInventoryCancel">
@@ -71,7 +72,7 @@
               <div class="firstPart">
                 <div class="firstPart-item">
                   <a-form-model-item class="custom-form-item" label="銷貨日期">
-                    <div>{{}}</div>
+                    <div>{{ list.date }}</div>
                   </a-form-model-item>
                   <a-form-model-item
                     class="custom-form-item"
@@ -84,37 +85,50 @@
                     label="聯絡人"
                     prop="name"
                   >
-                    <a-input placeholder="請輸入" />
+                    {{list.contactPerson}}
                   </a-form-model-item>
                 </div>
                 <div class="firstPart-item">
                   <a-form-model-item class="custom-form-item" label="選擇客戶">
-                    <a-select></a-select>
+                    <a-select
+                      show-search
+                      placeholder="請選擇"
+                      style="width: 200px"
+                      :filter-option="filterOption"
+                      @change="handleChange"
+                    >
+                      <a-select-option
+                        v-for="item in customerList"
+                        :value="item.id"
+                      >
+                        {{ item.name }}
+                      </a-select-option>
+                    </a-select>
                   </a-form-model-item>
                   <a-form-model-item class="custom-form-item" label="email">
-                    <a-input placeholder="請輸入" />
+                    {{ list.email }}
                   </a-form-model-item>
                   <a-form-model-item class="custom-form-item" label="公司電話">
-                    <a-input placeholder="請輸入" />
+                    {{ list.companyTel }}
                   </a-form-model-item>
                 </div>
                 <div class="firstPart-item">
                   <a-form-model-item class="custom-form-item" label="電話">
-                    <a-input placeholder="請輸入" />
+                    {{ list.tel }}
                   </a-form-model-item>
                   <a-form-model-item class="custom-form-item" label="公司名稱">
-                    <a-input placeholder="請輸入" />
+                    {{ list.companyName }}
                   </a-form-model-item>
                   <a-form-model-item class="custom-form-item" label="傳真">
-                    <a-input placeholder="請輸入" />
+                    {{ list.companyFax }}
                   </a-form-model-item>
                 </div>
                 <div class="firstPart-item">
                   <a-form-model-item class="custom-form-item" label="統一編號">
-                    <a-input placeholder="請輸入" />
+                    {{ list.vatNumber }}
                   </a-form-model-item>
                   <a-form-model-item class="custom-form-item" label="公司email">
-                    <a-input placeholder="請輸入" />
+                    {{ list.companyEmail }}
                   </a-form-model-item>
                 </div>
                 <a-form-model-item
@@ -122,10 +136,10 @@
                   label="地址"
                 >
                   <div style="width: 10%">
-                    <a-input placeholder="郵遞區號" />
+                    {{list.postCode}}
                   </div>
                   <div>
-                    <a-input placeholder="請輸入" />
+                    {{ list.address }}
                   </div>
                 </a-form-model-item>
                 <a-form-model-item
@@ -133,17 +147,17 @@
                   label="公司地址"
                 >
                   <div style="width: 10%">
-                    <a-input placeholder="郵遞區號" />
+                    {{list.companyPostCode}}
                   </div>
                   <div>
-                    <a-input placeholder="請輸入" />
+                    {{list.companyAddress}}
                   </div>
                 </a-form-model-item>
 
                 <a-form-model-item class="custom-form-item" label="備註">
                   <div>
                     <a-textarea
-                      v-model="value"
+                      v-model="remark"
                       placeholder="請輸入"
                       :auto-size="{ minRows: 3, maxRows: 5 }"
                     />
@@ -167,74 +181,31 @@
                       rowKey="productId"
                       :columns="orderColumns"
                       :data-source="orderData"
-                      :pagination="false"
+                      :pagination="true"
                     >
-                      <template
-                        v-for="col in [
-                          'order',
-                          'barCode',
-                          'name',
-                          'unit',
-                          'salesPrice',
-                          'stockAmount',
-                          'orderPrice',
-                          'operation'
-                        ]"
-                        :slot="col"
-                        slot-scope="text, record, index"
-                      >
-                        <div :key="col">
-                          <template v-if="col === 'order'">
-                            {{ index + 1 }}
-                          </template>
-                          <template v-else-if="col === 'barCode'">
-                            <a-input
-                              v-model="record[col]"
-                              placeholder="請掃一維碼或手動輸入"
-                            ></a-input>
-                          </template>
-                          <template v-else-if="col === 'name'">
-                            <a-select
-                              v-model="record[col]"
-                              placeholder="請選擇"
-                            >
-                              <!--                              @change="pushValue($event, record)"-->
-                              <a-select-option
-                                v-for="item in discountClass"
-                                :key="item.id"
-                              >
-                                {{ item.name }}
-                              </a-select-option>
-                            </a-select>
-                          </template>
-                          <template v-else>
-                            {{ text }}
-                          </template>
-                        </div>
-                      </template>
-                      <template
-                        slot="operation"
-                        slot-scope="text, record, index"
-                      >
-                        <a-popconfirm
-                          class="orderDeletePopconfirm"
-                          @confirm="() => deleteOrder(index)"
-                        >
-                          <template slot="title">
-                            <span
-                              class="orderDeletePopTitle"
-                              style="font-size: larger;"
-                              >是否確定刪除此筆銷貨商品?</span
-                            >
-                          </template>
-                          <a-icon
-                            type="close-square"
-                            theme="twoTone"
-                            two-tone-color="#eb2f96"
-                            :style="{ fontSize: '25px' }"
-                          />
-                        </a-popconfirm>
-                      </template>
+                      <!--                               <template-->
+                      <!--                        slot="operation"-->
+                      <!--                        slot-scope="text, record, index"-->
+                      <!--                      >-->
+                      <!--                        <a-popconfirm-->
+                      <!--                          class="orderDeletePopconfirm"-->
+                      <!--                          @confirm="() => deleteOrder(index)"-->
+                      <!--                        >-->
+                      <!--                          <template slot="title">-->
+                      <!--                            <span-->
+                      <!--                              class="orderDeletePopTitle"-->
+                      <!--                              style="font-size: larger;"-->
+                      <!--                              >是否確定刪除此筆銷貨商品?</span-->
+                      <!--                            >-->
+                      <!--                          </template>-->
+                      <!--                          <a-icon-->
+                      <!--                            type="close-square"-->
+                      <!--                            theme="twoTone"-->
+                      <!--                            two-tone-color="#eb2f96"-->
+                      <!--                            :style="{ fontSize: '25px' }"-->
+                      <!--                          />-->
+                      <!--                        </a-popconfirm>-->
+                      <!--                      </template>-->
                     </a-table>
                   </div>
                 </div>
@@ -242,10 +213,8 @@
             </a-form-model>
           </div>
           <template slot="footer">
-            <a-button key="submit" type="primary">
-              <!--              :loading="loading"-->
-              <!--              @click="handleOk()"-->
-              儲存
+            <a-button key="submit" type="primary" @click="handleOk">
+              出庫確認
             </a-button>
             <a-button key="back" @click="handleCancel">
               取消
@@ -285,6 +254,7 @@
             :data-source="record.inventoryList"
             :pagination="false"
             :showHeader="false"
+            :rowKey="record => record.id"
             :columns="innerColumns"
           >
             <template slot="spaceCol">
@@ -364,19 +334,19 @@
     </div>
     <!--分頁-->
     <a-pagination
-            class="pagination"
-            v-model="current"
-            :page-size-options="pageSizeOptions"
-            :total="total"
-            show-size-changer
-            :page-size="pageSize"
-            :show-total="total => `總共 ${total} 筆`"
-            @showSizeChange="onShowSizeChange"
-            @change="onPageChange"
+      class="pagination"
+      v-model="current"
+      :page-size-options="pageSizeOptions"
+      :total="total"
+      show-size-changer
+      :page-size="pageSize"
+      :show-total="total => `總共 ${total} 筆`"
+      @showSizeChange="onShowSizeChange"
+      @change="onPageChange"
     >
       <template slot="buildOptionText" slot-scope="props">
         <span>{{ props.value }}筆/頁</span>
-<!--        <span v-if="props.value === '50'">全部</span>-->
+        <!--        <span v-if="props.value === '50'">全部</span>-->
       </template>
     </a-pagination>
   </div>
@@ -384,6 +354,8 @@
 <script>
 import moment from 'moment'
 import EditableCell from '@/components/EditableCell'
+import axios from 'axios'
+import Fragment from '@/components/Fragment'
 export default {
   name: 'Inventory',
   components: {
@@ -391,24 +363,29 @@ export default {
   },
   data() {
     return {
+      customerList: [],
+      goodsTable: [],
+      inventoryList: [],
       purchaseViewVisible: false,
       orderViewVisible: false,
       purchaseModalTitle: '新增進貨',
       orderModalTitle: '新增銷貨',
       list: {},
+      remark: '',
+      barcode: '',
       expandIndex: [],
       tableData: [
-        {
-          id: 0,
-          barCode: '',
-          productName: '',
-          unit: '',
-          totalSalesPrice: 0,
-          totalListPrice: 0,
-          totalCostPrice: 0,
-          amount: 0,
-          inventoryList: []
-        }
+        // {
+        //   id: 0,
+        //   barCode: '',
+        //   productName: '',
+        //   unit: '',
+        //   totalSalesPrice: 0,
+        //   totalListPrice: 0,
+        //   totalCostPrice: 0,
+        //   amount: 0,
+        //   inventoryList: []
+        // }
       ],
       innerData: [
         {
@@ -540,68 +517,130 @@ export default {
         {
           title: '序',
           dataIndex: 'order',
-          width: '2%',
           align: 'center',
+          customRender: (_, __, i) => {
+            return {
+              children: <div>{i + 1}</div>
+            }
+          },
           scopedSlots: { customRender: 'order' }
         },
         {
           title: '商品條碼',
           dataIndex: 'barCode',
-          width: '10%',
+          width: '23%',
           align: 'center',
+          customRender: (value, row) => {
+            return {
+              children: (
+                <div>
+                  <a-input
+                    onChange={barCode => this.pushName(barCode, row)}
+                    vModel={row.barCode}
+                    placeholder="請掃一維碼或手動輸入"
+                  >
+                  </a-input>
+                </div>
+              )
+            }
+          },
           scopedSlots: { customRender: 'barCode' }
         },
         {
           title: '商品名稱',
           dataIndex: 'name',
-          width: '10%',
           align: 'center',
+          customRender: (value, row, index) => {
+            return {
+              children: (
+                <div>
+                  <a-select
+                    value={row.productId}
+                    placeholder="請選擇"
+                    onChange={id => this.pushValue(id, index)}
+                    show-search
+                    filter-option={this.filterOption}
+                  >
+                    {this.filterName(row).map(item => (
+                      <a-select-option value={item.id}>
+                        {item.name}
+                      </a-select-option>
+                    ))}
+                  </a-select>
+                </div>
+              )
+            }
+          },
           scopedSlots: { customRender: 'name' }
         },
         {
           title: '單位',
           dataIndex: 'unit',
-          width: '2%',
           align: 'center',
           scopedSlots: { customRender: 'unit' }
         },
         {
           title: '售價',
           dataIndex: 'salesPrice',
-          width: '5%',
           align: 'center',
           scopedSlots: { customRender: 'salesPrice' }
         },
         {
           title: '數量',
           dataIndex: 'stockAmount',
-          width: '2%',
+          width: 100,
           align: 'center',
+          customRender: (val, row) => {
+            return this.Quantity(val, row, 'stockAmount')
+          },
           scopedSlots: { customRender: 'stockAmount' }
         },
         {
           title: '銷貨金額',
           dataIndex: 'orderPrice',
-          width: '5%',
           align: 'center',
+          customRender: (_, row) => {
+            return {
+              children: row.salesPrice * row.stockAmount
+            }
+          },
           scopedSlots: { customRender: 'orderPrice' }
         },
         {
           title: '操作',
           dataIndex: 'operation',
-          width: '2%',
+          width: '10%',
           align: 'center',
+          customRender: (value, row, index) => ({
+            children: (
+              <div>
+                {this.orderData.length ? (
+                  <div>
+                    <a-popconfirm
+                      title="Sure to delete?"
+                      onConfirm={() => this.deleteOrder(row, index)}
+                    >
+                      <a>刪除</a>
+                    </a-popconfirm>
+                  </div>
+                ) : (
+                  <span>{row}</span>
+                )}
+              </div>
+            )
+          }),
           scopedSlots: { customRender: 'operation' }
         }
       ],
       innerTableExpanded: false,
       addSearchValue: '',
+      barcode: '',
       addInventoryData: [],
       addInventoryProductId: '',
       addInventoryProductName: '',
       addInventoryProductUnit: '',
       addInventoryAmount: 0,
-      pageSizeOptions: ["10", "25", "50"],
+      pageSizeOptions: ['10', '30', '50', '100'],
       current: 1,
       pageSize: 10,
       total: 10,
@@ -609,14 +648,67 @@ export default {
       alertMessage: ''
     }
   },
-  computed: {},
+  computed: {
+    Quantity() {
+      return (val, row, key) => {
+        let editKey =
+          'isEdit' + key[0].toUpperCase() + key.substring(1, key.length)
+        return {
+          children: (
+            <div class="displayInput">
+              {row[editKey] ? (
+                <div>
+                  <a-input
+                    autoFocus
+                    placeholder="請輸入"
+                    value={row[key]}
+                    vModel={row[key]}
+                    vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
+                  />
+                </div>
+              ) : (
+                <Fragment>
+                  <span onClick={() => this.inputORnot(row, editKey)}>
+                    {val}
+                  </span>
+                  <div className="displayEdit" />
+                  <a-icon
+                    className="editable-cell-icon"
+                    type="edit"
+                    onClick={() => this.inputORnot(row, editKey)}
+                  />
+                </Fragment>
+              )}
+            </div>
+          )
+        }
+      }
+    }
+  },
   methods: {
+    handleChange(id) {
+      this.list = this.customerList.find(item => {
+        return item.id === id
+      })
+    },
+    addNewItem(row, editKey) {
+      row[editKey] = false
+    },
+    inputORnot(row, editKey) {
+      row[editKey] = true
+    },
+    filterOption(input, option) {
+      return (
+        option.componentOptions.children[0].text
+          .toLowerCase()
+          .indexOf(input.toLowerCase()) >= 0
+      )
+    },
     openNotificationWithIcon(type) {
       this.$notification[type]({
         message: this.alertMsgTitle,
-        description:
-                this.alertMessage,
-      });
+        description: this.alertMessage
+      })
     },
     handleExpand(index) {
       if (this.expandIndex.length > 0) {
@@ -631,20 +723,64 @@ export default {
         this.expandIndex.push(index)
       }
     },
+    pushValue(id, index) {
+      const item = this.goodsTable.find(item => item.id === id)
+      this.orderData[index].productId = id
+      this.$api.Commodity.getCommodityList({
+        productName: this.search,
+        pageNumber: this.current,
+        pageSize: this.pageSize
+      }).then((res)=>{
+        let content = res.data.content
+        let result = content.find(item => item.id === id)
+        let rows = this.orderData[index]
+        rows.productId = result.id
+        rows.unit = result.unit
+        rows.salesPrice = result.salesPrice
+      })
+    },
+    pushName(barCode, row) {
+      this.inventoryList.filter(item => {
+        console.log(item.barCode, row.barCode)
+        return item.barCode === row.barCode
+      })
+    },
+    filterName(row) {
+      return this.inventoryList.filter(item => {
+        return item.barcode?.indexOf(row.barCode) > -1
+      })
+    },
+    handleOk() {
+      this.$api.Distribute.addOrder({
+        clientId: this.list.id,
+        remark: this.remark,
+        orderItemRequestList: this.orderData.map(item => {
+          return {
+            barcode: item.barCode,
+            price: item.salesPrice,
+            amount: item.stockAmount
+          }
+        })
+      }).then(res => {
+        alert(`出庫確認成功，已新增銷貨單號:${123}`)
+        // this.orderViewVisible = false
+        console.log(res)
+      })
+    },
     getInventoryList(productName) {
       this.tableData = []
       this.$api.Inventory.getList(productName, this.current, this.pageSize)
         .then(res => {
-          this.tableData = res.data.inventoryListResponseList.map((item, index) => {
-            let obj = {
-              id: index,
-              ...item
+          this.tableData = res.data.inventoryListResponseList.map(
+            (item, index) => {
+              let obj = {
+                id: index,
+                ...item
+              }
+              return obj
             }
-            return obj
-          })
-          this.total = res.data.totalElements;
-          console.log(res)
-          console.log(this.tableData)
+          )
+          this.total = res.data.totalElements
         })
         .catch(err => {
           console.log(err)
@@ -663,12 +799,10 @@ export default {
       this.tableData[id].amount = value
     },
     onInnerCellChange(record, value) {
-      console.log(record, 'record')
       const data = {}
       data.id = record.inventoryId
       data.barcode = record.barcode
       data.amount = value
-      console.log(data)
       this.$api.Inventory.edit(data)
         .then(() => {
           this.getInventoryList(this.search)
@@ -678,17 +812,15 @@ export default {
         })
     },
     onDelAmount(record) {
-      console.log('delte amount')
       this.$api.Inventory.deleteInventory(record.inventoryId)
-        .then((res) => {
-          console.log(res);
+        .then(res => {
+          console.log(res)
           this.getInventoryList(this.search)
         })
         .catch(err => {
-          console.log(err.response.data.message)
-          this.alertMsgTitle = '錯誤';
-          this.alertMessage = err.response.data.message;
-          this.openNotificationWithIcon('error');
+          this.alertMsgTitle = '錯誤'
+          this.alertMessage = err.response.data.message
+          this.openNotificationWithIcon('error')
         })
     },
     handleCancel() {
@@ -711,23 +843,24 @@ export default {
         barCode: '',
         name: '',
         unit: '-',
+        productId: undefined,
         salesPrice: 0,
         stockAmount: 0,
         orderPrice: 0,
-        operation: ''
+        isEditStockAmount: true
       }
       this.orderData = [...orderData, newData]
     },
     deleteOrder(index) {
-      const orderData = [...this.orderData]
-      orderData.splice(index, 1)
-      this.orderData = orderData
+      this.orderData.splice(index, 1)
     },
     addSearch() {
       this.addInventoryProductName = ''
       this.addInventoryProductUnit = ''
-      this.$api.Inventory.searchProduct(this.addSearchValue).then(res => {
-        console.log(res.data)
+      this.$api.Commodity.getCommodityDetail({
+        searchKey: this.search,
+        barcode: this.barcode
+      }).then(res => {
         this.addInventoryData = res.data
         // this.addInventoryData=[];
         if (this.addInventoryData.length) {
@@ -745,6 +878,29 @@ export default {
     },
     addSelect() {},
     addChange() {},
+    submitNonStop(){
+      const data = {}
+      data.productId = this.addInventoryProductId
+      data.amount = this.addInventoryAmount
+      data.barcode = this.addSearchValue
+      data.unit = this.addInventoryProductUnit
+      data.weight = 0
+      this.$api.Inventory.addInventory(data)
+        .then(res => {
+          console.log(res)
+          this.purchaseViewVisible = true
+          this.addSearchValue = ''
+          this.addInventoryData = []
+          this.addInventoryProductId = ''
+          this.addInventoryProductName = ''
+          this.addInventoryProductUnit = ''
+          this.addInventoryAmount = 0
+          this.getInventoryList(this.search)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     addInventory() {
       const data = {}
       data.productId = this.addInventoryProductId
@@ -752,7 +908,6 @@ export default {
       data.barcode = this.addSearchValue
       data.unit = this.addInventoryProductUnit
       data.weight = 0
-      console.log(data)
       this.$api.Inventory.addInventory(data)
         .then(res => {
           console.log(res)
@@ -769,22 +924,42 @@ export default {
           console.log(err)
         })
     },
-    onShowSizeChange(current, pageSize){
+    onShowSizeChange(current, pageSize) {
       // console.log(current);
-      this.current = 1;
-      this.pageSize = pageSize;
-      this.getInventoryList(this.search);
+      this.current = 1
+      this.pageSize = pageSize
+      this.getInventoryList(this.search)
     },
-    onPageChange(current, pageSize){
-      console.log(current);
+    onPageChange(current) {
+      console.log(current)
       // console.log(pageSize);
       // console.log(this.total);
-      this.getInventoryList(this.search);
+      this.getInventoryList(this.search)
+    },
+    getCustomerList() {
+      this.$api.Inventory.onlyCustomerList().then(res => {
+        this.customerList = res.data
+      })
+    },
+    CommodityDetail() {
+      this.$api.Commodity.getCommodityDetail({
+        searchKey: this.search,
+        barcode: this.barcode
+      }).then(res => {
+        console.log(res,56)
+        this.inventoryList = res.data
+        this.goodsTable = res.data
+      })
     },
     moment
   },
   created() {
-    this.getInventoryList(this.search);
+    this.getInventoryList(this.search)
+    this.getCustomerList()
+    this.CommodityDetail()
+    // axios('/erp/product/getProduct?searchKey=').then(res => {
+    //   this.goodsTable = res.data
+    // })
   },
   mounted() {}
 }
@@ -864,11 +1039,50 @@ export default {
   display: none;
 }
 .addPurchaseView /deep/ .ant-modal-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 300px;
   font-size: 16px;
 }
 .pagination {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
+}
+.editable-cell-text-wrapper {
+  padding: 5px 24px 5px 5px;
+}
+
+.editable-cell:hover .editable-cell-icon {
+  display: inline-block;
+}
+.discountTable::v-deep .ant-table-row td {
+  position: relative;
+}
+.displayInput {
+  display: flex;
+  justify-content: space-between;
+}
+.displayEdit {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
+.displayEdit:hover + .editable-cell-icon {
+  display: block;
+}
+.editable-cell-icon {
+  display: none;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  top: 3.5px;
+}
+
+.editable-cell-icon:hover {
+  display: block;
 }
 </style>

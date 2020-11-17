@@ -26,6 +26,9 @@ const api = {
     },
     discountRemove(row){
       return request.delete('/discount/deleteDiscount/' + row.id)
+    },
+    discountNoPages(params){
+      return request.get('/discount/clientDiscount?', {params})
     }
   },
   Classify: {
@@ -46,20 +49,25 @@ const api = {
     edit(data){
       return request.put("/inventory/updateStock", data);
     },
-    searchProduct(searchKey){
-      return request.get("/product/getProduct?searchKey="+searchKey);
-    },
+    // searchProduct(searchKey){
+    //   return request.get("/product/getProduct?searchKey="+searchKey);
+    // },
     addInventory(data){
       return request.post("/inventory/stockIn",data);
     },
     deleteInventory(id){
       return request.delete("/inventory/deleteInventory/"+id);
+    },
+    onlyCustomerList() {
+      return request.get('/client/clientList?searchKey=')
     }
-
   },
   Commodity:{
     getCommodityList(params){
-      return request.get('/product/productList', {params})
+      return request.get('/product/productList/', {params})
+    },
+    getCommodityDetail(params){
+      return request.get('/product/getProduct',{params})
     },
     addCommodity(data){
       return request.post('/product/addProduct', data)
@@ -74,6 +82,15 @@ const api = {
   Distribute:{
     getDistributeList(params){
       return request.get('deliveryOrder/orderList',{params})
+    },
+    getDistributeDetail(record){
+      return request.get('/deliveryOrder/getDetail?orderId='+ record.orderId)
+    },
+    deleteOrderList(record) {
+      return request.delete('/deliveryOrder/cancelOrder/'+ record.orderId);
+    },
+    addOrder(data){
+      return request.post('/deliveryOrder/addOrder',data)
     }
   }
 };

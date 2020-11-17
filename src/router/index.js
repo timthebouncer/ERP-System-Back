@@ -5,6 +5,18 @@ Vue.use(VueRouter);
 
 const routes = [
   {
+    path: "/Login",
+    name: "Login",
+    component: () => import( "../views/Login/Login.vue"),
+    meta: {
+      breadcrumb: [
+        {
+          name: "登入"
+        }
+      ]
+    }
+  },
+  {
     path: "/",
     name: "Home",
     component: () => import("../views/Home"),

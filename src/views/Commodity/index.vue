@@ -94,14 +94,15 @@
           v-model="search"
           placeholder="搜尋內容"
           enter-button
-          @click="onSearch"
+          autoFocus
+          @search="onSearch"
         />
       </div>
     </div>
     <div class="itemMenu">
       <a-table
         :columns="columns"
-        :data-source="filterText"
+        :data-source="tableData"
         bordered
         rowKey="id"
         :pagination="false"
@@ -130,15 +131,20 @@
             </template>
           </div>
         </template>
-        <template slot="use" slot-scope="use, record">
-          <a-switch :checked="use" @change="onChange($event, record)" />
+        <template slot="using" slot-scope="using, record">
+          <a-switch :checked="using" @change="onChange($event, record)" />
         </template>
         <template slot="operation" slot-scope="text, record">
-          <a-space>
-            <a-button type="link" size="small" @click="editHandler(record)"
+            <template v-if="record.using === true">
+              <a-button type="link" size="small" @click="editHandler(record)"
               >編輯</a-button
+              >
+            </template>
+          <template v-else>
+            <a-button type="link" size="small" disabled @click="editHandler(record)"
+            >編輯</a-button
             >
-          </a-space>
+          </template>
         </template>
       </a-table>
     </div>
@@ -149,12 +155,13 @@
       :total="total"
       show-size-changer
       :page-size="pageSize"
-      @change="onShowSizeChange"
+      :show-total="total => `總共 ${total} 筆`"
+      @change="onPageChange"
       @showSizeChange="onShowSizeChange"
     >
       <template slot="buildOptionText" slot-scope="props">
-        <span v-if="props.value !== '50'">{{ props.value }}筆/頁</span>
-        <span v-if="props.value === '50'">全部</span>
+        <span>{{ props.value }}筆/頁</span>
+<!--        <span v-if="props.value === '50'">全部</span>-->
       </template>
     </a-pagination>
     <!--    <AAA v-model="list.unit" />-->
@@ -184,7 +191,7 @@ export default {
         costPrice: undefined,
         listPrice: undefined,
         description: null,
-        use: undefined
+        using: undefined
       },
       tableData: [],
       changeTitle: "",
@@ -261,10 +268,10 @@ export default {
         },
         {
           title: "狀態",
-          dataIndex: "use",
+          dataIndex: "using",
           width: "10%",
           align: "center",
-          scopedSlots: { customRender: "use" }
+          scopedSlots: { customRender: "using" }
         },
         {
           title: "操作",
@@ -279,7 +286,7 @@ export default {
         name: [{ required: true, message: "請輸入姓名", trigger: "blur" }],
         prices: [{ required: true, message: "請輸入售價", trigger: "blur" }]
       },
-      pageSizeOptions: ["10", "20", "30", "40", "50"],
+      pageSizeOptions: ["10", "30", "50", "100"],
       current: 1,
       pageSize: 10,
       total: 50
@@ -287,17 +294,6 @@ export default {
   },
   created() {
     this.getCommodity();
-  },
-  computed: {
-    filterText() {
-      if (!this.search) {
-        return this.tableData;
-      } else {
-        return this.tableData.filter(item => {
-          return item.name.includes(this.search);
-        });
-      }
-    }
   },
   methods: {
     showModal() {
@@ -311,6 +307,7 @@ export default {
         pageSize: this.pageSize
       })
         .then(res => {
+          this.total = res.data.totalElements;
           this.tableData = res.data.content.map(e=>({...e,unit:computedWeight(undefined,e.unit)}));
         })
         .catch(err => {
@@ -380,7 +377,7 @@ export default {
               listPrice: this.list.listPrice,
               costPrice: this.list.costPrice,
               description: this.list.description,
-              use: true
+              using: true
             }).then(() => {
               this.getCommodity();
               this.$message.success("修改商品成功");
@@ -401,7 +398,7 @@ export default {
     editHandler(record) {
       this.track = record.id;
       this.changeTitle = "編輯商品";
-      if (record.use === true) {
+      if (record.using === true) {
         if (record !== "") {
           (this.list.name = record.name),
             (this.list.barcode = record.barcode),
@@ -422,35 +419,34 @@ export default {
     //   });
     // },
     onSearch() {
-      if (this.search) {
-        this.getCommodity();
-      }
+        this.getCommodity(this.search);
     },
-    onShowSizeChange(current, pageSize) {
-      this.$api.Commodity.getCommodityList({
-        productName: this.search,
-        pageNumber: current,
-        pageSize: pageSize
-      }).then(res =>{
-        console.log(res)
-        this.tableData = res.data.content
-      })
+    onShowSizeChange(current, pageSize){
+      this.current = 1;
+      this.pageSize = pageSize;
+      this.getCommodityList(this.search);
+    },
+    onPageChange(current){
+      console.log(current);
+      // console.log(pageSize);
+      // console.log(this.total);
+      this.getCommodityList(this.search);
     },
     onChange(checked, record) {
+      console.log(record)
       axios
         .put(
           `/erp/product/changeStatus?productId=${record.id}&status=${checked}`
         )
         .then(res => {
           console.log(res);
-          record.use = checked;
+          record.using = checked;
           this.$message.success("修改狀態成功");
         });
     }
   }
 };
 </script>
-
 <style scoped lang="scss">
 .search {
   width: 300px;
