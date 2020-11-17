@@ -1,13 +1,19 @@
 <template>
   <div id="app">
-    <router-view />
+    <a-config-provider :locale="locale">
+      <router-view />
+    </a-config-provider>
   </div>
 </template>
 <script>
-
-
+import zh_TW from "ant-design-vue/lib/locale-provider/zh_TW";
 export default {
-
+  name: "App",
+  data() {
+    return {
+      locale: zh_TW
+    };
+  }
 };
 </script>
 

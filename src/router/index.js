@@ -14,7 +14,7 @@ const routes = [
           name: "庫存管理"
         },
         {
-          name: "庫存資料"
+          name: "庫存清單"
         }
       ]
     },
@@ -29,7 +29,49 @@ const routes = [
               name: "庫存管理"
             },
             {
-              name: "庫存資料"
+              name: "庫存清單"
+            }
+          ]
+        }
+      },
+      {
+        path: "/InventoryLog",
+        name: "InventoryLog",
+        component: () => import("../views/Inventory/InventoryLog"),
+        meta: {
+          breadcrumb: [
+            {
+              name: "庫存管理"
+            },
+            {
+              name: "庫存異動紀錄"
+            }
+          ]
+        }
+      },
+      // {
+      //   path: "/InventoryLog",
+      //   name: "InventoryLog",
+      //   component: () => import("../views/Inventory/InventoryLog"),
+      //   meta: {
+      //     breadcrumb: [
+      //       {
+      //         name: "庫存管理"
+      //       },
+      //       {
+      //         name: "庫存異動紀錄"
+      //       }
+      //     ]
+      //   }
+      // },
+      {
+        path: "/Distribute",
+        name: "Distribute",
+        component: () => import( "../views/Inventory/Distribute.vue"),
+        meta: {
+          breadcrumb: [
+            {
+              name: "銷貨資料"
             }
           ]
         }

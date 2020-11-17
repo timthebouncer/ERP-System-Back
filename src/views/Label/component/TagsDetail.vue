@@ -100,6 +100,8 @@ export default {
           fontSize: fontSize,
           actualWdith: width,
           actualHeight: height,
+          scaleX: 1,
+          scaleY: 1,
           width: Math.round(width*scaleX),
           height: Math.round(height*scaleY)
         }

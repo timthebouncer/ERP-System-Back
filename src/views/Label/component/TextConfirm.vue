@@ -9,7 +9,8 @@
     >
       <a-form :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }">
         <a-form-item label="標籤文字">
-          <a-input v-model="item.text" />
+<!--          <a-input v-model="item.text" />-->
+          <a-textarea auto-size v-model="item.text" />
         </a-form-item>
         <a-form-item label="字體大小">
           <a-input-number v-model="item.fontSize" defaultValue="40" />
