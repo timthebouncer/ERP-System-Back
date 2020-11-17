@@ -95,6 +95,11 @@ const api = {
     addOrder(data){
       return request.post('/deliveryOrder/addOrder',data)
     }
+  },
+  Label:{
+    addLabel(data){
+      return request.post('/tag/addProductTag',data)
+    }
   }
 };
 
