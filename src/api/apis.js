@@ -76,7 +76,7 @@ const api = {
       return request.post('/product/addProduct', data)
     },
     updateCommodity(data){
-      return request.put('/product/updateProduct/',data)
+      return request.put('/product/updateProduct',data)
     },
     deleteCommodity(record) {
       return Promise.resolve('/product/deleteProduct/'+ record.id);
