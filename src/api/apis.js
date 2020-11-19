@@ -99,6 +99,9 @@ const api = {
   Label:{
     addLabel(data){
       return request.post('/tag/addProductTag',data)
+    },
+    searchProduct(searchKey,barcode) {
+      return request.get("/product/getProduct?searchKey="+searchKey+"&barcode="+barcode);
     }
   },
 };
