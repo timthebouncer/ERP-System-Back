@@ -132,6 +132,24 @@ const routes = [
             }
           ]
         }
+      },
+      {
+        path: "/AddLabel",
+        name: "AddLabel",
+        component: () => import("../views/Label/AddLabel"),
+        meta: {
+          breadcrumb: [
+            {
+              name: "標籤管理"
+            },
+            {
+              name: "標籤資料"
+            },
+            {
+              name: "新增標籤"
+            }
+          ]
+        }
       }
     ]
   }

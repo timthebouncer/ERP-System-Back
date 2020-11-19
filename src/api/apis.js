@@ -85,6 +85,12 @@ const api = {
     },
     searchProduct(searchKey,barcode) {
       return request.get("/product/getProduct?searchKey="+searchKey+"&barcode="+barcode);
+    },
+    getTagList(tagName, pageNumber, pageSize){
+      return request.get("/tag/tagList?tagName="+tagName+"&pageNumber="+pageNumber+"&pageSize="+pageSize)
+    },
+    editTag(data){
+      return request.put("/tag/editTag",data)
     }
   }
 };
