@@ -2,11 +2,13 @@
   <div class="container">
     <div class="action">
       <div class="buttons">
-        <a-button class="reviewButton">刷新</a-button>
-        <a-button class="addButton1" @click="showAddPurchaseView"
+        <a-space>
+          <a-button class="reviewButton" @click="resetPage">刷新</a-button>
+          <a-button class="addButton1" @click="showAddPurchaseView"
           >進貨+</a-button
-        >
-        <a-button class="addButton2" @click="showAddOrderView">銷貨+</a-button>
+          >
+          <a-button class="addButton2" @click="showAddOrderView">銷貨+</a-button>
+        </a-space>
       </div>
       <div>
         <a-modal
@@ -85,7 +87,7 @@
                     label="聯絡人"
                     prop="name"
                   >
-                    {{list.contactPerson}}
+                    {{ list.contactPerson }}
                   </a-form-model-item>
                 </div>
                 <div class="firstPart-item">

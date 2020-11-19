@@ -18,6 +18,7 @@ const routes = [
   },
   {
     path: "/",
+    redirect:"/Inventory",
     name: "Home",
     component: () => import("../views/Home"),
     meta: {

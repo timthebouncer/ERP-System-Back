@@ -2,7 +2,7 @@
   <div>
     <div v-if="!$store.state.collapsed" class="logo" align="center" style="font-size: large">進銷存SYS</div>
     <div v-else class="logo" align="center" style="font-size: large">SYS</div>
-    <a-menu mode="inline" :style="{ height: '100%', borderRight: 0 }" :default-selected-keys="['1']" :open-keys.sync="openKeys">
+    <a-menu mode="inline" :style="{ height: '100%', borderRight: 0 }" :default-Selected-Keys="['1']" :default-open-keys="['sub1']">
       <a-sub-menu key="sub1">
         <span slot="title"><a-icon type="profile" /><span>庫存管理</span></span>
         <a-menu-item key="1" @click="()=>{$router.push('Inventory').catch(()=>{})}">
@@ -48,7 +48,7 @@ export default {
   data() {
     return {
       // current: ['mail'],
-      openKeys: ['sub1'],
+      // openKeys: ['sub1'],
     }
   },
   mounted() {

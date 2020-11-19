@@ -14,8 +14,8 @@
         </div>
         <a-form-model-item>
           <div class="userName">
-            <a-input v-model="formInline.account" placeholder="Username">
-              <a-icon slot="prefix" type="user" style="color:rgba(0,0,0,.25)" />
+            <a-input v-model="formInline.account" placeholder="請輸入帳號">
+              <a-icon slot="prefix" type="user" style="color:rgba(12,12,12,0.25)" />
             </a-input>
           </div>
         </a-form-model-item>
@@ -24,25 +24,24 @@
             <a-input
               v-model="formInline.password"
               type="password"
-              placeholder="Password"
+              placeholder="請輸入密碼"
             >
-              <a-icon slot="prefix" type="lock" style="color:rgba(0,0,0,.25)" />
+              <a-icon slot="prefix" type="lock" style="color:rgba(0,0,0,0.25)" />
             </a-input>
           </div>
         </a-form-model-item>
         <a-form-model-item>
-          <div>
+          <div class="checkbox">
             <a-checkbox v-model="checkbox" name="type">
-              記住帳號
+              <span>記住帳號</span>
             </a-checkbox>
           </div>
         </a-form-model-item>
         <a-form-model-item>
           <div class="loginBtn">
             <a-button
-              type="primary"
+              class="loginBtnColor"
               html-type="submit"
-              :disabled="formInline.account === '' || formInline.password === ''"
             >
               登入
             </a-button>
@@ -79,30 +78,48 @@ export default {
 </script>
 <style scoped lang="scss">
 .container {
-  width: 500px;
-  margin: 0px auto;
-  background-color: #7cd3f3;
+  height: 100%;
+  width: 100%;
+  background-color: #044e7c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .loginForm {
   display: flex;
   justify-content: center;
+  background: linear-gradient(to bottom right, #437695, #71BAC3, #2A90E4, #2B69A6, #337FAF);
+  box-shadow: 1px 1px 15px #4a4444;
   padding: 50px 0px 20px 0px;
+  width: 350px;
+  border-radius: 5px;
 }
 .formTitle {
   display: flex;
   justify-content: center;
-  margin-bottom: 70px;
+  margin: 10px 0 50px 0px;
+}
+.formTitle h2{
+  font-weight: bold;
+  color: #fcfcfc;
 }
 .userName {
-  height: 70px;
-  width: 300px;
+  //width: 300px;
 }
 .passWord {
-  height: 70px;
-  width: 300px;
+  //width: 300px;
 }
 .loginBtn {
   display: flex;
   justify-content: center;
+}
+.loginBtnColor{
+  color: #fcfcfc;
+  font-weight: bold;
+  background-color: #2769B4;
+}
+.checkbox span{
+  color: #fcfcfc;
+  font-weight: bold;
 }
 </style>

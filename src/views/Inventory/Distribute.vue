@@ -101,14 +101,21 @@
           </div>
         </template>
         <template slot="operation" slot-scope="text, record">
-          <a-popconfirm
-              title="取消訂單後將無法復原"
-              @confirm="() => cancelHandler(record)"
-          >
-            <a-button type="link" size="small"
-              >取消訂單</a-button
+          <template v-if="record.remark === '註銷'">
+            <a-button type="link" size="small" disabled
+            >取消訂單</a-button
             >
-          </a-popconfirm>
+          </template>
+          <template v-else>
+            <a-popconfirm
+                title="取消訂單後將無法復原"
+                @confirm="() => cancelHandler(record)"
+            >
+              <a-button type="link" size="small"
+              >取消訂單</a-button
+              >
+            </a-popconfirm>
+          </template>
         </template>
       </a-table>
     </div>
@@ -331,7 +338,6 @@ export default {
       this.$api.Distribute.deleteOrderList(record)
      .then(() => {
        record.remark = "註銷"
-       // this.distributeList();
       });
     },
     searchHandler(){
