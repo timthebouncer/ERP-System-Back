@@ -2,7 +2,8 @@
   <div>
     <a-layout style="padding:20px;">
       <a-space>
-        <span>*標籤名稱</span><a-input v-model="tagName" placeholder="請輸入"></a-input>
+        <span>*標籤名稱</span
+        ><a-input v-model="tagName" placeholder="請輸入"></a-input>
         <span>*標籤尺寸</span><span>寬</span
         ><a-input-number
           v-model="tagDrawWidth"
@@ -27,68 +28,80 @@
         <a-col :span="8" style="height: 100%;">
           <a-row class="label-control" align="middle" style="height: 100%;">
             <a-row class="label-wrap">
-              <a-select
-                size="large"
-                show-search
-                option-filter-prop="children"
-                style="width: 100%;"
-                placeholder="刷條碼或選擇商品"
+              <a-auto-complete
+                v-model="searchProductName"
+                @search="searchProduct"
+                @select="selectProduct"
+                placeholder="請輸入商品名稱"
               >
-                <a-select-option value="1101">
-                  豬耳朵
-                </a-select-option>
-                <a-select-option value="1102">
-                  後臀肉
-                </a-select-option>
-                <a-select-option value="1103">
-                  豬舌
-                </a-select-option>
-              </a-select>
+                <template slot="dataSource">
+                  <a-select-option
+                    v-for="item in productData"
+                    :key="item.id"
+                    :title="item.name"
+                  >
+                    {{ item.name }}
+                  </a-select-option>
+                </template>
+              </a-auto-complete>
+              <a-button type="primary" @click="resetTag">重置</a-button>
             </a-row>
             <a-row class="label-wrap" type="flex" justify="space-between">
               <a-col
                 :span="6"
                 class="tags"
-                @drag="handleDrag('商品名稱')"
+                @drag="handleDrag(productNameTag,'productName')"
                 draggable
-                >商品名稱</a-col
+                >{{ productNameTag }}</a-col
               ><a-col
                 :span="6"
                 class="tags"
-                @drag="handleDrag('商品條碼')"
+                @drag="handleDrag(barcodeTag,'barcode')"
                 draggable
-                >商品條碼</a-col
+                >{{ barcodeTag }}</a-col
               >
             </a-row>
             <a-row class="label-wrap" type="flex" justify="space-between">
               <a-col
                 :span="6"
                 class="tags"
-                @drag="handleDrag('成本價')"
+                @drag="handleDrag(costPriceTag,'costPrice')"
                 draggable
-                >成本價</a-col
+                >{{ costPriceTag }}</a-col
               >
               <a-col
                 :span="6"
                 class="tags"
-                @drag="handleDrag('建議售價')"
+                @drag="handleDrag(listPriceTag,'listPrice')"
                 draggable
-                >建議售價</a-col
+                >{{ listPriceTag }}</a-col
               >
             </a-row>
             <a-row class="label-wrap" type="flex" justify="space-between">
-              <a-col :span="6" class="tags" @drag="handleDrag('重量')" draggable
-                >重量</a-col
+              <a-col
+                :span="6"
+                class="tags"
+                @drag="handleDrag(weightTag,'weight')"
+                draggable
+                >{{ weightTag }}</a-col
               >
-              <a-col :span="6" class="tags" @drag="handleDrag('單位')" draggable
-                >單位</a-col
+              <a-col
+                :span="6"
+                class="tags"
+                @drag="handleDrag(unitTag,'unit')"
+                draggable
+                >{{ unitTag }}</a-col
               >
             </a-row>
             <a-row class="label-wrap" type="flex" justify="space-between">
-              <a-col :span="6" class="tags" @drag="handleDrag('售價')" draggable
-                >售價</a-col
+              <a-col
+                :span="6"
+                class="tags"
+                @drag="handleDrag(salesPriceTag,'salesPrice')"
+                draggable
+                >{{ salesPriceTag }}</a-col
               >
-              <a-col :span="6" class="tags" @drag="handleDrag('text')" draggable
+              <a-col :span="6" class="tags" @drag="handleDrag('text','text')" draggable
                 >TEXT</a-col
               >
             </a-row>
@@ -141,10 +154,22 @@ export default {
   components: { TagsDetail, TextConfirm },
   data() {
     return {
-      currentDrag: '',
+      currentDrag: [
+        { name: 'productName', text: '商品名稱' },
+        { name: 'barcode', text: '商品條碼' },
+        { name: 'costPrice', text: '成本價' },
+        { name: 'listPrice', text: '建議售價' },
+        { name: 'salesPrice', text: '售價' },
+        { name: 'weight', text: '重量' },
+        { name: 'unit', text: '單位' },
+        { name: 'text', text: 'TEXT' }
+      ],
+      currentDragName:'',
+      currentDragText:'',
+      textTag:'',
       labelItemVisible: false,
       tagItem: {},
-      tagName:'',
+      tagName: '',
       tagDrawWidth: 100,
       tagDrawHeight: 100,
       svgXml: '',
@@ -154,43 +179,124 @@ export default {
       objSelected: null,
       clipRectangle: null,
       hasTags: [],
-      delAlertMsg: ''
+      delAlertMsg: '',
+      productData: [],
+      productNameList: [],
+      searchProductName: '',
+      productNameTag: '商品名稱',
+      barcodeTag: '商品條碼',
+      costPriceTag: '成本價',
+      listPriceTag: '建議售價',
+      salesPriceTag: '售價',
+      weightTag: '重量',
+      unitTag: '單位',
+      previewed: false
     }
   },
   methods: {
-    handleDrag(current) {
-      this.currentDrag = current
+    searchProduct(value) {
+      this.productData = []
+      console.log(value, 'search value')
+      this.$api.Label.searchProduct(value, '')
+        .then(res => {
+          console.log(res)
+          this.productData = res.data
+          console.log(this.productData)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    selectProduct(value) {
+      this.searchProductName = ''
+      let item = {}
+      item = this.productData.find(x => x.id === value)
+      this.searchProductName = item.name
+      this.productNameTag = '商品名稱:' + item.name
+      this.barcodeTag = '商品條碼' + item.barcode
+      this.costPriceTag = '成本價:' + item.costPrice + '元'
+      this.listPriceTag = '建議售價:' + item.listPrice + '元'
+      this.salesPriceTag = '售價:' + item.salesPrice + '元'
+      this.weightTag = '重量:xxx'
+      this.unitTag = '單位:' + item.unit
+      this.previewed = true
+      this.currentDrag = [
+              { name: 'productName', text: '商品名稱:' + item.name },
+        { name: 'barcode', text: '商品條碼' + item.barcode },
+        { name: 'costPrice', text: '成本價:' + item.costPrice + '元' },
+        { name: 'listPrice', text: '建議售價:' + item.listPrice + '元' },
+        { name: 'salesPrice', text: '售價:' + item.salesPrice + '元' },
+        { name: 'weight', text: '重量:xxx' },
+        { name: 'unit', text: '單位:' + item.unit },
+        { name: 'text', text: 'TEXT' }]
+      this.canvas.getObjects().map(o=>{
+        if(this.currentDrag.findIndex(x=>x.name == o.name)!=-1 && o.name!='text'){
+          o.text = this.currentDrag.find(x=>x.name == o.name).text
+        }
+      })
+      this.canvas.renderAll()
+    },
+    resetTag() {
+      this.productData = []
+      this.previewed = false
+      this.searchProductName = ''
+      this.productNameTag = '商品名稱'
+      this.barcodeTag = '商品條碼'
+      this.costPriceTag = '成本價'
+      this.listPriceTag = '建議售價'
+      this.salesPriceTag = '售價'
+      this.weightTag = '重量'
+      this.unitTag = '單位'
+      this.currentDrag = [
+        { name: 'productName', text: '商品名稱'},
+        { name: 'barcode', text: '商品條碼' },
+        { name: 'costPrice', text: '成本價' },
+        { name: 'listPrice', text: '建議售價' },
+        { name: 'salesPrice', text: '售價' },
+        { name: 'weight', text: '重量' },
+        { name: 'unit', text: '單位'},
+        { name: 'text', text: 'TEXT' }]
+      this.canvas.getObjects().map(o=>{
+        if(this.currentDrag.findIndex(x=>x.name == o.name)!=-1 && o.name!='text'){
+          o.text = '{{'+this.currentDrag.find(x=>x.name == o.name).text+'}}'
+        }
+      })
+      this.canvas.renderAll()
+    },
+    handleDrag(text,name) {
+      console.log(text)
+      this.currentDragText = text
+      this.currentDragName = name
     },
     //放入畫布事件
     handleDrop(e) {
       const { offsetX, offsetY } = e.e
       var element
-      if (this.hasTags.indexOf(this.currentDrag) === -1) {
-        if (this.currentDrag === 'text') {
-          this.currentDrag = {
-            text: this.currentDrag,
+      if (this.hasTags.indexOf(this.currentDragName) === -1) {
+        if (this.currentDragName === 'text') {
+          this.textTag = {
+            text: this.currentDragText,
             offsetX,
             offsetY
           }
           this.$refs.textConfirm.visible = true
           return
-        } else if (this.currentDrag === '商品條碼') {
-          this.hasTags.push(this.currentDrag)
-          element = new fabric.Text(`{{${this.currentDrag}}}`, {
+        } else if (this.currentDragName === 'barcode') {
+          this.hasTags.push(this.currentDragName)
+          element = new fabric.Text(this.previewed?this.currentDragText:`{{${this.currentDragText}}}`, {
             fontFamily: '微軟正黑體',
             hasControls: true,
-            name:this.currentDrag
+            name: this.currentDragName
           })
-
         } else {
-          this.hasTags.push(this.currentDrag)
-          element = new fabric.Textbox(`{{${this.currentDrag}}}`, {
+          this.hasTags.push(this.currentDragName)
+          element = new fabric.Textbox(this.previewed?this.currentDragText:`{{${this.currentDragText}}}`, {
             fontSize: 30,
             fontFamily: '微軟正黑體',
             hasControls: true,
             textAlign: 'center',
             editable: false,
-            name:this.currentDrag
+            name: this.currentDragName
           })
           element.setControlsVisibility({
             mt: false, // middle top disable
@@ -202,8 +308,23 @@ export default {
             tr: false
           })
         }
+        this.currentDrag.find(x=>x.name==this.currentDragName).text = this.currentDragText
         element.left = offsetX - element.width / 2
         element.top = offsetY - element.height / 2
+        let _this = this
+        element.toObject = (function (toObject) {
+          let currentDragName = _this.currentDragName
+          return function () {
+            return fabric.util.object.extend(toObject.call(this), {
+              name: currentDragName,
+              editable: false,
+            })
+          }
+        })(element.toObject)
+        // element.toObject = function(){
+        //   return {name:this.currentDragName}
+        // }
+        console.log(element,'element');
         // element.clipPath = this.clipRectangle
         this.canvas.add(element)
         element.on('moved', e => {
@@ -216,9 +337,9 @@ export default {
       }
     },
     handleClickTags(e) {
-      if (e.target) {
+      if (e.target && e.target.name) {
         this.tagItem = e.target
-        // if(this.tagItem )
+        console.log(this.tagItem,'tagItem')
         this.$refs.tagsDetail.visible = true
       }
     },
@@ -240,13 +361,16 @@ export default {
     exportSVG() {
       // let svgJs = xml2js(this.canvas.toSVG())
       // let svgJson = xml2json(this.canvas.toSVG())
-      if(this.tagName==null || this.tagName==''){
+      if (this.tagName == null || this.tagName == '') {
         this.$message.warning('請輸入標籤名稱')
         return
       }
+      console.log(this.canvas.getObjects());
       let svgJson = this.canvas.toJSON()
       this.svgJson = svgJson
       let svgJsonStr = JSON.stringify(svgJson)
+      // let testSvgJson = JSON.stringify(this.canvas)
+      // console.log(testSvgJson)
       console.log(svgJsonStr)
       this.exportCanvasW = this.canvas.width
       this.exportCanvasH = this.canvas.height
@@ -284,14 +408,18 @@ export default {
       //   // const obj = fabric.util.groupSVGElements(objects, options)
       //   // this.canvas.add(obj).renderAll()
       // })
+      this.hasTags = []
       this.canvas.setDimensions({
         width: this.exportCanvasW,
         height: this.exportCanvasH
       })
-      console.log(this.svgJson)
+      // console.log(this.svgJson)
       this.canvas.loadFromJSON(this.svgJson)
-      this.canvas.getObjects().map(function(o) {
-        if (o.text != '{{商品條碼}}') {
+      this.canvas.getObjects().map(o => {
+        console.log(o);
+        if (o.type != 'rect' && o.name != 'barcode') {
+          // console.log(o.name);
+          // o.editable
           o.setControlsVisibility({
             mt: false, // middle top disable
             mb: false, // midle bottom
@@ -301,9 +429,20 @@ export default {
             tl: false,
             tr: false
           })
-        } else {
+        } else if (o.type == 'rect') {
+          o.selectable = false
         }
+
+        if(o.name != 'text'){
+          this.hasTags.push(o.name)
+        }
+
+        o.on('moved', e => {
+          this.checkInArea(e)
+          this.canvas.renderAll()
+        })
       })
+      this.canvas.controlsAboveOverlay = true
       this.canvas.renderAll()
     },
     handleSaveTag(edit) {
@@ -321,8 +460,8 @@ export default {
         editable: false,
         underline: text.underline
       })
-      element.left = this.currentDrag.offsetX - element.width / 2
-      element.top = this.currentDrag.offsetY - element.height / 2
+      element.left = this.textTag.offsetX - element.width / 2
+      element.top = this.textTag.offsetY - element.height / 2
       element.setControlsVisibility({
         mt: false, // middle top disable
         mb: false, // midle bottom
@@ -332,17 +471,28 @@ export default {
         tl: false,
         tr: false
       })
-      element.name = 'TEXT'
+      element.name = 'text'
+      element.toObject = (function (toObject) {
+        return function () {
+          return fabric.util.object.extend(toObject.call(this), {
+            name: 'text',
+            editable: false,
+          })
+        }
+      })(element.toObject)
       this.canvas.add(element)
+      element.on('moved', e => {
+        this.checkInArea(e)
+        this.canvas.renderAll()
+      })
     },
     handleDeleteTag() {
       const tag = this.canvas.getActiveObject()
-      // console.log(tag);
-      // console.log(this.hasTags)
+      console.log(tag);
       if (tag) {
-        const strLen = tag.text.length
-        let str = tag.text.substring(2, strLen - 2)
-        const index = this.hasTags.indexOf(str)
+        console.log(tag.name);
+        let str = this.currentDrag.find(x=>x.name==tag.name).text
+        const index = this.hasTags.indexOf(tag.name)
         if (index != -1) {
           this.hasTags.splice(index, 1)
         } else {
@@ -351,7 +501,7 @@ export default {
         this.canvas.remove(tag)
         this.objSelected = null
         this.delAlertMsg = str + ' 模塊已刪除'
-        this.$message.success(this.delAlertMsg,1.5)
+        this.$message.success(this.delAlertMsg, 1.5)
       }
     },
     handleChangeSize() {

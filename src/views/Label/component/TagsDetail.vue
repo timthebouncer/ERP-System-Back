@@ -10,7 +10,8 @@
       <a-form :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }">
         <a-form-item label="標籤名稱">
           <template v-if="itemType !== 'text'">{{item.text}}</template>
-          <a-input v-else v-model="item.text" />
+<!--          <a-input v-else v-model="item.text" />-->
+          <a-textarea v-else auto-size v-model="item.text" />
         </a-form-item>
         <a-form-item label="字體大小" v-if="itemType !== 'barcode'">
           <a-input-number v-model="item.fontSize" />
@@ -21,7 +22,7 @@
         <a-form-item label="高" v-if="itemType === 'barcode'">
           <a-input-number v-model="item.height" />
         </a-form-item>
-        <a-form-item label="字型">
+        <a-form-item label="字型" v-if="itemType !== 'barcode'">
           <a-space>
             <a-button size="small" :type="isBold" @click="item.bold = !item.bold">
               <a-icon type="bold" />
@@ -56,7 +57,8 @@ export default {
         underline: false,
         text: '',
         width: 0,
-        height: 0
+        height: 0,
+        name: ''
       }
     }
   },
@@ -68,8 +70,18 @@ export default {
       return this.item.underline ? 'primary' : 'default'
     },
     itemType(){
-      if(/^[{]{2}.+[}]{2}$/.test(this.item.text)){
-        if(~this.item.text.indexOf('商品條碼')){
+      // if(/^[{]{2}.+[}]{2}$/.test(this.item.text)){
+      //   if(~this.item.text.indexOf('商品條碼')){
+      //     return 'barcode'
+      //   }else{
+      //     return 'field'
+      //   }
+      // }else{
+      //   return 'text'
+      // }
+      console.log(this.item);
+      if(this.item.name!=='text'){
+        if(this.item.name === 'barcode'){
           return 'barcode'
         }else{
           return 'field'
@@ -81,6 +93,10 @@ export default {
   },
   methods: {
     handleOk() {
+      if((this.item.text).trim().length==0){
+        this.$message.error('請輸入標籤文字!')
+        return
+      }
       this.$emit('saveTag',{
         ...this.item,
         fontWeight: this.item.bold ? 'bold' : 'normal'
@@ -91,11 +107,12 @@ export default {
   watch: {
     visible(value) {
       if (value) {
-        const {fontWeight,underline,text,fontSize,width,scaleX,height,scaleY} = this.tagItem
+        const {fontWeight,underline,name,text,fontSize,width,scaleX,height,scaleY} = this.tagItem
         console.log(this.tagItem)
         this.item = {
           bold: fontWeight === 'bold',
           underline: underline,
+          name: name,
           text: text,
           fontSize: fontSize,
           actualWdith: width,

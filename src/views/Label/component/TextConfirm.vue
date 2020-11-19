@@ -61,6 +61,10 @@ export default {
   },
   methods: {
     handleOk() {
+      if((this.item.text).trim().length==0){
+         this.$message.error('請輸入標籤文字!')
+         return
+      }
       this.$emit('confirmText', this.item)
       this.visible = false
     }
