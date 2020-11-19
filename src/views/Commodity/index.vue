@@ -126,7 +126,10 @@
             <template v-if="col === 'order'">
               {{ index + 1 }}
             </template>
-            <template>
+            <template v-else-if="col === 'unit'">
+              {{ computedWeight(undefined, text) }}
+            </template>
+            <template v-else>
               {{ text }}
             </template>
           </div>
@@ -185,12 +188,12 @@ export default {
       list: {
         name: "",
         unit: "",
-        unitType: undefined,
+        unitType: "",
         barcode: "",
         salesPrice: undefined,
         costPrice: undefined,
         listPrice: undefined,
-        description: null,
+        description: "",
         using: undefined
       },
       tableData: [],
@@ -292,6 +295,11 @@ export default {
       total: 50
     };
   },
+  computed: {
+    computedWeight() {
+      return computedWeight
+    }
+  },
   created() {
     this.getCommodity();
   },
@@ -308,7 +316,7 @@ export default {
       })
         .then(res => {
           this.total = res.data.totalElements;
-          this.tableData = res.data.content.map(e=>({...e,unit:computedWeight(undefined,e.unit)}));
+          this.tableData = res.data.content;
         })
         .catch(err => {
           console.log(err);
@@ -367,6 +375,7 @@ export default {
             });
             this.visible = false;
           } else {
+            console.log(this.list.unit,6)
             this.$api.Commodity.updateCommodity({
               id: this.track,
               name: this.list.name,
@@ -377,7 +386,7 @@ export default {
               listPrice: this.list.listPrice,
               costPrice: this.list.costPrice,
               description: this.list.description,
-              using: true
+              use: true
             }).then(() => {
               this.getCommodity();
               this.$message.success("修改商品成功");
@@ -402,7 +411,7 @@ export default {
         if (record !== "") {
           (this.list.name = record.name),
             (this.list.barcode = record.barcode),
-            (this.list.unit = computedWeight(record.unit)),
+            (this.list.unit = record.unit),
             (this.list.salesPrice = record.salesPrice),
             (this.list.listPrice = record.listPrice),
             (this.list.costPrice = record.costPrice),

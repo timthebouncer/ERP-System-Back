@@ -3,11 +3,11 @@
     <div class="action">
       <div class="buttons">
         <a-space>
-          <a-button class="reviewButton" @click="resetPage">刷新</a-button>
+          <a-button class="reviewButton" @click="resetPage">重新整理</a-button>
           <a-button class="addButton1" @click="showAddPurchaseView"
-          >進貨+</a-button
+          >入庫</a-button
           >
-          <a-button class="addButton2" @click="showAddOrderView">銷貨+</a-button>
+          <a-button class="addButton2" @click="showAddOrderView">出庫</a-button>
         </a-space>
       </div>
       <div>
@@ -24,11 +24,13 @@
           </div>
           <div class="class-input" style="display: flex;">
             <span>商品條碼:</span>
-            <a-input
-              v-model="addSearchValue"
+            <a-auto-complete
+              v-model="searchBarcode"
+              :dataSource="barCodeSelection"
               placeholder="請輸入商品條碼"
               style="width: 50%;"
-              @pressEnter="addSearch"
+              @select="addSelect"
+              @change="addChange"
             />
           </div>
           <div class="class-input" style="display: flex;">
@@ -185,29 +187,6 @@
                       :data-source="orderData"
                       :pagination="true"
                     >
-                      <!--                               <template-->
-                      <!--                        slot="operation"-->
-                      <!--                        slot-scope="text, record, index"-->
-                      <!--                      >-->
-                      <!--                        <a-popconfirm-->
-                      <!--                          class="orderDeletePopconfirm"-->
-                      <!--                          @confirm="() => deleteOrder(index)"-->
-                      <!--                        >-->
-                      <!--                          <template slot="title">-->
-                      <!--                            <span-->
-                      <!--                              class="orderDeletePopTitle"-->
-                      <!--                              style="font-size: larger;"-->
-                      <!--                              >是否確定刪除此筆銷貨商品?</span-->
-                      <!--                            >-->
-                      <!--                          </template>-->
-                      <!--                          <a-icon-->
-                      <!--                            type="close-square"-->
-                      <!--                            theme="twoTone"-->
-                      <!--                            two-tone-color="#eb2f96"-->
-                      <!--                            :style="{ fontSize: '25px' }"-->
-                      <!--                          />-->
-                      <!--                        </a-popconfirm>-->
-                      <!--                      </template>-->
                     </a-table>
                   </div>
                 </div>
@@ -228,7 +207,7 @@
         <div class="searchInput">
           <a-input-search
             v-model="search"
-            placeholder="搜尋內容"
+            placeholder="搜尋商品名稱"
             enter-button
             @search="onSearch"
           />
@@ -356,8 +335,24 @@
 <script>
 import moment from 'moment'
 import EditableCell from '@/components/EditableCell'
-import axios from 'axios'
+// import axios from 'axios'
 import Fragment from '@/components/Fragment'
+import {computedWeight} from "@/unit/dictionary/computed";
+
+function debounce(fn, delay=500) {
+  let timer = null
+  return function () {
+    let context = this
+    let args = arguments
+    if(timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(function () {
+      fn.apply(context, args)
+    }, delay)
+  }
+}
+
 export default {
   name: 'Inventory',
   components: {
@@ -368,6 +363,7 @@ export default {
       customerList: [],
       goodsTable: [],
       inventoryList: [],
+      barCodeSelection:[],
       purchaseViewVisible: false,
       orderViewVisible: false,
       purchaseModalTitle: '新增進貨',
@@ -376,19 +372,7 @@ export default {
       remark: '',
       barcode: '',
       expandIndex: [],
-      tableData: [
-        // {
-        //   id: 0,
-        //   barCode: '',
-        //   productName: '',
-        //   unit: '',
-        //   totalSalesPrice: 0,
-        //   totalListPrice: 0,
-        //   totalCostPrice: 0,
-        //   amount: 0,
-        //   inventoryList: []
-        // }
-      ],
+      tableData: [],
       innerData: [
         {
           id: 0,
@@ -563,11 +547,12 @@ export default {
                     show-search
                     filter-option={this.filterOption}
                   >
-                    {this.filterName(row).map(item => (
-                      <a-select-option value={item.id}>
-                        {item.name}
-                      </a-select-option>
-                    ))}
+                    {this.filterName(row).map(item => {
+                      return (
+                        <a-select-option value={item.id}>
+                          {item.name}
+                        </a-select-option>
+                    )})}
                   </a-select>
                 </div>
               )
@@ -636,12 +621,12 @@ export default {
       ],
       innerTableExpanded: false,
       addSearchValue: '',
-      barcode: '',
+      searchBarcode: '',
       addInventoryData: [],
       addInventoryProductId: '',
       addInventoryProductName: '',
       addInventoryProductUnit: '',
-      addInventoryAmount: 0,
+      addInventoryAmount: 1,
       pageSizeOptions: ['10', '30', '50', '100'],
       current: 1,
       pageSize: 10,
@@ -685,7 +670,10 @@ export default {
           )
         }
       }
-    }
+    },
+    addSearch() {
+     return debounce();
+    },
   },
   methods: {
     handleChange(id) {
@@ -726,7 +714,7 @@ export default {
       }
     },
     pushValue(id, index) {
-      const item = this.goodsTable.find(item => item.id === id)
+      // const item = this.goodsTable.find(item => item.id === id)
       this.orderData[index].productId = id
       this.$api.Commodity.getCommodityList({
         productName: this.search,
@@ -736,14 +724,14 @@ export default {
         let content = res.data.content
         let result = content.find(item => item.id === id)
         let rows = this.orderData[index]
+        rows.barCode = result.barcode
         rows.productId = result.id
-        rows.unit = result.unit
+        rows.unit = computedWeight(undefined,result.unit)
         rows.salesPrice = result.salesPrice
       })
     },
     pushName(barCode, row) {
       this.inventoryList.filter(item => {
-        console.log(item.barCode, row.barCode)
         return item.barCode === row.barCode
       })
     },
@@ -764,8 +752,12 @@ export default {
           }
         })
       }).then(res => {
-        alert(`出庫確認成功，已新增銷貨單號:${123}`)
-        // this.orderViewVisible = false
+        // let orderNumber;
+        // orderNumber =res.data.find(item=>{
+        //   return item.orderNo =
+        // })
+        alert(`出庫確認成功，已新增銷貨單號:${res.data.orderNo}`)
+        this.orderViewVisible = false
         console.log(res)
       })
     },
@@ -775,13 +767,14 @@ export default {
         .then(res => {
           this.tableData = res.data.inventoryListResponseList.map(
             (item, index) => {
-              let obj = {
+              return {
+                ...item,
                 id: index,
-                ...item
+                unit: computedWeight(undefined,item.unit)
               }
-              return obj
             }
           )
+          console.log(this.tableData)
           this.total = res.data.totalElements
         })
         .catch(err => {
@@ -790,9 +783,11 @@ export default {
     },
     showAddPurchaseView() {
       this.purchaseViewVisible = true
+      this.barCodeSelection = []
     },
     showAddOrderView() {
       this.orderViewVisible = true
+      this.CommodityDetail()
     },
     onSearch() {
       this.getInventoryList(this.search)
@@ -828,15 +823,16 @@ export default {
     handleCancel() {
       this.purchaseViewVisible = false
       this.orderViewVisible = false
+      this.orderData = []
     },
     addInventoryCancel() {
       this.purchaseViewVisible = false
-      this.addSearchValue = ''
+      this.searchBarcode = ''
       this.addInventoryData = []
       this.addInventoryProductId = ''
       this.addInventoryProductName = ''
       this.addInventoryProductUnit = ''
-      this.addInventoryAmount = 0
+      this.addInventoryAmount = 1
     },
     handleAdd() {
       const { orderData } = this
@@ -856,30 +852,25 @@ export default {
     deleteOrder(index) {
       this.orderData.splice(index, 1)
     },
-    addSearch() {
+    addSelect() {
       this.addInventoryProductName = ''
       this.addInventoryProductUnit = ''
       this.$api.Commodity.getCommodityDetail({
         searchKey: this.search,
-        barcode: this.barcode
+        barcode: this.searchBarcode
       }).then(res => {
         this.addInventoryData = res.data
         // this.addInventoryData=[];
         if (this.addInventoryData.length) {
-          if (
-            this.addInventoryData[0].barcode != null &&
-            this.addInventoryData[0].barcode != ''
-          ) {
-            this.addInventoryProductId = this.addInventoryData[0].id
-            this.addSearchValue = this.addInventoryData[0].barcode
-            this.addInventoryProductName = this.addInventoryData[0].name
-            this.addInventoryProductUnit = this.addInventoryData[0].unit
-          }
+          // this.searchBarcode = this.addInventoryData.barcode
+          this.addInventoryProductName = this.addInventoryData[0].name
+          this.addInventoryProductUnit = this.addInventoryData[0].unit
         }
-      })
+      })},
+    addChange() {
+      this.addSearch();
+      this.CommodityDetail();
     },
-    addSelect() {},
-    addChange() {},
     submitNonStop(){
       const data = {}
       data.productId = this.addInventoryProductId
@@ -896,7 +887,7 @@ export default {
           this.addInventoryProductId = ''
           this.addInventoryProductName = ''
           this.addInventoryProductUnit = ''
-          this.addInventoryAmount = 0
+          this.addInventoryAmount = 1
           this.getInventoryList(this.search)
         })
         .catch(err => {
@@ -919,7 +910,7 @@ export default {
           this.addInventoryProductId = ''
           this.addInventoryProductName = ''
           this.addInventoryProductUnit = ''
-          this.addInventoryAmount = 0
+          this.addInventoryAmount = 1
           this.getInventoryList(this.search)
         })
         .catch(err => {
@@ -946,22 +937,23 @@ export default {
     CommodityDetail() {
       this.$api.Commodity.getCommodityDetail({
         searchKey: this.search,
-        barcode: this.barcode
+        barcode: this.searchBarcode
       }).then(res => {
-        console.log(res,56)
         this.inventoryList = res.data
+        this.barCodeSelection = this.inventoryList.map(item=>{
+          return item.barcode
+        })
         this.goodsTable = res.data
-      })
+        })
+    },
+    resetPage(){
+      this.getInventoryList(this.search)
     },
     moment
   },
   created() {
     this.getInventoryList(this.search)
     this.getCustomerList()
-    this.CommodityDetail()
-    // axios('/erp/product/getProduct?searchKey=').then(res => {
-    //   this.goodsTable = res.data
-    // })
   },
   mounted() {}
 }
