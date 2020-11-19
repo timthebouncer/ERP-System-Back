@@ -411,13 +411,6 @@ export default {
         }
       }
     },
-    // onDelete(record) {
-    //   this.$api.Commodity.deleteCommodity(record).then(() => {
-    //     axios.get("/erp/product/productList?productName=").then(res => {
-    //       this.tableData = res.data;
-    //     });
-    //   });
-    // },
     onSearch() {
         this.getCommodity(this.search);
     },

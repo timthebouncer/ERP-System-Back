@@ -14,6 +14,6 @@ export const computedWeight = (type, val) => {
     const computed = unitVal => unitVal[key] === value
 
     // 取出中文 (computed -> u => computed(u))
-    return dWeight.find(computed).type
+    return dWeight.find(computed)?.type ?? type ?? val
 
 }
