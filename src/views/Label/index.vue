@@ -28,27 +28,11 @@
         <a-col :span="8" style="height: 100%;">
           <a-row class="label-control" align="middle" style="height: 100%;">
             <a-row class="label-wrap">
-              <!--              <a-select-->
-              <!--                size="large"-->
-              <!--                show-search-->
-              <!--                option-filter-prop="children"-->
-              <!--                style="width: 100%;"-->
-              <!--                placeholder="刷條碼或選擇商品"-->
-              <!--              >-->
-              <!--                <a-select-option value="1101">-->
-              <!--                  豬耳朵-->
-              <!--                </a-select-option>-->
-              <!--                <a-select-option value="1102">-->
-              <!--                  後臀肉-->
-              <!--                </a-select-option>-->
-              <!--                <a-select-option value="1103">-->
-              <!--                  豬舌-->
-              <!--                </a-select-option>-->
-              <!--              </a-select>-->
               <a-auto-complete
                 v-model="searchProductName"
                 @search="searchProduct"
                 @select="selectProduct"
+                placeholder="請輸入商品名稱"
               >
                 <template slot="dataSource">
                   <a-select-option
