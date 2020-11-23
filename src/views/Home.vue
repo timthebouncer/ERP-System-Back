@@ -4,7 +4,7 @@
       v-model="$store.state.collapsed"
       :trigger="null"
       collapsible
-      style="background: #FFF"
+      style="background: #001529"
     >
       <Sidebar />
     </a-layout-sider>

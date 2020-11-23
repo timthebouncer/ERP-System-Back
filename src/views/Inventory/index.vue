@@ -5,7 +5,7 @@
         <a-space>
           <a-button class="reviewButton" @click="resetPage">重新整理</a-button>
           <a-button class="addButton1" @click="showAddPurchaseView"
-          >入庫</a-button
+            >入庫</a-button
           >
           <a-button class="addButton2" @click="showAddOrderView">出庫</a-button>
         </a-space>
@@ -35,11 +35,9 @@
           </div>
           <div class="class-input" style="display: flex;">
             <span>商品名稱:</span>{{ addInventoryProductName }}
-            <!--            <a-input placeholder="請輸入" style="width: 50%;" />-->
-            <!--            <a-auto-complete v-model="addSearchValue" :data-source="addInventoryData" @search="addSearch"></a-auto-complete>-->
           </div>
           <div class="class-input" style="display: flex;">
-            <span>單位:</span>{{ addInventoryProductUnit }}
+            <span>計價單位:</span>{{ addInventoryProductUnit }}
           </div>
           <div class="class-input" style="display: flex;">
             <span>數量:</span
@@ -68,6 +66,7 @@
           :title="orderModalTitle"
           width="1000px"
           @cancel="handleCancel"
+          :destroyOnClose="true"
         >
           <div class="modal-body">
             <a-form-model layout="horizontal" ref="ruleForm">
@@ -103,6 +102,7 @@
                     >
                       <a-select-option
                         v-for="item in customerList"
+                        :key="item.id"
                         :value="item.id"
                       >
                         {{ item.name }}
@@ -140,7 +140,7 @@
                   label="地址"
                 >
                   <div style="width: 10%">
-                    {{list.postCode}}
+                    {{ list.postCode }}
                   </div>
                   <div>
                     {{ list.address }}
@@ -151,10 +151,10 @@
                   label="公司地址"
                 >
                   <div style="width: 10%">
-                    {{list.companyPostCode}}
+                    {{ list.companyPostCode }}
                   </div>
                   <div>
-                    {{list.companyAddress}}
+                    {{ list.companyAddress }}
                   </div>
                 </a-form-model-item>
 
@@ -337,18 +337,15 @@ import moment from 'moment'
 import EditableCell from '@/components/EditableCell'
 // import axios from 'axios'
 import Fragment from '@/components/Fragment'
-import {computedWeight} from "@/unit/dictionary/computed";
+import { computedWeight } from '@/unit/dictionary/computed'
 
-function debounce(fn, delay=500) {
+function debounce(func, delay = 500) {
   let timer = null
-  return function () {
-    let context = this
-    let args = arguments
-    if(timer) {
-      clearTimeout(timer)
-    }
-    timer = setTimeout(function () {
-      fn.apply(context, args)
+
+  return () => {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+      func()
     }, delay)
   }
 }
@@ -363,28 +360,28 @@ export default {
       customerList: [],
       goodsTable: [],
       inventoryList: [],
-      barCodeSelection:[],
+      barCodeSelection: [],
       purchaseViewVisible: false,
       orderViewVisible: false,
-      purchaseModalTitle: '新增進貨',
-      orderModalTitle: '新增銷貨',
+      purchaseModalTitle: '入庫',
+      orderModalTitle: '出庫',
       list: {},
       remark: '',
       barcode: '',
       expandIndex: [],
       tableData: [],
-      innerData: [
-        {
-          id: 0,
-          barCode: 'T0001',
-          productName: '雞胸',
-          unit: '2台斤',
-          salesPrice: 79,
-          listPrice: 80,
-          costPrice: 60,
-          amount: 2
-        }
-      ],
+      // innerData: [
+      //   {
+      //     id: 0,
+      //     barCode: 'T0001',
+      //     productName: '雞胸',
+      //     unit: '2台斤',
+      //     salesPrice: 79,
+      //     listPrice: 80,
+      //     costPrice: 60,
+      //     amount: 2
+      //   }
+      // ],
       orderData: [],
       search: '',
       columns: [
@@ -409,7 +406,7 @@ export default {
           scopedSlots: { customRender: 'productName' }
         },
         {
-          title: '單位量',
+          title: '計價單位',
           dataIndex: 'unit',
           width: '10%',
           align: 'center',
@@ -552,7 +549,8 @@ export default {
                         <a-select-option value={item.id}>
                           {item.name}
                         </a-select-option>
-                    )})}
+                      )
+                    })}
                   </a-select>
                 </div>
               )
@@ -561,7 +559,7 @@ export default {
           scopedSlots: { customRender: 'name' }
         },
         {
-          title: '單位',
+          title: '計價單位',
           dataIndex: 'unit',
           align: 'center',
           scopedSlots: { customRender: 'unit' }
@@ -672,8 +670,8 @@ export default {
       }
     },
     addSearch() {
-     return debounce();
-    },
+      return debounce(this.addSelect)
+    }
   },
   methods: {
     handleChange(id) {
@@ -714,20 +712,23 @@ export default {
       }
     },
     pushValue(id, index) {
-      // const item = this.goodsTable.find(item => item.id === id)
       this.orderData[index].productId = id
       this.$api.Commodity.getCommodityList({
         productName: this.search,
         pageNumber: this.current,
         pageSize: this.pageSize
-      }).then((res)=>{
+      }).then(res => {
+        console.log(res)
         let content = res.data.content
-        let result = content.find(item => item.id === id)
+        let value = content.find(item => item.id === id)
+        let result = this.goodsTable.find(item => {
+          return item.id === id
+        })
         let rows = this.orderData[index]
-        rows.barCode = result.barcode
-        rows.productId = result.id
-        rows.unit = computedWeight(undefined,result.unit)
-        rows.salesPrice = result.salesPrice
+        rows.barCode = result.barcode[0]
+        rows.productId = value.id
+        rows.unit = computedWeight(undefined, value.unit)
+        rows.salesPrice = value.salesPrice
       })
     },
     pushName(barCode, row) {
@@ -752,10 +753,6 @@ export default {
           }
         })
       }).then(res => {
-        // let orderNumber;
-        // orderNumber =res.data.find(item=>{
-        //   return item.orderNo =
-        // })
         alert(`出庫確認成功，已新增銷貨單號:${res.data.orderNo}`)
         this.orderViewVisible = false
         console.log(res)
@@ -770,12 +767,19 @@ export default {
               return {
                 ...item,
                 id: index,
-                unit: computedWeight(undefined,item.unit)
+                unit: computedWeight(undefined, item.unit)
               }
             }
           )
-          console.log(this.tableData)
           this.total = res.data.totalElements
+          this.goodsTable = this.tableData.map(item => {
+            return {
+              id: item.productId,
+              barcode: item.inventoryList.map(item => {
+                return item.barcode
+              })
+            }
+          })
         })
         .catch(err => {
           console.log(err)
@@ -824,6 +828,7 @@ export default {
       this.purchaseViewVisible = false
       this.orderViewVisible = false
       this.orderData = []
+      this.list = {}
     },
     addInventoryCancel() {
       this.purchaseViewVisible = false
@@ -843,7 +848,7 @@ export default {
         unit: '-',
         productId: undefined,
         salesPrice: 0,
-        stockAmount: 0,
+        stockAmount: 1,
         orderPrice: 0,
         isEditStockAmount: true
       }
@@ -863,15 +868,17 @@ export default {
         // this.addInventoryData=[];
         if (this.addInventoryData.length) {
           // this.searchBarcode = this.addInventoryData.barcode
+          this.addInventoryProductId = this.addInventoryData[0].id
           this.addInventoryProductName = this.addInventoryData[0].name
           this.addInventoryProductUnit = this.addInventoryData[0].unit
         }
-      })},
-    addChange() {
-      this.addSearch();
-      this.CommodityDetail();
+      })
     },
-    submitNonStop(){
+    addChange() {
+      // this.addSearch();
+      this.CommodityDetail()
+    },
+    submitNonStop() {
       const data = {}
       data.productId = this.addInventoryProductId
       data.amount = this.addInventoryAmount
@@ -898,14 +905,14 @@ export default {
       const data = {}
       data.productId = this.addInventoryProductId
       data.amount = this.addInventoryAmount
-      data.barcode = this.addSearchValue
+      data.barcode = this.searchBarcode
       data.unit = this.addInventoryProductUnit
       data.weight = 0
       this.$api.Inventory.addInventory(data)
         .then(res => {
           console.log(res)
           this.purchaseViewVisible = false
-          this.addSearchValue = ''
+          this.searchBarcode = ''
           this.addInventoryData = []
           this.addInventoryProductId = ''
           this.addInventoryProductName = ''
@@ -940,13 +947,15 @@ export default {
         barcode: this.searchBarcode
       }).then(res => {
         this.inventoryList = res.data
-        this.barCodeSelection = this.inventoryList.map(item=>{
-          return item.barcode
+        this.barCodeSelection = []
+        this.inventoryList.forEach(item => {
+          if (item.barcode !== '') {
+            this.barCodeSelection.push(item.barcode)
+          }
         })
-        this.goodsTable = res.data
-        })
+      })
     },
-    resetPage(){
+    resetPage() {
       this.getInventoryList(this.search)
     },
     moment
@@ -1038,6 +1047,9 @@ export default {
   justify-content: space-between;
   height: 300px;
   font-size: 16px;
+}
+.addPurchaseView div * {
+  margin-right: 10px;
 }
 .pagination {
   display: flex;
