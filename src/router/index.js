@@ -145,6 +145,24 @@ const routes = [
             }
           ]
         }
+      },
+      {
+        path: "/EditLabel",
+        name: "EditLabel",
+        component: () => import("../views/Label/EditLabel"),
+        meta: {
+          breadcrumb: [
+            {
+              name: "標籤管理"
+            },
+            {
+              name: "標籤資料"
+            },
+            {
+              name: "新增標籤"
+            }
+          ]
+        }
       }
     ]
   }
