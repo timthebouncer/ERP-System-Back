@@ -91,6 +91,9 @@ const api = {
     },
     editTag(data){
       return request.put("/tag/editTag",data)
+    },
+    deleteTag(id){
+      return request.delete("/tag/deleteTag/"+id)
     }
   }
 };

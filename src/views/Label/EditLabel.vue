@@ -139,12 +139,24 @@
         <a-space :size="150">
           <a-button @click="canvas.clear()">取消</a-button>
           <a-button type="primary" @click="exportSVG">儲存</a-button>
-          <a-button @click="showSVG">SHOW</a-button>
+<!--          <a-button @click="showSVG">IMPORT</a-button>-->
+          <a-button @click="showImage">SHOW</a-button>
         </a-space>
       </a-row>
     </a-layout>
     <TagsDetail ref="tagsDetail" :tagItem="tagItem" @saveTag="handleSaveTag" />
     <TextConfirm @confirmText="confirmText" ref="textConfirm" />
+    <a-modal
+      v-model="showModalVisible"
+      title="SHOW TAG IMAGE"
+      :ok-button-props="{ props: { disabled: true } }"
+      :cancel-button-props="{ props: { disabled: true } }"
+      width="700px"
+    >
+      <div style="background: #169bd4; text-align: center; height: 550px;">
+        <img :src="imageDataUrl" style="margin-top: 20px;" />
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -154,10 +166,12 @@ import { fabric } from 'fabric'
 import TagsDetail from './component/TagsDetail'
 import TextConfirm from './component/TextConfirm'
 export default {
-  name: 'index',
+  name: 'EditLabel',
   components: { TagsDetail, TextConfirm },
   data() {
     return {
+      labelMode: 'add',
+      labelId: '',
       currentDrag: [
         { name: 'productName', text: '商品名稱' },
         { name: 'barcode', text: '商品條碼' },
@@ -194,18 +208,27 @@ export default {
       salesPriceTag: '售價',
       weightTag: '重量',
       unitTag: '單位',
-      previewed: false
+      previewed: false,
+      showModalVisible: false,
+      imageDataUrl: ''
     }
   },
   methods: {
+    showImage() {
+      this.showModalVisible = true
+      this.imageDataUrl = this.canvas.toDataURL({
+        left: this.clipRectangle.left,
+        top: this.clipRectangle.top,
+        width: this.clipRectangle.width,
+        height: this.clipRectangle.height,
+        format: 'png'
+      })
+    },
     searchProduct(value) {
       this.productData = []
-      console.log(value, 'search value')
       this.$api.Label.searchProduct(value, '')
         .then(res => {
-          console.log(res)
           this.productData = res.data
-          console.log(this.productData)
         })
         .catch(err => {
           console.log(err)
@@ -286,7 +309,6 @@ export default {
         })
     },
     handleDrag(text, name) {
-      console.log(text)
       this.currentDragText = text
       this.currentDragName = name
     },
@@ -345,35 +367,18 @@ export default {
         ).text = this.currentDragText
         element.left = offsetX - element.width / 2
         element.top = offsetY - element.height / 2
-        let _this = this
-        element.toObject = (function(toObject) {
-          let currentDragName = _this.currentDragName
-          return function() {
-            return fabric.util.object.extend(toObject.call(this), {
-              name: currentDragName,
-              editable: false
-            })
-          }
-        })(element.toObject)
-        // element.toObject = function(){
-        //   return {name:this.currentDragName}
-        // }
-        console.log(element, 'element')
-        // element.clipPath = this.clipRectangle
+
         this.canvas.add(element)
         element.on('moved', e => {
           this.checkInArea(e)
           this.canvas.renderAll()
         })
 
-        // element.globalCompositeOperation = 'sou'
-        // this.canvas.renderAll()
       }
     },
     handleClickTags(e) {
       if (e.target && e.target.name) {
         this.tagItem = e.target
-        console.log(this.tagItem, 'tagItem')
         this.$refs.tagsDetail.visible = true
       }
     },
@@ -393,64 +398,90 @@ export default {
       })
     },
     exportSVG() {
-      // let svgJs = xml2js(this.canvas.toSVG())
-      // let svgJson = xml2json(this.canvas.toSVG())
       if (this.tagName == null || this.tagName == '') {
         this.$message.warning('請輸入標籤名稱')
         return
       }
-      console.log(this.canvas.getObjects())
+
+      this.currentDrag = [
+        { name: 'productName', text: '商品名稱' },
+        { name: 'barcode', text: '商品條碼' },
+        { name: 'costPrice', text: '成本價' },
+        { name: 'listPrice', text: '建議售價' },
+        { name: 'salesPrice', text: '售價' },
+        { name: 'weight', text: '重量' },
+        { name: 'unit', text: '單位' },
+        { name: 'text', text: 'TEXT' }
+      ]
+
+      this.canvas.getObjects().map(obj => {
+        if (
+          this.currentDrag.findIndex(x => x.name == obj.name) != -1 &&
+          obj.name != 'text'
+        ) {
+          obj.text =
+            '{{' + this.currentDrag.find(x => x.name == obj.name).text + '}}'
+        }
+
+        obj.toObject = (function(toObject) {
+          return function() {
+            return fabric.util.object.extend(toObject.call(this), {
+              name: obj.name,
+              editable: obj.name == 'barcode' ? true : false
+            })
+          }
+        })(obj.toObject)
+      })
+
       let svgJson = this.canvas.toJSON()
       this.svgJson = svgJson
       let svgJsonStr = JSON.stringify(svgJson)
-      // let testSvgJson = JSON.stringify(this.canvas)
-      // console.log(testSvgJson)
-      console.log(svgJsonStr)
       this.exportCanvasW = this.canvas.width
       this.exportCanvasH = this.canvas.height
 
-      const data = {}
-      data.productName = this.tagName
-      data.showFront = true
-      data.svgString = svgJsonStr
-      // this.$api.Label.addLabel(data)
-      //   .then(() => {
-      //     this.$message.success('標籤儲存成功')
-      //   })
-      //   .catch((err) => {
-      //     console.log(err);
-      //   })
-
-      // let svgxml = json2xml(svgJson)
-      // let svgXml = (this.canvas.toSVG()).getElementsByTagName('svg')[0]
-      // this.svgXml = this.canvas.toSVG()
-      // console.log(this.svgXml.toString())
+      if (this.labelMode == 'add') {
+        const data = {}
+        data.tagName = this.tagName
+        data.showFront = true
+        data.svgString = svgJsonStr
+        data.height = this.tagDrawHeight
+        data.wide = this.tagDrawWidth
+        this.$api.Label.addLabel(data)
+          .then(() => {
+            this.$message.success('新增標籤成功')
+            this.$router.push('Label').catch(() => {})
+          })
+          .catch(err => {
+            this.$message.error(err.response.data.message)
+          })
+      } else {
+        const data = {}
+        data.tagId = this.$store.state.labelData.id
+        data.tagName = this.tagName
+        data.svgString = svgJsonStr
+        data.showFront = this.$store.state.labelData.showFront
+        data.height = this.tagDrawHeight
+        data.wide = this.tagDrawWidth
+        this.$api.Label.editTag(data)
+          .then(() => {
+            this.$message.success('標籤儲存成功')
+            this.$router.push('Label').catch(() => {})
+          })
+          .catch(err => {
+            this.$message.error(err.response.data.message)
+          })
+      }
     },
     showSVG() {
-      // this.canvas = this.svgXml
-      // this.canvas.renderAll(this.svgXml)
       this.canvas.clear()
-      // fabric.loadSVGFromString(this.svgXml, (objects, options) => {
-      //   this.canvas.setDimensions(options)
-      //   console.log(objects)
-      //   console.log(options)
-      //   objects.map(item => {
-      //     this.canvas.add(item)
-      //   })
-      //   this.canvas.renderAll()
-      //
-      //   // const obj = fabric.util.groupSVGElements(objects, options)
-      //   // this.canvas.add(obj).renderAll()
-      // })
       this.hasTags = []
       this.canvas.setDimensions({
         width: this.exportCanvasW,
         height: this.exportCanvasH
       })
-      // console.log(this.svgJson)
+
       this.canvas.loadFromJSON(this.svgJson)
       this.canvas.getObjects().map(o => {
-        console.log(o)
         if (o.type != 'rect' && o.name != 'barcode') {
           o.setControlsVisibility({
             mt: false, // middle top disable
@@ -462,6 +493,7 @@ export default {
             tr: false
           })
         } else if (o.type == 'rect') {
+          this.clipRectangle = o
           o.selectable = false
         }
 
@@ -478,9 +510,7 @@ export default {
       this.canvas.renderAll()
     },
     handleSaveTag(edit) {
-      console.log(edit, 'edit')
       this.tagItem.set(edit)
-      // console.log(this.tagItem)
       this.canvas.renderAll()
     },
     confirmText(text) {
@@ -504,14 +534,14 @@ export default {
         tr: false
       })
       element.name = 'text'
-      element.toObject = (function(toObject) {
-        return function() {
-          return fabric.util.object.extend(toObject.call(this), {
-            name: 'text',
-            editable: false
-          })
-        }
-      })(element.toObject)
+      // element.toObject = (function(toObject) {
+      //   return function() {
+      //     return fabric.util.object.extend(toObject.call(this), {
+      //       name: 'text',
+      //       editable: false
+      //     })
+      //   }
+      // })(element.toObject)
       this.canvas.add(element)
       element.on('moved', e => {
         this.checkInArea(e)
@@ -520,9 +550,7 @@ export default {
     },
     handleDeleteTag() {
       const tag = this.canvas.getActiveObject()
-      console.log(tag)
       if (tag) {
-        console.log(tag.name)
         let str = this.currentDrag.find(x => x.name == tag.name).text
         const index = this.hasTags.indexOf(tag.name)
         if (index != -1) {
@@ -542,19 +570,21 @@ export default {
       let scaleWidth = this.tagDrawWidth / this.tagDrawHeight
       let scaleHeight = this.tagDrawHeight / this.tagDrawWidth
       if (!(scaleHeight > 1)) {
-        height = scaleHeight < 1 ? 500 * scaleHeight + 50 : 500 * scaleHeight
+        height = 500 * scaleHeight
       }
       if (!(scaleWidth > 1)) {
-        width = scaleWidth < 1 ? 500 * scaleWidth + 50 : 500 * scaleWidth
+        width = 500 * scaleWidth
       }
+
+      this.clipRectangle.width = 500
+      this.clipRectangle.height = 500
+      this.canvas.renderAll()
+
       this.clipRectangle.width = width
       this.clipRectangle.height = height
       this.clipRectangle.left = 550 / 2 - width / 2
-      ;(this.clipRectangle.top = 550 / 2 - height / 2),
-        // this.clipRectangle.setWidth(width)
-        // this.clipRectangle.setHeight(height)
-        // this.canvas.clipPath = this.clipRectangle
-        this.canvas.renderAll()
+      this.clipRectangle.top = 550 / 2 - height / 2
+      this.canvas.renderAll()
     },
     checkInArea(e) {
       const left = e.target.left
@@ -567,6 +597,7 @@ export default {
     }
   },
   mounted() {
+    this.labelMode = this.$store.state.labelMode
     fabric.Group.prototype.hasControls = false
     this.canvas = new fabric.Canvas('label-fabric')
     this.clipRectangle = new fabric.Rect({
@@ -577,28 +608,12 @@ export default {
       width: 500,
       height: 500,
       fill: 'white',
-      /* use transparent for no fill */
-      // strokeDashArray: [10, 10],
-      // strokeLineJoin: 'mitter',
-      // stroke: '#1890ff',
       selectable: false
     })
-    // We give these `Rect` objects a name property so the `clipTo` functions can
-    // find the one by which they want to be clipped.
-    // this.clipRectangle.set({
-    //   clipFor: 'layer'
-    // });
-    // this.canvas.clipPath = this.clipRectangle
-    // this.canvas.clipPath
+
     this.canvas.add(this.clipRectangle)
-    // this.canvas.backgroundColor = '#b7e0f2'
     this.canvas.controlsAboveOverlay = true
-    // this.canvas.group.selected = false
     this.canvas.renderAll()
-    // this.canvas.clipTo = function(ctx){
-    //   console.log('clip');
-    //   this.clipRectangle.render(ctx)
-    // }
 
     this.canvas.on('drop', this.handleDrop)
     this.canvas.on('mouse:dblclick', this.handleClickTags)
@@ -624,6 +639,14 @@ export default {
       .catch(err => {
         console.log(err)
       })
+
+    if (this.labelMode == 'edit') {
+      this.tagName = this.$store.state.labelData.tagName
+      this.tagDrawWidth = this.$store.state.labelData.wide
+      this.tagDrawHeight = this.$store.state.labelData.height
+      this.svgJson = JSON.parse(this.$store.state.labelData.svgString)
+      this.showSVG()
+    }
   }
 }
 </script>

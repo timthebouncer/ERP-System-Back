@@ -134,9 +134,9 @@ const routes = [
         }
       },
       {
-        path: "/AddLabel",
-        name: "AddLabel",
-        component: () => import("../views/Label/AddLabel"),
+        path: "/EditLabel",
+        name: "EditLabel",
+        component: () => import("../views/Label/EditLabel"),
         meta: {
           breadcrumb: [
             {
