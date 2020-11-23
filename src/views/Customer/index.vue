@@ -1,10 +1,5 @@
 <template>
   <div class="container">
-    <!--    <div class="login">-->
-    <!--      <div class="account">帳號<input v-model="login.username" type="text"/></div>-->
-    <!--      <div class="password">密碼<input v-model="login.password" type="text"/></div>-->
-    <!--      <button @submit="loginHandler">登入</button>-->
-    <!--    </div>-->
     <div class="action">
       <div class="addM">
         <a-button class="button1" @click="showModal"
@@ -258,7 +253,7 @@
         <div class="search-input">
           <a-input-search
             v-model="search"
-            placeholder="搜尋內容"
+            placeholder="搜尋客戶"
             enter-button
             AutoFoucus
             @search="searchHandler"
@@ -368,20 +363,20 @@ export default {
       },
       discountClass: [],
       columns: [
-        {
-          title: '序',
-          dataIndex: 'order',
-          width: '2%',
-          align: 'center',
-          scopedSlots: { customRender: 'order' }
-        },
-        {
-          title: '客戶編號',
-          dataIndex: 'id',
-          width: '10%',
-          align: 'center',
-          scopedSlots: { customRender: 'id' }
-        },
+        // {
+        //   title: '序',
+        //   dataIndex: 'order',
+        //   width: '2%',
+        //   align: 'center',
+        //   scopedSlots: { customRender: 'order' }
+        // },
+        // {
+        //   title: '客戶編號',
+        //   dataIndex: 'id',
+        //   width: '10%',
+        //   align: 'center',
+        //   scopedSlots: { customRender: 'id' }
+        // },
         {
           title: '客戶類別',
           dataIndex: 'classes.name',
@@ -842,7 +837,7 @@ export default {
     },
     keepSelection(){
       this.pl = this.discountTable.reduce((p, v) => {
-        return  !!v.productId ? {...p, [v.productId]: true} : p
+        return !!v.productId ? {...p, [v.productId]: true} : p
       }, {})
     },
     handleAdd() {
@@ -864,7 +859,7 @@ export default {
       const item = this.discountClass.find(item => item.id === id)
       this.discountTable[index].productId = id
       this.pl = this.discountTable.reduce((p, v) => { console.log(p)
-       return  !!v.productId ? {...p, [v.productId]: true} : p
+      return  !!v.productId ? {...p, [v.productId]: true} : p
       }, {})
       axios
         .get(

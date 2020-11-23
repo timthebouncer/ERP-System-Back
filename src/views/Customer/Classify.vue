@@ -2,9 +2,16 @@
   <div class="container">
     <div class="action">
       <div class="action-add">
-        <a-button class="button1" @click="showModal">新增<a-icon type="plus" /></a-button>
+        <a-button class="button1" @click="showModal"
+          >新增<a-icon type="plus"
+        /></a-button>
       </div>
-      <a-modal v-model="visible" width="500px" :title="changeTitle" @cancel="clearInput">
+      <a-modal
+        v-model="visible"
+        width="500px"
+        :title="changeTitle"
+        @cancel="clearInput"
+      >
         <div class="class-input">
           <label>類別名稱:</label>
           <a-input
@@ -33,7 +40,7 @@
         <div class="search-input">
           <a-input-search
             v-model="search"
-            placeholder="搜尋內容"
+            placeholder="搜尋類別"
             enter-button
             autoFocus
           />
@@ -88,132 +95,134 @@
 
 <script>
 export default {
-  name: "Classify",
+  name: 'Classify',
   data() {
     return {
       loading: false,
       visible: false,
-      search: "",
-      track: "",
+      search: '',
+      track: '',
       tableData: [],
-      changeTitle: "",
-      list: { id: "", className: "" },
+      changeTitle: '',
+      list: { id: '', className: '' },
       columns: [
         {
-          title: " ",
-          dataIndex: "order",
-          width: "2%",
-          align: "center",
-          scopedSlots: { customRender: "order" }
+          title: ' ',
+          dataIndex: 'order',
+          width: '2%',
+          align: 'center',
+          scopedSlots: { customRender: 'order' }
         },
         {
-          title: "類別名稱",
-          dataIndex: "className",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "className" }
+          title: '類別名稱',
+          dataIndex: 'className',
+          width: '10%',
+          align: 'center',
+          scopedSlots: { customRender: 'className' }
         },
         {
-          title: "客戶數量",
-          dataIndex: "clientCount",
-          width: "15%",
-          align: "center",
-          scopedSlots: { customRender: "clientCount" }
+          title: '客戶數量',
+          dataIndex: 'clientCount',
+          width: '15%',
+          align: 'center',
+          scopedSlots: { customRender: 'clientCount' }
         },
         {
-          title: "最後更新時間",
-          dataIndex: "updateDate",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "updateDate" }
+          title: '最後更新時間',
+          dataIndex: 'updateDate',
+          width: '10%',
+          align: 'center',
+          scopedSlots: { customRender: 'updateDate' }
         },
         {
-          title: "操作",
-          dataIndex: "operation",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "operation" }
+          title: '操作',
+          dataIndex: 'operation',
+          width: '10%',
+          align: 'center',
+          scopedSlots: { customRender: 'operation' }
         }
       ]
-    };
+    }
   },
   created() {
-    this.getClassifyList();
+    this.getClassifyList()
   },
-  computed:{
-    filterText(){
-      if(!this.search){
+  computed: {
+    filterText() {
+      if (!this.search) {
         return this.tableData
-      }else {
-        return this.tableData.filter(item => item.className.includes(this.search))
+      } else {
+        return this.tableData.filter(item =>
+          item.className.includes(this.search)
+        )
       }
     }
   },
   methods: {
     showModal() {
-      this.changeTitle = "新增類別";
-      this.visible = true;
+      this.changeTitle = '新增類別'
+      this.visible = true
     },
-    clearInput(){
-      this.list.className = ""
+    clearInput() {
+      this.list.className = ''
     },
     handleOk() {
-      if (this.changeTitle === "新增類別") {
+      if (this.changeTitle === '新增類別') {
         this.$api.Classify.addClass({ name: this.list.className })
           .then(() => {
-            this.getClassifyList();
-            this.$message.success('新增類別成功');
+            this.getClassifyList()
+            this.$message.success('新增類別成功')
           })
-          .catch((err)=>{
-          this.$message.error('新增類別失敗');
-          console.log(err)
-        });
-        this.visible = false;
+          .catch(err => {
+            this.$message.error('新增類別失敗')
+            console.log(err)
+          })
+        this.visible = false
       } else {
         this.$api.Classify.updateClass({
           classId: this.track,
           className: this.list.className
         })
           .then(() => {
-            this.getClassifyList();
-            this.$message.success('修改類別成功');
+            this.getClassifyList()
+            this.$message.success('修改類別成功')
           })
-          .catch((err)=>{
-            this.$message.error('修改類別失敗');
+          .catch(err => {
+            this.$message.error('修改類別失敗')
             console.log(err)
-          });
-        this.visible = false;
+          })
+        this.visible = false
       }
     },
     handleCancel() {
-      this.visible = false;
+      this.visible = false
     },
     editHandler(record) {
-      this.track = record.id;
-      this.changeTitle = "編輯類別";
-      if (record !== "") {
-        this.list.className = record.className;
-        this.visible = true;
+      this.track = record.id
+      this.changeTitle = '編輯類別'
+      if (record !== '') {
+        this.list.className = record.className
+        this.visible = true
       }
     },
     onDelete(id) {
       this.$api.Classify.deleteClass(id)
-       .then(() => {
-        this.getClassifyList();
-        this.$message.success('刪除類別成功');
-      })
-      .catch((err)=>{
-        this.$message.error('刪除類別失敗');
-        console.log(err)
-      });
+        .then(() => {
+          this.getClassifyList()
+          this.$message.success('刪除類別成功')
+        })
+        .catch(err => {
+          this.$message.error('刪除類別失敗')
+          console.log(err)
+        })
     },
     getClassifyList() {
       this.$api.Customer.getClass().then(res => {
-        this.tableData = res.data;
-      });
+        this.tableData = res.data
+      })
     }
   }
-};
+}
 </script>
 
 <style scoped lang="scss">
@@ -224,8 +233,8 @@ export default {
   margin-left: 50px;
   width: 350px;
 }
-.class-input > label{
-  width: 80px
+.class-input > label {
+  width: 80px;
 }
 .class-input > input {
   margin-left: 5px;

@@ -2,7 +2,7 @@
   <div class="container">
     <div class="distribute-action">
       <div class="calendar">
-        <a-select :defaultValue="1" style="width: 100px;" @change="changeDate">
+        <a-select :defaultValue="2" style="width: 100px;" @change="changeDate">
           <a-select-option :value="0">今天</a-select-option>
           <a-select-option :value="1">本週</a-select-option>
           <a-select-option :value="2">本月</a-select-option>
@@ -144,8 +144,8 @@ import moment from 'moment'
 export default {
   data() {
     let differentDate = [
-      moment().isoWeekday(1).startOf('day'),
-      moment().isoWeekday(7).startOf('day')
+      moment().date(1).startOf('day'),
+      moment().endOf('month')
     ];
     return {
       differentDate,

@@ -29,7 +29,7 @@
                   </a-form-model-item>
                   <a-form-model-item
                     class="custom-form-item"
-                    label="單位"
+                    label="計價單位"
                     prop="unit"
                   >
                     <NNN v-model="list.unit" style="width: 175px" />
@@ -92,7 +92,7 @@
       <div class="search">
         <a-input-search
           v-model="search"
-          placeholder="搜尋內容"
+          placeholder="搜尋商品名稱"
           enter-button
           autoFocus
           @search="onSearch"
@@ -199,20 +199,20 @@ export default {
       tableData: [],
       changeTitle: "",
       columns: [
-        {
-          title: "序",
-          dataIndex: "order",
-          width: "5%",
-          align: "center",
-          scopedSlots: { customRender: "order" }
-        },
-        {
-          title: "商品ID",
-          dataIndex: "",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "" }
-        },
+        // {
+        //   title: "序",
+        //   dataIndex: "order",
+        //   width: "5%",
+        //   align: "center",
+        //   scopedSlots: { customRender: "order" }
+        // },
+        // {
+        //   title: "商品ID",
+        //   dataIndex: "",
+        //   width: "10%",
+        //   align: "center",
+        //   scopedSlots: { customRender: "" }
+        // },
         {
           title: "商品條碼",
           dataIndex: "barcode",
@@ -228,7 +228,7 @@ export default {
           scopedSlots: { customRender: "name" }
         },
         {
-          title: "單位",
+          title: "計價單位",
           dataIndex: "unit",
           width: "5%",
           align: "center",
@@ -292,7 +292,7 @@ export default {
       pageSizeOptions: ["10", "30", "50", "100"],
       current: 1,
       pageSize: 10,
-      total: 50
+      total: 30
     };
   },
   computed: {
@@ -315,6 +315,7 @@ export default {
         pageSize: this.pageSize
       })
         .then(res => {
+          console.log(res)
           this.total = res.data.totalElements;
           this.tableData = res.data.content;
         })
@@ -421,18 +422,18 @@ export default {
       }
     },
     onSearch() {
-        this.getCommodity(this.search);
+        this.getCommodity();
     },
     onShowSizeChange(current, pageSize){
       this.current = 1;
       this.pageSize = pageSize;
-      this.getCommodityList(this.search);
+      this.getCommodity();
     },
     onPageChange(current){
       console.log(current);
       // console.log(pageSize);
       // console.log(this.total);
-      this.getCommodityList(this.search);
+      this.getCommodity();
     },
     onChange(checked, record) {
       console.log(record)
