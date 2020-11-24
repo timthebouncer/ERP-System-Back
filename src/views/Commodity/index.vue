@@ -72,7 +72,7 @@
               :loading="loading"
               @click="submitNonstop"
             >
-              儲存並繼續
+              儲存並新增
             </a-button>
             <a-button
               key="submit"

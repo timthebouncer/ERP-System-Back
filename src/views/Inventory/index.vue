@@ -162,6 +162,7 @@
                   <div>
                     <a-textarea
                       v-model="remark"
+                      line-height="center"
                       placeholder="請輸入"
                       :auto-size="{ minRows: 3, maxRows: 5 }"
                     />
@@ -896,6 +897,7 @@ export default {
           this.addInventoryProductUnit = ''
           this.addInventoryAmount = 1
           this.getInventoryList(this.search)
+          this.$message.success('入庫成功')
         })
         .catch(err => {
           console.log(err)
@@ -919,6 +921,7 @@ export default {
           this.addInventoryProductUnit = ''
           this.addInventoryAmount = 1
           this.getInventoryList(this.search)
+          this.$message.success('入庫成功')
         })
         .catch(err => {
           console.log(err)
@@ -968,6 +971,9 @@ export default {
 }
 </script>
 <style scoped lang="scss">
+::v-deep .ant-modal{
+  top: 40px;
+}
 .reviewButton {
   background-color: #169bd4;
   color: #fcfcfc;

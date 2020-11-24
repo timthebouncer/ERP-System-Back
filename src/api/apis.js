@@ -1,6 +1,11 @@
 import request from "./https";
 
 const api = {
+  Login:{
+    userLogin(formData){
+      return request.post("/api/login",formData)
+    }
+  },
   Customer: {
     getList(params) {
       return request.get("/client/clients/",{params});

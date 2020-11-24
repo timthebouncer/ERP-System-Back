@@ -18,6 +18,7 @@
               layout="horizontal"
               ref="ruleForm"
               :rules="rules"
+
             >
               <div class="firstPart">
                 <div class="firstPart-item">
@@ -246,6 +247,9 @@
           style="width: 100px"
           @change="getCustomerList"
         >
+          <a-select-option value="AllClass">
+            全部
+          </a-select-option>
           <a-select-option v-for="item in classify" :key="item.className">
             {{ item.className }}
           </a-select-option>
@@ -883,6 +887,9 @@ export default {
 /*::v-deep .ant-layout{*/
 /*  height: 0%;*/
 /*}*/
+::v-deep .ant-modal{
+  top: 10px;
+}
 .firstPart {
   background-color: #f5e9e9;
   padding: 30px 20px 30px 20px;

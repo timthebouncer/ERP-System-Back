@@ -4,7 +4,6 @@
       <a-form-model
         layout="vertical"
         :model="formInline"
-        @submit="handleSubmit"
         @submit.native.prevent
       >
         <div class="formTitle">
@@ -41,7 +40,8 @@
           <div class="loginBtn">
             <a-button
               class="loginBtnColor"
-              html-type="submit"
+              type="submit"
+              @click="handleSubmit"
             >
               登入
             </a-button>
@@ -63,15 +63,24 @@ export default {
     }
   },
   created () {
-      if(localStorage.getItem('account')){
-        this.formInline.account = localStorage.getItem('account')
-        this.checkbox = localStorage.getItem('rememberAccount')
-      }
+      // if(localStorage.getItem('account')){
+      //   this.formInline.account = localStorage.getItem('account')
+      //   this.checkbox = localStorage.getItem('rememberAccount')
+      // }
   },
   methods: {
     handleSubmit() {
-      localStorage.setItem("account","")
-      console.log(this.formInline)
+      const formData = new FormData()
+      formData.append("username",this.formInline.account)
+      formData.append("password", this.formInline.password)
+
+      this.$api.Login.userLogin(formData)
+      .then((res)=>{
+        this.$router.replace('/Inventory')
+        console.log(res)
+      })
+      // localStorage.setItem("account","")
+      // console.log(this.formInline)
     }
   }
 }
