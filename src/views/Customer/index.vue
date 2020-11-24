@@ -773,6 +773,7 @@ export default {
                 isEditDiscountPrice: true,
                 isEditRemark: true
               }))
+              this.keepSelection()
             })
             this.visible = true
           } else {
