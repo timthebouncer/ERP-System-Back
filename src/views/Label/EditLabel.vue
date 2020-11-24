@@ -228,7 +228,11 @@ export default {
       this.productData = []
       this.$api.Label.searchProduct(value, '')
         .then(res => {
-          this.productData = res.data
+          res.data.map(item => {
+            if(item.barcode != ''){
+              this.productData.push(item)
+            }
+          })
         })
         .catch(err => {
           console.log(err)
@@ -302,7 +306,11 @@ export default {
       this.productData = []
       this.$api.Label.searchProduct('', '')
         .then(res => {
-          this.productData = res.data
+          res.data.map(item => {
+            if(item.barcode != ''){
+              this.productData.push(item)
+            }
+          })
         })
         .catch(err => {
           console.log(err)
@@ -634,7 +642,11 @@ export default {
     this.productData = []
     this.$api.Label.searchProduct('', '')
       .then(res => {
-        this.productData = res.data
+        res.data.map(item => {
+          if(item.barcode != ''){
+            this.productData.push(item)
+          }
+        })
       })
       .catch(err => {
         console.log(err)
