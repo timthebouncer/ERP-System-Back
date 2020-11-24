@@ -854,7 +854,7 @@ export default {
       }
       this.orderData = [...orderData, newData]
     },
-    deleteOrder(index) {
+    deleteOrder(row, index) {
       this.orderData.splice(index, 1)
     },
     addSelect() {
