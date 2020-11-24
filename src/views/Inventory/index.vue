@@ -127,7 +127,7 @@
                     {{ list.companyFax }}
                   </a-form-model-item>
                 </div>
-                <div class="firstPart-item">
+                <div class="firstPart-item" style="width: 608px">
                   <a-form-model-item class="custom-form-item" label="統一編號">
                     {{ list.vatNumber }}
                   </a-form-model-item>
@@ -721,11 +721,11 @@ export default {
         console.log(res)
         let content = res.data.content
         let value = content.find(item => item.id === id)
-        let result = this.goodsTable.find(item => {
-          return item.id === id
-        })
+        // let result = this.goodsTable.find(item => {
+        //   return item.id === id
+        // })
         let rows = this.orderData[index]
-        rows.barCode = result.barcode[0]
+        rows.barCode = value.barcode
         rows.productId = value.id
         rows.unit = computedWeight(undefined, value.unit)
         rows.salesPrice = value.salesPrice
@@ -738,7 +738,7 @@ export default {
     },
     filterName(row) {
       return this.inventoryList.filter(item => {
-        return item.barcode?.indexOf(row.barCode) > -1
+        return item.barcode?.indexOf(row.barCode) > -1 && item.barcode !== ""
       })
     },
     handleOk() {
