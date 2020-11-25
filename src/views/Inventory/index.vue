@@ -127,7 +127,7 @@
                     {{ list.companyFax }}
                   </a-form-model-item>
                 </div>
-                <div class="firstPart-item">
+                <div class="firstPart-item" style="width: 608px">
                   <a-form-model-item class="custom-form-item" label="統一編號">
                     {{ list.vatNumber }}
                   </a-form-model-item>
@@ -162,6 +162,7 @@
                   <div>
                     <a-textarea
                       v-model="remark"
+                      line-height="center"
                       placeholder="請輸入"
                       :auto-size="{ minRows: 3, maxRows: 5 }"
                     />
@@ -721,11 +722,11 @@ export default {
         console.log(res)
         let content = res.data.content
         let value = content.find(item => item.id === id)
-        let result = this.goodsTable.find(item => {
-          return item.id === id
-        })
+        // let result = this.goodsTable.find(item => {
+        //   return item.id === id
+        // })
         let rows = this.orderData[index]
-        rows.barCode = result.barcode[0]
+        rows.barCode = value.barcode
         rows.productId = value.id
         rows.unit = computedWeight(undefined, value.unit)
         rows.salesPrice = value.salesPrice
@@ -738,7 +739,7 @@ export default {
     },
     filterName(row) {
       return this.inventoryList.filter(item => {
-        return item.barcode?.indexOf(row.barCode) > -1
+        return item.barcode?.indexOf(row.barCode) > -1 && item.barcode !== ""
       })
     },
     handleOk() {
@@ -854,7 +855,7 @@ export default {
       }
       this.orderData = [...orderData, newData]
     },
-    deleteOrder(index) {
+    deleteOrder(row, index) {
       this.orderData.splice(index, 1)
     },
     addSelect() {
@@ -896,6 +897,7 @@ export default {
           this.addInventoryProductUnit = ''
           this.addInventoryAmount = 1
           this.getInventoryList(this.search)
+          this.$message.success('入庫成功')
         })
         .catch(err => {
           console.log(err)
@@ -919,6 +921,7 @@ export default {
           this.addInventoryProductUnit = ''
           this.addInventoryAmount = 1
           this.getInventoryList(this.search)
+          this.$message.success('入庫成功')
         })
         .catch(err => {
           console.log(err)
@@ -968,6 +971,9 @@ export default {
 }
 </script>
 <style scoped lang="scss">
+::v-deep .ant-modal{
+  top: 40px;
+}
 .reviewButton {
   background-color: #169bd4;
   color: #fcfcfc;

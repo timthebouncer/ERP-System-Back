@@ -195,6 +195,7 @@ export default {
       }
     },
     handleCancel() {
+      this.list.className = ""
       this.visible = false
     },
     editHandler(record) {
