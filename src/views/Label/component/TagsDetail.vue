@@ -108,7 +108,6 @@ export default {
     visible(value) {
       if (value) {
         const {fontWeight,underline,name,text,fontSize,width,scaleX,height,scaleY} = this.tagItem
-        console.log(this.tagItem)
         this.item = {
           bold: fontWeight === 'bold',
           underline: underline,

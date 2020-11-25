@@ -256,6 +256,8 @@ export default {
       }
     },
     beforeUpload(file) {
+      this.imageUrl = ''
+      console.log('upload...')
       const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
       if (!isJpgOrPng) {
         this.$message.error('You can only upload JPG file!');
@@ -302,6 +304,7 @@ export default {
       this.salesPriceTag = '售價:' + item.salesPrice + '元'
       this.weightTag = '重量:xxx'
       this.unitTag = '單位:' + item.unit
+      this.logoTag = 'Logo'
       this.previewed = true
       this.currentDrag = [
         { name: 'productName', text: this.productNameTag },
@@ -311,14 +314,21 @@ export default {
         { name: 'salesPrice', text: this.salesPriceTag },
         { name: 'weight', text: this.weightTag },
         { name: 'unit', text: this.unitTag },
-        { name: 'text', text: 'TEXT' }
+        { name: 'text', text: 'TEXT' },
+        { name: 'Logo', text: this.logoTag }
       ]
       this.canvas.getObjects().map(o => {
         if (
           this.currentDrag.findIndex(x => x.name == o.name) != -1 &&
           o.name != 'text'
         ) {
-          o.text = this.currentDrag.find(x => x.name == o.name).text
+          if(o.name == 'barcode'){
+            console.log(o.name)
+          }
+          else {
+            o.text = this.currentDrag.find(x => x.name == o.name).text
+          }
+
         }
       })
       this.canvas.renderAll()
@@ -334,6 +344,7 @@ export default {
       this.salesPriceTag = '售價'
       this.weightTag = '重量'
       this.unitTag = '單位'
+      this.logoTag = 'Logo'
       this.currentDrag = [
         { name: 'productName', text: '商品名稱' },
         { name: 'barcode', text: '商品條碼' },
@@ -342,7 +353,8 @@ export default {
         { name: 'salesPrice', text: '售價' },
         { name: 'weight', text: '重量' },
         { name: 'unit', text: '單位' },
-        { name: 'text', text: 'TEXT' }
+        { name: 'text', text: 'TEXT' },
+        { name: 'Logo', text: 'Logo' }
       ]
       this.canvas.getObjects().map(o => {
         if (
@@ -448,7 +460,7 @@ export default {
       }
     },
     handleClickTags(e) {
-      if (e.target && e.target.name) {
+      if (e.target && e.target.name!='barcode' && e.target.name!='Logo') {
         this.tagItem = e.target
         this.$refs.tagsDetail.visible = true
       }
@@ -482,7 +494,8 @@ export default {
         { name: 'salesPrice', text: '售價' },
         { name: 'weight', text: '重量' },
         { name: 'unit', text: '單位' },
-        { name: 'text', text: 'TEXT' }
+        { name: 'text', text: 'TEXT' },
+        { name: 'Logo', text: 'Logo' }
       ]
 
       this.canvas.getObjects().map(obj => {
@@ -665,8 +678,8 @@ export default {
       console.log(e.target);
       const left = e.target.left
       const top = e.target.top
-      const width = e.target.width
-      const height = e.target.height
+      const width = e.target.scaleX === 1 ? e.target.width : e.target.scaleX * e.target.width
+      const height = e.target.scaleY === 1 ? e.target.height : e.target.scaleY * e.target.height
       if (left < -width || left > 550 || top < -height || top > 550) {
         this.handleDeleteTag()
       }
