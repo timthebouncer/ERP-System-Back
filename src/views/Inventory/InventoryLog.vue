@@ -3,9 +3,10 @@
     <div class="action">
       <div class="action-add"></div>
       <div class="search-wrapper">
+        <a-space>
         <a-select
           default-value="3"
-          style="width: 100px;"
+          style="width: 100px"
           @change="onSelectDateChange"
         >
           <a-select-option value="1">今天</a-select-option>
@@ -15,11 +16,10 @@
           <a-select-option value="all">全部</a-select-option>
         </a-select>
         <a-range-picker v-model="dateRange" :format="dateFormat" />
-        <span style="width: 50px;"></span>
-        <span style="margin: auto;">異動方式</span>
+        <span style="margin: auto 8px;font-weight:bolder;">異動方式</span>
         <a-select
           default-value="all"
-          style="width: 100px;"
+          style="width: 100px"
           @change="onSelectActionChange"
         >
           <a-select-option value="all">全部</a-select-option>
@@ -37,6 +37,7 @@
             @search="onSearch"
           />
         </div>
+        </a-space>
       </div>
     </div>
     <div class="itemMenu">
@@ -48,6 +49,10 @@
         :data-source="tableData"
         rowKey="id"
       >
+        <template slot="amount" slot-scope="text">
+          <span v-if="~text.indexOf('-')" class="amount--red">{{text}}</span>
+          <span v-else>{{text}}</span>
+        </template>
       </a-table>
     </div>
     <!--分頁-->
@@ -82,34 +87,35 @@ export default {
           title: '日期',
           dataIndex: 'updateDate',
           width: '10%',
-          align: 'center'
+          align: 'center',
         },
         {
           title: '異動方式',
           dataIndex: 'action',
           width: '10%',
-          align: 'center'
+          align: 'center',
         },
         {
           title: '商品名稱',
           dataIndex: 'productName',
           width: '20%',
-          align: 'center'
+          align: 'center',
         },
         {
           title: '數量',
           dataIndex: 'amount',
           width: '10%',
-          align: 'center'
+          align: 'center',
+          scopedSlots: { customRender: 'amount' }
         },
         {
           title: '備註',
           dataIndex: '',
           width: '25%',
-          align: 'center'
-        }
+          align: 'center',
+        },
       ],
-      pageSizeOptions: ['10','15', '30', '50', '100'],
+      pageSizeOptions: ['10', '30', '50', '100'],
       current: 1,
       pageSize: 10,
       total: 10,
@@ -124,7 +130,7 @@ export default {
       firstLastMonthDay: '',
       endLastMonthDay: '',
       dateRange: [],
-      action: ''
+      action: '',
     }
   },
   methods: {
@@ -141,7 +147,7 @@ export default {
           console.log('今天')
           this.startDate = this.today
           this.endDate = this.today
-          this.dateRange = [this.startDate, this.endDate]
+          this.dateRange = [this.starDtate, this.endDate]
           break
         case '2':
           console.log('本周')
@@ -173,7 +179,6 @@ export default {
     },
     onSelectActionChange(value) {
       this.action = value == 'all' ? '' : value
-      console.log(this.action)
     },
     onShowSizeChange(current, pageSize) {
       this.pageSize = pageSize
@@ -181,7 +186,6 @@ export default {
       this.getInventoryLogList()
     },
     onPageChange(current, pageSize) {
-      console.log(current)
       // console.log(pageSize);
       // console.log(this.total);
       this.current = current
@@ -201,7 +205,7 @@ export default {
           this.tableData = res.data.content.map((item, index) => {
             let obj = {
               id: index,
-              ...item
+              ...item,
             }
             return obj
           })
@@ -212,7 +216,7 @@ export default {
           console.log(err)
         })
     },
-    moment
+    moment,
   },
   created() {
     this.today = moment(new Date()).format(this.dateFormat)
@@ -229,20 +233,16 @@ export default {
       this.dateFormat
     )
     this.firstLastMonthDay = moment(
-      moment(new Date())
-        .subtract(1, 'M')
-        .startOf('month')
+      moment(new Date()).subtract(1, 'M').startOf('month')
     ).format(this.dateFormat)
     this.endLastMonthDay = moment(
-      moment(new Date())
-        .subtract(1, 'M')
-        .endOf('month')
+      moment(new Date()).subtract(1, 'M').endOf('month')
     ).format(this.dateFormat)
     this.startDate = this.firstThisMonthDay
     this.endDate = this.endThisMonthDay
     this.dateRange = [this.startDate, this.endDate]
     this.onSearch()
-  }
+  },
 }
 </script>
 
@@ -251,5 +251,8 @@ export default {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
+}
+.amount--red{
+  color: #f00
 }
 </style>

@@ -111,6 +111,9 @@ const routes = [
         meta: {
           breadcrumb: [
             {
+              name: "客戶管理"
+            },
+            {
               name: "客戶類別"
             },
           ]
@@ -142,6 +145,24 @@ const routes = [
             },
             {
               name: "標籤資料"
+            }
+          ]
+        }
+      },
+      {
+        path: "/EditLabel",
+        name: "EditLabel",
+        component: () => import("../views/Label/EditLabel"),
+        meta: {
+          breadcrumb: [
+            {
+              name: "標籤管理"
+            },
+            {
+              name: "標籤資料"
+            },
+            {
+              name: "新增標籤"
             }
           ]
         }

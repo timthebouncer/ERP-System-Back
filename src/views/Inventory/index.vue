@@ -803,6 +803,7 @@ export default {
               })
             }
           })
+          
         })
         .catch(err => {
           console.log(err)
@@ -958,7 +959,6 @@ export default {
       this.getInventoryList(this.search)
     },
     onPageChange(current) {
-      console.log(current)
       // console.log(pageSize);
       // console.log(this.total);
       this.getInventoryList(this.search)
@@ -1003,24 +1003,27 @@ export default {
   top: 40px;
 }
 .reviewButton {
-  background-color: #169bd4;
+  background-color: #1890ff;
   color: #fcfcfc;
   font-weight: bold;
   font-size: large;
+  border: unset;
 }
 
 .addButton1 {
-  background-color: #f59b22;
+  background-color: #57d698;
   color: #fcfcfc;
   font-weight: bold;
   font-size: large;
+  border: unset;
 }
 
 .addButton2 {
-  color: #000;
+  background-color: #fba129;
+  color: #fcfcfc;
   font-weight: bold;
   font-size: large;
-  border: #e19e44 solid 2px;
+  border: unset;
 }
 .innerTable {
   border-right: 1px solid #e8e8e8;
@@ -1035,7 +1038,7 @@ export default {
 .inventoryTable::v-deep .ant-table-expanded-row {
 }
 .firstPart {
-  background-color: #f5e9e9;
+  background-color: #f5f5f5;
   padding: 30px 20px 30px 20px;
 }
 .firstPart-item {
