@@ -111,6 +111,9 @@ const routes = [
         meta: {
           breadcrumb: [
             {
+              name: "客戶管理"
+            },
+            {
               name: "客戶類別"
             },
           ]

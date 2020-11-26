@@ -6,36 +6,6 @@
           >新增<a-icon type="plus"
         /></a-button>
       </div>
-      <a-modal
-        v-model="visible"
-        width="500px"
-        :title="changeTitle"
-        @cancel="clearInput"
-      >
-        <div class="class-input">
-          <label>類別名稱:</label>
-          <a-input
-            v-model="list.className"
-            autoFocus
-            label="類別名稱"
-            placeholder="請輸入"
-          />
-        </div>
-        <template slot="footer">
-          <a-button
-            key="submit"
-            type="primary"
-            :loading="loading"
-            @click="handleOk"
-          >
-            儲存
-          </a-button>
-          <a-button key="back" @click="handleCancel">
-            取消
-          </a-button>
-        </template>
-      </a-modal>
-
       <div class="search-wrapper">
         <div class="search-input">
           <a-input-search
@@ -43,6 +13,8 @@
             placeholder="搜尋類別"
             enter-button
             autoFocus
+            @search="handleSearch"
+            allowClear
           />
         </div>
       </div>
@@ -50,7 +22,7 @@
     <div class="itemMenu">
       <a-table
         :columns="columns"
-        :data-source="filterText"
+        :data-source="filterData"
         bordered
         :pagination="false"
         rowKey="id"
@@ -61,7 +33,7 @@
             'className',
             'clientCount',
             'updateDate',
-            'operation'
+            'operation',
           ]"
           :slot="col"
           slot-scope="text, record, index"
@@ -90,6 +62,33 @@
         </template>
       </a-table>
     </div>
+    <a-modal
+      v-model="visible"
+      width="500px"
+      :title="changeTitle"
+      @cancel="clearInput"
+    >
+      <div class="class-input">
+        <label>類別名稱:</label>
+        <a-input
+          v-model="list.className"
+          autoFocus
+          label="類別名稱"
+          placeholder="請輸入"
+        />
+      </div>
+      <template slot="footer">
+        <a-button
+          key="submit"
+          type="primary"
+          :loading="loading"
+          @click="handleOk"
+        >
+          儲存
+        </a-button>
+        <a-button key="back" @click="handleCancel"> 取消 </a-button>
+      </template>
+    </a-modal>
   </div>
 </template>
 
@@ -103,6 +102,7 @@ export default {
       search: '',
       track: '',
       tableData: [],
+      filterData: [],
       changeTitle: '',
       list: { id: '', className: '' },
       columns: [
@@ -111,57 +111,47 @@ export default {
           dataIndex: 'order',
           width: '2%',
           align: 'center',
-          scopedSlots: { customRender: 'order' }
+          scopedSlots: { customRender: 'order' },
         },
         {
           title: '類別名稱',
           dataIndex: 'className',
           width: '10%',
           align: 'center',
-          scopedSlots: { customRender: 'className' }
+          scopedSlots: { customRender: 'className' },
         },
         {
           title: '客戶數量',
           dataIndex: 'clientCount',
           width: '15%',
           align: 'center',
-          scopedSlots: { customRender: 'clientCount' }
+          scopedSlots: { customRender: 'clientCount' },
         },
         {
           title: '最後更新時間',
           dataIndex: 'updateDate',
           width: '10%',
           align: 'center',
-          scopedSlots: { customRender: 'updateDate' }
+          scopedSlots: { customRender: 'updateDate' },
         },
         {
           title: '操作',
           dataIndex: 'operation',
           width: '10%',
           align: 'center',
-          scopedSlots: { customRender: 'operation' }
-        }
-      ]
+          scopedSlots: { customRender: 'operation' },
+        },
+      ],
     }
   },
   created() {
     this.getClassifyList()
   },
-  computed: {
-    filterText() {
-      if (!this.search) {
-        return this.tableData
-      } else {
-        return this.tableData.filter(item =>
-          item.className.includes(this.search)
-        )
-      }
-    }
-  },
   methods: {
     showModal() {
       this.changeTitle = '新增類別'
       this.visible = true
+      this.list = { id: '', className: '' }
     },
     clearInput() {
       this.list.className = ''
@@ -181,7 +171,7 @@ export default {
       } else {
         this.$api.Classify.updateClass({
           classId: this.track,
-          className: this.list.className
+          className: this.list.className,
         })
           .then(() => {
             this.getClassifyList()
@@ -195,7 +185,7 @@ export default {
       }
     },
     handleCancel() {
-      this.list.className = ""
+      this.list.className = ''
       this.visible = false
     },
     editHandler(record) {
@@ -219,10 +209,17 @@ export default {
     },
     getClassifyList() {
       this.$api.Customer.getClass().then(res => {
-        this.tableData = res.data
+        this.tableData = this.filterData = res.data
       })
-    }
-  }
+    },
+    handleSearch() {
+      if (this.search) {
+        this.filterData = this.tableData.filter(item => item.className.includes(this.search))
+      }else{
+        this.filterData = this.tableData
+      }
+    },
+  },
 }
 </script>
 

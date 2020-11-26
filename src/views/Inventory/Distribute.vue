@@ -304,24 +304,18 @@ export default {
       })
           .then(res => {
             this.total = res.data.totalElements;
-            console.log(res,999);
             this.tableData = res.data.content;
           });
     },
     onShowSizeChange(current, pageSize){
-      // console.log(current);
       this.pageNumber = 1;
       this.pageSize = pageSize;
       this.distributeList(this.search);
     },
     onPageChange(current){
-      console.log(current);
-      // console.log(pageSize);
-      // console.log(this.total);
       this.distributeList(this.search);
     },
     showDetail(record){
-      console.log(record,666)
       this.$api.Distribute.getDistributeDetail({orderId:record.orderId})
       .then(res => {
         this.orderList = res.data.orderDetailItemResponseList;
@@ -348,7 +342,7 @@ export default {
 </script>
 <style scoped lang="scss">
 .container {
-  padding: 20px;
+  // padding: 20px;
   position: relative;
 }
 .distribute-action {

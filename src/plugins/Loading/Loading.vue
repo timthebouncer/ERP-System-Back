@@ -1,8 +1,8 @@
 <template>
   <transition name="loading-fade">
     <div v-show="visible" class="erp-loading">
-      <a-spin>
-        <a-icon slot="indicator" type="loading" style="font-size: 40px" spin />
+      <a-spin tip="Loading...">
+        <!-- <a-icon slot="indicator" type="loading" style="font-size: 40px" spin /> -->
       </a-spin>
     </div>
   </transition>

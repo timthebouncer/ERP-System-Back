@@ -891,7 +891,7 @@ export default {
   top: 10px;
 }
 .firstPart {
-  background-color: #f5e9e9;
+  background-color: #f5f5f5;
   padding: 30px 20px 30px 20px;
 }
 
@@ -906,7 +906,7 @@ export default {
 .secondPart {
   margin-top: 20px;
   padding: 30px 20px 30px 20px;
-  background-color: #f5e9e9;
+  background-color: #f5f5f5;
 }
 
 .secondPart-item {
