@@ -79,7 +79,6 @@ export default {
       // }else{
       //   return 'text'
       // }
-      console.log(this.item);
       if(this.item.name!=='text'){
         if(this.item.name === 'barcode'){
           return 'barcode'
