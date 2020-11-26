@@ -4,6 +4,8 @@
       <a-form-model
         layout="vertical"
         :model="formInline"
+        ref="ruleForm"
+        :rules="rules"
         @submit.native.prevent
       >
         <div class="formTitle">
@@ -11,14 +13,14 @@
             進銷存
           </h2>
         </div>
-        <a-form-model-item>
-          <div class="userName">
+        <a-form-model-item prop="account">
+          <div class="account">
             <a-input v-model="formInline.account" placeholder="請輸入帳號">
               <a-icon slot="prefix" type="user" style="color:rgba(12,12,12,0.25)" />
             </a-input>
           </div>
         </a-form-model-item>
-        <a-form-model-item>
+        <a-form-model-item prop="password">
           <div class="passWord">
             <a-input
               v-model="formInline.password"
@@ -32,7 +34,7 @@
         </a-form-model-item>
         <a-form-model-item>
           <div class="checkbox">
-            <a-checkbox v-model="checkbox" name="type">
+            <a-checkbox v-model="checkbox" @change="rememberAccount">
               <span>記住帳號</span>
             </a-checkbox>
           </div>
@@ -60,29 +62,49 @@ export default {
         account: '',
         password: ''
       },
-      checkbox: false
+      checkbox: false,
+      rules: {
+        account: [{required: true, message: '請輸入帳號', trigger: 'blur'}],
+        password: [{required: true, message: '請輸入密碼', trigger: 'blur'}],
+      }
     }
   },
   created () {
-      // if(localStorage.getItem('account')){
-      //   this.formInline.account = localStorage.getItem('account')
-      //   this.checkbox = localStorage.getItem('rememberAccount')
-      // }
+    if (sessionStorage.getItem('account')){
+      this.formInline.account = sessionStorage.getItem('account')
+      this.checkbox = sessionStorage.getItem('rememberAccountStatus')
+    }
   },
   methods: {
     handleSubmit() {
-      const formData = new FormData()
-      formData.append("username",this.formInline.account)
-      formData.append("password", this.formInline.password)
-
-      this.$api.Login.userLogin(formData)
-      .then((res)=>{
-        this.$router.replace('/Inventory')
-        console.log(res)
-      }).catch(()=>{
-        this.$message.error("登入失敗,帳號或密碼錯")
+      this.$refs.ruleForm.validate(valid => {
+        if (valid) {
+          const formData = new FormData()
+          formData.append("username",this.formInline.account)
+          formData.append("password", this.formInline.password)
+          this.$api.Login.userLogin(formData)
+            .then((res)=>{
+              this.checkbox=true
+              this.rememberAccount()
+              this.$router.replace('/Inventory')
+              console.log(res)
+            }).catch(()=>{
+              this.$message.error("登入失敗,帳號或密碼錯")
+            })
+        }
       })
-    }
+    },
+    rememberAccount () {
+      if (this.checkbox) {
+        if (this.formInline.account) {
+          sessionStorage.setItem('account', this.formInline.account)
+        }
+        sessionStorage.setItem('rememberAccountStatus', this.checkbox)
+      } else {
+        sessionStorage.removeItem('account')
+        sessionStorage.removeItem('rememberAccountStatus')
+      }
+    },
   }
 }
 </script>
@@ -113,7 +135,7 @@ export default {
   font-weight: bold;
   color: #fcfcfc;
 }
-.userName {
+.account {
   //width: 300px;
 }
 .passWord {

@@ -46,7 +46,7 @@
         >
           <div :key="col">
             <template v-if="col === 'orderNo'">
-              <a-popover placement="bottom" trigger="click" @visibleChange="showDetail(record)">
+              <a-popover placement="bottomLeft" trigger="click" @visibleChange="showDetail(record)">
                 <template slot="content">
                   <div>
                     <template>

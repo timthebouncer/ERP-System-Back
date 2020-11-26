@@ -5,7 +5,7 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/",
+    path: "/Login",
     name: "Login",
     component: () => import( "../views/Login/Login.vue"),
     meta: {
@@ -17,7 +17,7 @@ const routes = [
     }
   },
   {
-    path: "/Home",
+    path: "/",
     redirect:"/Inventory",
     name: "Home",
     component: () => import("../views/Home"),

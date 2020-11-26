@@ -34,6 +34,7 @@ service.interceptors.response.use(
     //     window.sessionStorage.setItem("timeOut", true);
     //     router.push({ name: "Login" });
     // }
+
     // switch (message) {
     //     case "AUTH001":
     //     case "AUTH002":
