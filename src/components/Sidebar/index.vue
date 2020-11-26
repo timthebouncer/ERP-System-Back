@@ -1,6 +1,6 @@
 <template>
   <div class="sidebarColor">
-    <div v-if="!$store.state.collapsed" class="logo" align="center" style="font-size: large">進銷存SYS
+    <div v-if="!$store.state.collapsed" class="logo" align="center" style="font-size: large;cursor:pointer" @click="goHome">進銷存SYS
     <i class="line"></i>
     </div>
     <div v-else class="logo" align="center" style="font-size: large">SYS
@@ -85,6 +85,9 @@ export default {
     //   this.current.push(e.key)
     //   console.log(this.current)
     // },
+    goHome(){
+      this.$router.push('/')
+    }
     },
 };
 </script>

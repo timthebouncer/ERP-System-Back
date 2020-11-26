@@ -456,7 +456,7 @@ export default {
 }
 
 .modal-body {
-  background-color: #f5e9e9;
+  background-color: #f5f5f5;
   /*display: flex;*/
 }
 .firstPart {

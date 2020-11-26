@@ -2,7 +2,7 @@
   <div class="container">
     <div class="action">
       <div class="action-add">
-        <a-button class="addButton" @click="onAdd"
+        <a-button class="button1" @click="onAdd"
           >新增<a-icon type="plus"
         /></a-button>
       </div>
@@ -25,6 +25,7 @@
         :pagination="false"
         :data-source="tableData"
         rowKey="id"
+        :loading="isLoading"
       >
         <template slot="showFront" slot-scope="value, record">
           <a-switch :checked="value" @change="onChange($event, record)" />
@@ -68,6 +69,7 @@ export default {
   name: 'Label',
   data() {
     return {
+      isLoading: false,
       searchValue: '',
       tableData: [],
       columns: [
@@ -122,7 +124,6 @@ export default {
       this.$router.push('EditLabel').catch(() => {})
     },
     onDelete(record) {
-      console.log(record.id)
       this.$api.Label.deleteTag(record.id)
         .then(() => {
           this.$message.success('標籤刪除成功')
@@ -137,6 +138,7 @@ export default {
       this.getTagList()
     },
     onChange(value, record) {
+      this.isLoading = true
       const data = {}
       data.tagId = record.id
       data.tagName = record.tagName
@@ -148,8 +150,10 @@ export default {
         .then(() => {
           this.$message.success('前台顯示變更成功')
           this.getTagList()
+          this.isLoading = false
         })
         .catch(err => {
+          this.isLoading = false
           console.log(err)
         })
     },
@@ -163,7 +167,6 @@ export default {
       this.getTagList()
     },
     getTagList() {
-      this.tableData = []
       this.$api.Label.getTagList(this.searchValue, this.current, this.pageSize)
         .then(res => {
           this.tableData = res.data.tagResponseList
@@ -186,11 +189,5 @@ export default {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
-}
-.addButton {
-  background-color: #f59b22;
-  color: #fcfcfc;
-  font-weight: bold;
-  font-size: large;
 }
 </style>
