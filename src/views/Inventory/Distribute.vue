@@ -9,7 +9,7 @@
           <a-select-option :value="3">上個月</a-select-option>
           <a-select-option :value="4">全部</a-select-option>
         </a-select>
-        <a-range-picker :value="differentDate" @change="onChange" />
+        <a-range-picker v-model="differentDate" @change="onChange" />
       </div>
       <div class="search-wrapper">
         <div class="search-input">

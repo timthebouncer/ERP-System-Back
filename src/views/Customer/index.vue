@@ -18,13 +18,12 @@
               layout="horizontal"
               ref="ruleForm"
               :rules="rules"
-
             >
               <div class="firstPart">
                 <div class="firstPart-item">
-                  <a-form-model-item class="custom-form-item" label="客戶編號">
-                    <div>{{ list.id }}</div>
-                  </a-form-model-item>
+                  <!--                  <a-form-model-item class="custom-form-item" label="客戶編號">-->
+                  <!--                    <div>{{ list.id }}</div>-->
+                  <!--                  </a-form-model-item>-->
                   <a-form-model-item
                     class="custom-form-item"
                     label="客戶類別"
@@ -45,23 +44,32 @@
                   </a-form-model-item>
                 </div>
                 <div class="firstPart-item">
-                  <a-form-model-item class="custom-form-item" label="電話">
+                  <a-form-model-item
+                    class="custom-form-item"
+                    label="電話"
+                    prop="tel"
+                  >
                     <a-input v-model="list.tel" placeholder="請輸入" />
                   </a-form-model-item>
-                  <a-form-model-item class="custom-form-item" label="email">
+                  <a-form-model-item
+                    class="custom-form-item"
+                    label="Email"
+                    prop="email"
+                  >
                     <a-input v-model="list.email" placeholder="請輸入" />
                   </a-form-model-item>
                 </div>
                 <a-form-model-item
                   class="custom-form-item address"
                   label="地址"
+                  prop="postCode"
                 >
-                  <div style="width: 10%">
-                    <a-input v-model="list.postCode" placeholder="郵遞區號" />
-                  </div>
-                  <div>
-                    <a-input v-model="list.address" placeholder="請輸入" />
-                  </div>
+                  <a-input
+                    v-model="list.postCode"
+                    style="width: 10%"
+                    placeholder="郵遞區號"
+                  />
+                  <a-input v-model="list.address" placeholder="請輸入" />
                 </a-form-model-item>
 
                 <a-form-model-item
@@ -95,6 +103,7 @@
                       <a-form-model-item
                         class="custom-form-item"
                         label="統一編號"
+                        prop="vatNumber"
                       >
                         <a-input
                           v-model="list.vatNumber"
@@ -116,6 +125,7 @@
                       <a-form-model-item
                         class="custom-form-item"
                         label="公司電話"
+                        prop="companyTel"
                       >
                         <a-input
                           v-model="list.companyTel"
@@ -124,7 +134,11 @@
                         />
                       </a-form-model-item>
 
-                      <a-form-model-item class="custom-form-item" label="傳真">
+                      <a-form-model-item
+                        class="custom-form-item"
+                        label="傳真"
+                        prop="companyFax"
+                      >
                         <a-input
                           v-model="list.companyFax"
                           placeholder="請輸入"
@@ -135,6 +149,7 @@
                       <a-form-model-item
                         class="custom-form-item"
                         label="公司email"
+                        prop="companyEmail"
                       >
                         <a-input
                           v-model="list.companyEmail"
@@ -146,19 +161,17 @@
                     <a-form-model-item
                       class="custom-form-item address"
                       label="公司地址"
+                      prop="companyPostCode"
                     >
-                      <div style="width: 10%">
-                        <a-input
-                          v-model="list.companyPostCode"
-                          placeholder="郵遞區號"
-                        />
-                      </div>
-                      <div>
-                        <a-input
-                          v-model="list.companyAddress"
-                          placeholder="請輸入"
-                        />
-                      </div>
+                      <a-input
+                        style="width: 10%"
+                        v-model="list.companyPostCode"
+                        placeholder="郵遞區號"
+                      />
+                      <a-input
+                        v-model="list.companyAddress"
+                        placeholder="請輸入"
+                      />
                     </a-form-model-item>
                   </div>
                 </a-collapse-panel>
@@ -184,40 +197,40 @@
                         :rowKey="record => record.id"
                         :pagination="true"
                       >
-                    </a-table>
+                      </a-table>
                     </template>
                     <template v-else>
                       <a-table
-                      class="discountTable"
-                      bordered
-                      :data-source="discountTable"
-                      :columns="columns2"
-                      :rowKey="record => record.id"
-                      :pagination="{
-                        current,
-                        pageSizeOptions,
-                        pageSize,
-                      }"
-                      @change="discountTableChange"
+                        class="discountTable"
+                        bordered
+                        :data-source="discountTable"
+                        :columns="columns2"
+                        :rowKey="record => record.id"
+                        :pagination="{
+                          current,
+                          pageSizeOptions,
+                          pageSize
+                        }"
+                        @change="discountTableChange"
                       >
                       </a-table>
-<!--                      <a-pagination-->
-<!--                          class="pagination"-->
-<!--                          v-model="current"-->
-<!--                          :page-size-options="pageSizeOptions"-->
-<!--                          :total="total"-->
-<!--                          show-size-changer-->
-<!--                          :page-size="pageSize"-->
-<!--                          @change="discountTableChange"-->
-<!--                          @showSizeChange="discountTableChange"-->
-<!--                      >-->
-<!--                        <template slot="buildOptionText" slot-scope="props">-->
-<!--                        <span v-if="props.value !== '50'"-->
-<!--                        >{{ props.value }}筆/頁</span-->
-<!--                        >-->
-<!--                          <span v-if="props.value === '50'">全部</span>-->
-<!--                        </template>-->
-<!--                      </a-pagination>-->
+                      <!--                      <a-pagination-->
+                      <!--                          class="pagination"-->
+                      <!--                          v-model="current"-->
+                      <!--                          :page-size-options="pageSizeOptions"-->
+                      <!--                          :total="total"-->
+                      <!--                          show-size-changer-->
+                      <!--                          :page-size="pageSize"-->
+                      <!--                          @change="discountTableChange"-->
+                      <!--                          @showSizeChange="discountTableChange"-->
+                      <!--                      >-->
+                      <!--                        <template slot="buildOptionText" slot-scope="props">-->
+                      <!--                        <span v-if="props.value !== '50'"-->
+                      <!--                        >{{ props.value }}筆/頁</span-->
+                      <!--                        >-->
+                      <!--                          <span v-if="props.value === '50'">全部</span>-->
+                      <!--                        </template>-->
+                      <!--                      </a-pagination>-->
                     </template>
                   </div>
                 </div>
@@ -247,7 +260,7 @@
           style="width: 100px"
           @change="getCustomerList"
         >
-          <a-select-option value="AllClass">
+          <a-select-option value="">
             全部
           </a-select-option>
           <a-select-option v-for="item in classify" :key="item.className">
@@ -340,6 +353,9 @@ import Fragment from '@/components/Fragment'
 export default {
   name: 'Customer',
   data() {
+    const validatorTelReg = new RegExp(
+      /^0((([2-8]|37|49|89|836|82)-?)|9)\d{8}$/
+    )
     return {
       loading: false,
       visible: false,
@@ -350,15 +366,15 @@ export default {
       classify: [],
       list: {
         classes: { id: '', className: '' },
-        name: "",
-        tel: "",
-        postCode: null,
-        address: "",
+        name: '',
+        tel: '',
+        postCode: undefined,
+        address: '',
         email: null,
         remark: null,
         companyName: null,
-        vatNumber: "",
-        contactPerson: "",
+        vatNumber: '',
+        contactPerson: '',
         companyTel: null,
         companyFax: null,
         companyEmail: null,
@@ -440,45 +456,91 @@ export default {
       ],
       rules: {
         classes: [{ required: true, message: '請選擇', trigger: 'blur' }],
-        name: [{ required: true, message: '請輸入姓名', trigger: 'blur' }]
+        name: [{ required: true, message: '請輸入姓名', trigger: 'blur' }],
+        tel: [
+          {
+            pattern: validatorTelReg,
+            message: '請輸入正確電話格式',
+            trigger: 'blur'
+          }
+        ],
+        vatNumber: [{ pattern:/^\d+$/, message: '請輸入數字', trigger: 'blur' }],
+        postCode: [{ pattern:/^\d+$/, message: '請輸入數字', trigger: 'blur' }],
+        companyPostCode: [
+          { pattern:/^\d+$/, message: '請輸入數字', trigger: 'blur' }
+        ],
+        email: [
+          {
+            type: 'email',
+            message: '請輸入正確email格式(XXX@XXX.com)',
+            trigger: 'blur'
+          }
+        ],
+        companyTel: [
+          {
+            pattern: validatorTelReg,
+            message: '請輸入正確電話格式',
+            trigger: 'blur'
+          }
+        ],
+        companyEmail: [
+          {
+            type: 'email',
+            message: '請輸入正確email格式(XXX@XXX.com)',
+            trigger: 'blur'
+          }
+        ],
+        companyFax: [
+          {
+            pattern: validatorTelReg,
+            message: '請輸入正確傳真號碼格式',
+            trigger: 'blur'
+          }
+        ]
       },
       discountTable: [],
       columns2: [
-        {
-          title: '序',
-          dataIndex: 'order',
-          align: 'center',
-          // eslint-disable-next-line no-unused-vars
-          customRender: (_, __, i) => {
-            return {
-              children: <div>{i + 1}</div>
-            }
-          },
-          scopedSlots: { customRender: 'order' }
-        },
+        // {
+        //   title: '序',
+        //   dataIndex: 'order',
+        //   align: 'center',
+        //   customRender: (_, __, i) => {
+        //     return {
+        //       children: <div>{i + 1}</div>
+        //     }
+        //   },
+        //   scopedSlots: { customRender: 'order' }
+        // },
         {
           title: '商品名稱',
           dataIndex: 'productName',
           align: 'center',
           customRender: (value, row, index) => {
-            return {
-              children: (
-                <div>
-                  <a-select
-                    value={row.productId}
-                    placeholder="請選擇"
-                    onChange={id => this.pushValue(id, index)}
-                    show-search
-                    filter-option={this.filterOption}
-                  >
-                    {this.discountClass.map(item => (
-                      <a-select-option value={item.id} disabled={this.pl[item.id]}>
-                        {item.name}
-                      </a-select-option>
-                    ))}
-                  </a-select>
-                </div>
-              )
+            if (row.name === '') {
+              return {
+                children: (
+                  <div>
+                    <a-select
+                      value={row.productId}
+                      placeholder="請選擇"
+                      onChange={id => this.pushValue(id, index)}
+                      show-search
+                      filter-option={this.filterOption}
+                    >
+                      {this.discountClass.map(item => (
+                        <a-select-option
+                          value={item.id}
+                          disabled={this.pl[item.id]}
+                        >
+                          {item.name}
+                        </a-select-option>
+                      ))}
+                    </a-select>
+                  </div>
+                )
+              }
+            } else {
+              return <div>{row.name}</div>
             }
           },
           scopedSlots: { customRender: 'productName' }
@@ -501,6 +563,7 @@ export default {
           align: 'center',
           width: 100,
           customRender: (val, row) => {
+            console.log(row, 999)
             return this.priceAndRemarkEditor(val, row, 'discountPrice')
           },
           scopedSlots: { customRender: 'discountPrice' }
@@ -526,7 +589,7 @@ export default {
                 {this.discountTable.length ? (
                   <div>
                     <a-popconfirm
-                      title="Sure to delete?"
+                      title="確定要刪除嗎?"
                       onConfirm={() => this.deleteDiscount(row, index)}
                     >
                       <a>刪除</a>
@@ -562,45 +625,56 @@ export default {
     this.$api.Commodity.getCommodityDetail({
       searchKey: this.search,
       barcode: this.barcode
-    })
-    .then(res => {
+    }).then(res => {
       this.discountClass = res.data
     })
   },
   computed: {
+    ListpostCode(){
+      return parseInt(this.list.postCode, 10);
+    },
     priceAndRemarkEditor() {
       return (val, row, key) => {
         let editKey =
           'isEdit' + key[0].toUpperCase() + key.substring(1, key.length)
         // let editKey = key==='remark'?'isEditRemark':'isEditDiscountPrice';
-        return {
-          children: (
-            <div class="displayInput">
-              {row[editKey] ? (
-                <div>
-                  <a-input
-                    autoFocus
-                    placeholder="請輸入"
-                    value={row[key]}
-                    vModel={row[key]}
-                    vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
-                  />
+        console.log(row, 123)
+        if (row.using === false) {
+          return <div>{row[key]}</div>
+        } else{
+          return {
+            children: (
+                <div class="displayInput">
+                  {row[editKey] ? (
+                      <div>
+                        <a-input
+                            autoFocus
+                            placeholder="請輸入"
+                            value={row[key]}
+                            vModel={row[key]}
+                            vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
+                            onKeyup={() =>
+                                key === 'discountPrice' &&
+                                (row[key] = row[key].replace(/[^\d]/g, ''))
+                            }
+                        />
+                      </div>
+                  ) : (
+                      <Fragment>
+                    <span onClick={() => this.inputORnot(row, editKey)}>
+                      {val}
+                    </span>
+                        <div class="displayEdit" />
+                        <a-icon
+                            class="editable-cell-icon"
+                            type="edit"
+                            onClick={() => this.inputORnot(row, editKey)}
+                        />
+                      </Fragment>
+                  )}
                 </div>
-              ) : (
-                <Fragment>
-                  <span onClick={() => this.inputORnot(row, editKey)}>
-                    {val}
-                  </span>
-                  <div class="displayEdit" />
-                  <a-icon
-                    class="editable-cell-icon"
-                    type="edit"
-                    onClick={() => this.inputORnot(row, editKey)}
-                  />
-                </Fragment>
-              )}
-            </div>
-          )
+            )
+          }
         }
       }
     },
@@ -763,8 +837,9 @@ export default {
           if (res.data !== '') {
             this.list = res.data
             this.$api.Customer.discountNoPages({
-              clientId: this.track,
-            }).then((res) => {
+              clientId: this.track
+            }).then(res => {
+              console.log(res, 321)
               this.total = res.data.length
               this.discountTable = res.data.map(d => ({
                 id: d.discountId,
@@ -775,7 +850,8 @@ export default {
                 discountPrice: d.discountPrice,
                 remark: d.remark,
                 isEditDiscountPrice: true,
-                isEditRemark: true
+                isEditRemark: true,
+                using: d.using
               }))
               this.keepSelection()
             })
@@ -811,9 +887,9 @@ export default {
       // console.log(this.total);
       this.getCustomerList(this.search)
     },
-    discountTableChange({current,pageSize}) {
-      this.current = current;
-      this.pageSize = pageSize;
+    discountTableChange({ current, pageSize }) {
+      this.current = current
+      this.pageSize = pageSize
     },
     searchHandler() {
       this.getCustomerList()
@@ -823,7 +899,7 @@ export default {
         this.discountTable.splice(index, 1)
         this.keepSelection()
       } else {
-        if(row.id){
+        if (row.id) {
           this.$api.Customer.discountRemove(row)
             .then(() => {
               this.discountTable.splice(index, 1)
@@ -834,15 +910,15 @@ export default {
               console.log(err)
               this.$message.error('刪除折扣失敗')
             })
-        }else{
+        } else {
           this.discountTable.splice(index, 1)
           this.keepSelection()
         }
       }
     },
-    keepSelection(){
+    keepSelection() {
       this.pl = this.discountTable.reduce((p, v) => {
-        return !!v.productId ? {...p, [v.productId]: true} : p
+        return v.productId ? { ...p, [v.productId]: true } : p
       }, {})
     },
     handleAdd() {
@@ -858,13 +934,14 @@ export default {
         isEditRemark: true
       }
       this.discountTable = [...discountTable, newData]
-      this.total ++
+      this.total++
     },
     pushValue(id, index) {
       const item = this.discountClass.find(item => item.id === id)
       this.discountTable[index].productId = id
-      this.pl = this.discountTable.reduce((p, v) => { console.log(p)
-      return  !!v.productId ? {...p, [v.productId]: true} : p
+      this.pl = this.discountTable.reduce((p, v) => {
+        console.log(p)
+        return v.productId ? { ...p, [v.productId]: true } : p
       }, {})
       axios
         .get(
@@ -873,10 +950,14 @@ export default {
         .then(res => {
           let content = res.data.content
           let result = content.find(item => item.id === id)
+          console.log(result, 3333)
           let rows = this.discountTable[index]
+          console.log(rows, 'rows')
+          // rows.using = result.using
           rows.productId = result.id
           rows.unit = computedWeight(undefined, result.unit)
           rows.salesPrice = result.salesPrice
+          rows.using = result.using
         })
     }
   }
@@ -887,7 +968,7 @@ export default {
 /*::v-deep .ant-layout{*/
 /*  height: 0%;*/
 /*}*/
-::v-deep .ant-modal{
+::v-deep .ant-modal {
   top: 10px;
 }
 .firstPart {
@@ -972,7 +1053,7 @@ export default {
 }
 .displayInput {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
 }
 .displayEdit {
   position: absolute;

@@ -30,6 +30,7 @@
                   <a-form-model-item
                     class="custom-form-item"
                     label="計價單位"
+                    labelAlign="left"
                     prop="unit"
                   >
                     <NNN v-model="list.unit" style="width: 175px" />
@@ -42,11 +43,11 @@
                     <a-input v-model="list.salesPrice" placeholder="請輸入" />
                   </a-form-model-item>
 
-                  <a-form-model-item class="custom-form-item" label="建議售價">
+                  <a-form-model-item class="custom-form-item" label="建議售價" prop="listPrice">
                     <a-input v-model="list.listPrice" placeholder="請輸入" />
                   </a-form-model-item>
 
-                  <a-form-model-item class="custom-form-item" label="成本售價">
+                  <a-form-model-item class="custom-form-item" label="成本售價" prop="costPrice">
                     <a-input v-model="list.costPrice" placeholder="請輸入" />
                   </a-form-model-item>
 
@@ -55,7 +56,7 @@
                     label="商品描述"
                     style="width: 100%"
                   >
-                    <a-input
+                    <a-textarea
                       v-model="list.description"
                       placeholder="請輸入"
                       style="height: 100px"
@@ -287,7 +288,9 @@ export default {
       rules: {
         unit: [{ required: true, message: "請選擇", trigger: "blur" }],
         name: [{ required: true, message: "請輸入姓名", trigger: "blur" }],
-        prices: [{ required: true, message: "請輸入售價", trigger: "blur" }]
+        salesPrice: [{ required: true, type:"number",message: "請輸入售價(數字)", trigger: "blur" }],
+        listPrice:[{ type:"number",message: "請輸入數字", trigger: "blur"}],
+        costPrice:[{type:"number",message: "請輸入數字", trigger: "blur"}]
       },
       pageSizeOptions: ["10", "30", "50", "100"],
       current: 1,
@@ -437,6 +440,7 @@ export default {
     },
     onChange(checked, record) {
       console.log(record)
+      if(record.stockAmount === 0)
       axios
         .put(
           `/erp/product/changeStatus?productId=${record.id}&status=${checked}`

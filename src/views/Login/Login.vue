@@ -78,9 +78,9 @@ export default {
       .then((res)=>{
         this.$router.replace('/Inventory')
         console.log(res)
+      }).catch(()=>{
+        this.$message.error("登入失敗,帳號或密碼錯")
       })
-      // localStorage.setItem("account","")
-      // console.log(this.formInline)
     }
   }
 }

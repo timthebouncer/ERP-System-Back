@@ -37,15 +37,25 @@
             <span>商品名稱:</span>{{ addInventoryProductName }}
           </div>
           <div class="class-input" style="display: flex;">
-            <span>計價單位:</span>{{ addInventoryProductUnit }}
+            <span>計價單位:</span>{{ computedWeight(undefined,addInventoryProductUnit) }}
           </div>
           <div class="class-input" style="display: flex;">
-            <span>數量:</span
-            ><a-input
-              placeholder="請輸入"
-              style="width: 20%;"
-              v-model="addInventoryAmount"
-            />
+            <span>數量:</span>
+            <a-form :form="form">
+              <a-form-item>
+                <a-input
+                  v-decorator="[
+                    'addInventoryAmount',
+                    {
+                      rules: [
+                        {required: true, message: '請輸入數字', pattern: /^\d+$/ }
+                      ],initialValue:1
+                    }
+                  ]"
+                  style="width: 30%;"
+                  @change="vvv"
+                /> </a-form-item
+            ></a-form>
           </div>
           <template slot="footer">
             <a-button type="primary" @click="submitNonStop">
@@ -498,17 +508,17 @@ export default {
         }
       ],
       orderColumns: [
-        {
-          title: '序',
-          dataIndex: 'order',
-          align: 'center',
-          customRender: (_, __, i) => {
-            return {
-              children: <div>{i + 1}</div>
-            }
-          },
-          scopedSlots: { customRender: 'order' }
-        },
+        // {
+        //   title: '序',
+        //   dataIndex: 'order',
+        //   align: 'center',
+        //   customRender: (_, __, i) => {
+        //     return {
+        //       children: <div>{i + 1}</div>
+        //     }
+        //   },
+        //   scopedSlots: { customRender: 'order' }
+        // },
         {
           title: '商品條碼',
           dataIndex: 'barCode',
@@ -522,8 +532,7 @@ export default {
                     onChange={barCode => this.pushName(barCode, row)}
                     vModel={row.barCode}
                     placeholder="請掃一維碼或手動輸入"
-                  >
-                  </a-input>
+                  ></a-input>
                 </div>
               )
             }
@@ -603,7 +612,7 @@ export default {
                 {this.orderData.length ? (
                   <div>
                     <a-popconfirm
-                      title="Sure to delete?"
+                      title="確定要刪除嗎?"
                       onConfirm={() => this.deleteOrder(row, index)}
                     >
                       <a>刪除</a>
@@ -631,7 +640,8 @@ export default {
       pageSize: 10,
       total: 10,
       alertMsgTitle: '',
-      alertMessage: ''
+      alertMessage: '',
+      form: this.$form.createForm(this, { name: 'dynamic_rule' })
     }
   },
   computed: {
@@ -649,6 +659,7 @@ export default {
                     placeholder="請輸入"
                     value={row[key]}
                     vModel={row[key]}
+                    onKeyup={() => (row[key] = row[key].replace(/[^\d]/g, ''))}
                     vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
                   />
                 </div>
@@ -672,6 +683,9 @@ export default {
     },
     addSearch() {
       return debounce(this.addSelect)
+    },
+    computedWeight(){
+      return computedWeight
     }
   },
   methods: {
@@ -733,13 +747,21 @@ export default {
       })
     },
     pushName(barCode, row) {
+      console.log(this.inventoryList,12)
+      console.log(barCode,row,66)
       this.inventoryList.filter(item => {
-        return item.barCode === row.barCode
+        if(item.barcode === row.barCode){
+          row.productId = item.id
+          row.unit = computedWeight(undefined, item.unit)
+          row.salesPrice = item.salesPrice
+        }
+        return item.barcode === row.barCode
       })
     },
     filterName(row) {
+      console.log(row,32)
       return this.inventoryList.filter(item => {
-        return item.barcode?.indexOf(row.barCode) > -1 && item.barcode !== ""
+        return item.barcode?.indexOf(row.barCode) > -1 && item.barcode !== ''
       })
     },
     handleOk() {
@@ -789,6 +811,7 @@ export default {
     showAddPurchaseView() {
       this.purchaseViewVisible = true
       this.barCodeSelection = []
+      this.form.resetFields();
     },
     showAddOrderView() {
       this.orderViewVisible = true
@@ -904,6 +927,7 @@ export default {
         })
     },
     addInventory() {
+      if (!/^\d+$/.test(this.addInventoryAmount)) return
       const data = {}
       data.productId = this.addInventoryProductId
       data.amount = this.addInventoryAmount
@@ -961,6 +985,10 @@ export default {
     resetPage() {
       this.getInventoryList(this.search)
     },
+    vvv(ev) {
+      this.addInventoryAmount = ev.target.value
+      this.form.setFieldsValue({ addInventoryAmount: ev.target.value })
+    },
     moment
   },
   created() {
@@ -971,7 +999,7 @@ export default {
 }
 </script>
 <style scoped lang="scss">
-::v-deep .ant-modal{
+::v-deep .ant-modal {
   top: 40px;
 }
 .reviewButton {
