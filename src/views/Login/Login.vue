@@ -24,6 +24,7 @@
               v-model="formInline.password"
               type="password"
               placeholder="請輸入密碼"
+              @pressEnter="handleSubmit"
             >
               <a-icon slot="prefix" type="lock" style="color:rgba(0,0,0,0.25)" />
             </a-input>
