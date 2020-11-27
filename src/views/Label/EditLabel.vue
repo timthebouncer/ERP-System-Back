@@ -27,51 +27,58 @@
       <a-row type="flex" style="height: 100%;" align="middle">
         <a-col :span="8" style="height: 100%;">
           <a-row class="label-control" align="middle" style="height: 100%;">
-            <a-row class="label-wrap" type="flex" justify="space-between" align="middle">
+            <a-row
+              class="label-wrap"
+              type="flex"
+              justify="space-between"
+              align="middle"
+            >
               <a-col>
-              <a-auto-complete
-                v-model="searchProductName"
-                @search="searchProduct"
-                @select="selectProduct"
-                placeholder="請輸入商品名稱"
-              >
-                <template slot="dataSource">
-                  <a-select-option
-                    v-for="item in productData"
-                    :key="item.id"
-                    :title="item.name"
-                  >
-                    {{ item.name }}
-                  </a-select-option>
-                </template>
-              </a-auto-complete>
-              <a-button type="primary" @click="resetTag">重置</a-button>
+                <a-auto-complete
+                  v-model="searchProductName"
+                  @search="searchProduct"
+                  @select="selectProduct"
+                  placeholder="請輸入商品名稱"
+                >
+                  <template slot="dataSource">
+                    <a-select-option
+                      v-for="item in productData"
+                      :key="item.id"
+                      :title="item.name"
+                    >
+                      {{ item.name }}
+                    </a-select-option>
+                  </template>
+                </a-auto-complete>
+                <a-button type="primary" @click="resetTag">重置</a-button>
               </a-col>
               <a-col>
-              <a-upload
-                      name="avatar"
-                      list-type="picture-card"
-                      class="avatar-uploader"
-                      :show-upload-list="false"
-                      action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                      :before-upload="beforeUpload"
-                      @change="uploadChange"
-              >
-                <img
-                        v-if="logoImageUrl"
-                        class="logoImg"
-                        :src="logoImageUrl"
-                        alt="avatar"
-                        style="width: 200px; height: 55px;"
-                        @drag="handleDrag(logoTag, 'Logo')"
-                />
-                <div v-else>
-                  <a-icon :type="loading ? 'loading' : 'plus'" />
-                  <div class="ant-upload-text">
-                    上傳圖片
+                <a-upload
+                  name="avatar"
+                  list-type="picture-card"
+                  class="avatar-uploader"
+                  :show-upload-list="false"
+                  action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                  :before-upload="beforeUpload"
+                  @change="uploadChange"
+                >
+                  <!--                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"-->
+                  <!--                :customRequest="uploadImage"-->
+                  <img
+                    v-if="logoImageUrl"
+                    class="logoImg"
+                    :src="logoImageUrl"
+                    alt="avatar"
+                    style="width: 200px; height: 55px;"
+                    @drag="handleDrag(logoTag, 'Logo')"
+                  />
+                  <div v-else>
+                    <a-icon :type="loading ? 'loading' : 'plus'" />
+                    <div class="ant-upload-text">
+                      上傳圖片
+                    </div>
                   </div>
-                </div>
-              </a-upload>
+                </a-upload>
               </a-col>
             </a-row>
             <a-row class="label-wrap" type="flex" justify="space-between">
@@ -182,7 +189,7 @@
             >取消</a-button
           >
           <a-button type="primary" @click="exportSVG">儲存</a-button>
-<!--          <a-button @click="showSVG">IMPORT</a-button>-->
+          <!--          <a-button @click="showSVG">IMPORT</a-button>-->
           <a-button @click="showImage">預覽列印</a-button>
         </a-space>
       </a-row>
@@ -207,7 +214,7 @@ import { fabric } from 'fabric'
 // import { xml2js, js2xml, xml2json, json2xml } from 'xml-js'
 import TagsDetail from './component/TagsDetail'
 import TextConfirm from './component/TextConfirm'
-import { computedWeight } from "@/unit/dictionary/computed";
+import { computedWeight } from '@/unit/dictionary/computed'
 function getBase64(img, callback) {
   const reader = new FileReader()
   reader.addEventListener('load', () => callback(reader.result))
@@ -275,7 +282,9 @@ export default {
     uploadChange(info) {
       if (info.file.status === 'uploading') {
         this.loading = true
-        return
+        setTimeout(() => {
+          info.file.status = 'done'
+        }, 1000)
       }
       if (info.file.status === 'done') {
         // Get this url from response in real world.
@@ -289,11 +298,11 @@ export default {
       this.logoImageUrl = ''
       const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
       if (!isJpgOrPng) {
-        this.$message.error('You can only upload JPG file!')
+        this.$message.error('請上傳JPEG、PNG檔案格式圖片!')
       }
       const isLt2M = file.size / 1024 / 1024 < 2
       if (!isLt2M) {
-        this.$message.error('Image must smaller than 2MB!')
+        this.$message.error('圖片大小超過2MB!')
       }
       return isJpgOrPng && isLt2M
     },
@@ -332,7 +341,7 @@ export default {
       this.listPriceTag = '建議售價:' + item.listPrice + '元'
       this.salesPriceTag = '售價:' + item.salesPrice + '元'
       this.weightTag = '重量:100'
-      this.unitTag = '單位:' + computedWeight(undefined,item.unit)
+      this.unitTag = '單位:' + computedWeight(undefined, item.unit)
       this.logoTag = 'Logo'
       this.previewed = true
       this.currentDrag = [
@@ -346,7 +355,7 @@ export default {
         { name: 'text', text: 'TEXT' },
         { name: 'Logo', text: this.logoTag }
       ]
-      function loadImage(){
+      function loadImage() {
         return new Promise((resolve, reject) => {
           this.barcodeImageUrl = 'data:image/png;base64,' + item.barcodeBase64
           resolve(true)
@@ -800,9 +809,14 @@ export default {
     }
   },
   mounted() {
-    if(this.$store.state.labelData.id == '' && sessionStorage.getItem('labelMode') == 'edit'){
+    if (
+      this.$store.state.labelData.id == '' &&
+      sessionStorage.getItem('labelMode') == 'edit'
+    ) {
       this.$store.state.labelMode = 'edit'
-      this.$store.state.labelData = JSON.parse(sessionStorage.getItem('labelData'))
+      this.$store.state.labelData = JSON.parse(
+        sessionStorage.getItem('labelData')
+      )
     }
     this.labelMode = this.$store.state.labelMode
     fabric.Group.prototype.hasControls = false
@@ -917,7 +931,7 @@ export default {
   margin: auto;
   margin-top: 20px;
 }
-/deep/  .ant-modal-body {
-    background: #b2b2b2;
-  }
+/deep/ .ant-modal-body {
+  background: #b2b2b2;
+}
 </style>

@@ -37,9 +37,24 @@
             >
             <a-col :span="2"></a-col>
             <a-col :span="11" align="left"
-              ><a-button v-show="!record.showFront" @click="onDelete(record)"
-                >刪除</a-button
-              ></a-col
+              >
+              <a-popconfirm
+                      class="labelDeletePopconfirm"
+                      @confirm="() => onDelete(record)"
+              >
+                <template slot="title">
+                  <span
+                          class="labelDeletePopTitle"
+                          style="font-size: larger;"
+                  >確定刪除此標籤資料嗎?</span
+                  >
+                </template>
+                <a-button v-show="!record.showFront"
+                >刪除</a-button>
+              </a-popconfirm>
+
+
+              </a-col
             >
           </a-row>
         </template>
