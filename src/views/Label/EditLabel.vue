@@ -27,7 +27,8 @@
       <a-row type="flex" style="height: 100%;" align="middle">
         <a-col :span="8" style="height: 100%;">
           <a-row class="label-control" align="middle" style="height: 100%;">
-            <a-row class="label-wrap">
+            <a-row class="label-wrap" type="flex" justify="space-between" align="middle">
+              <a-col>
               <a-auto-complete
                 v-model="searchProductName"
                 @search="searchProduct"
@@ -45,6 +46,33 @@
                 </template>
               </a-auto-complete>
               <a-button type="primary" @click="resetTag">重置</a-button>
+              </a-col>
+              <a-col>
+              <a-upload
+                      name="avatar"
+                      list-type="picture-card"
+                      class="avatar-uploader"
+                      :show-upload-list="false"
+                      action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                      :before-upload="beforeUpload"
+                      @change="uploadChange"
+              >
+                <img
+                        v-if="logoImageUrl"
+                        class="logoImg"
+                        :src="logoImageUrl"
+                        alt="avatar"
+                        style="width: 200px; height: 55px;"
+                        @drag="handleDrag(logoTag, 'Logo')"
+                />
+                <div v-else>
+                  <a-icon :type="loading ? 'loading' : 'plus'" />
+                  <div class="ant-upload-text">
+                    上傳圖片
+                  </div>
+                </div>
+              </a-upload>
+              </a-col>
             </a-row>
             <a-row class="label-wrap" type="flex" justify="space-between">
               <a-col
@@ -117,32 +145,6 @@
                 >TEXT</a-col
               >
             </a-row>
-            <a-row style="height: 5%;">
-              <a-upload
-                name="avatar"
-                list-type="picture-card"
-                class="avatar-uploader"
-                :show-upload-list="false"
-                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                :before-upload="beforeUpload"
-                @change="uploadChange"
-              >
-                <img
-                  v-if="logoImageUrl"
-                  class="logoImg"
-                  :src="logoImageUrl"
-                  alt="avatar"
-                  style="width: 200px; height: 55px;"
-                  @drag="handleDrag(logoTag, 'Logo')"
-                />
-                <div v-else>
-                  <a-icon :type="loading ? 'loading' : 'plus'" />
-                  <div class="ant-upload-text">
-                    上傳圖片
-                  </div>
-                </div>
-              </a-upload>
-            </a-row>
           </a-row>
         </a-col>
         <a-col :span="16" style="height: 100%;">
@@ -180,7 +182,7 @@
             >取消</a-button
           >
           <a-button type="primary" @click="exportSVG">儲存</a-button>
-          <a-button @click="showSVG">IMPORT</a-button>
+<!--          <a-button @click="showSVG">IMPORT</a-button>-->
           <a-button @click="showImage">預覽列印</a-button>
         </a-space>
       </a-row>
@@ -189,12 +191,11 @@
     <TextConfirm @confirmText="confirmText" ref="textConfirm" />
     <a-modal
       v-model="showModalVisible"
-      title="SHOW TAG IMAGE"
-      :ok-button-props="{ props: { disabled: true } }"
-      :cancel-button-props="{ props: { disabled: true } }"
+      title="預覽列印"
+      footer=""
       width="700px"
     >
-      <div style="background: #169bd4; text-align: center; height: 550px;">
+      <div style="background: #b2b2b2; text-align: center; height: 550px;">
         <img :src="imageDataUrl" style="margin-top: 20px;" />
       </div>
     </a-modal>
@@ -206,9 +207,9 @@ import { fabric } from 'fabric'
 // import { xml2js, js2xml, xml2json, json2xml } from 'xml-js'
 import TagsDetail from './component/TagsDetail'
 import TextConfirm from './component/TextConfirm'
+import { computedWeight } from "@/unit/dictionary/computed";
 function getBase64(img, callback) {
   const reader = new FileReader()
-  console.log(reader)
   reader.addEventListener('load', () => callback(reader.result))
   reader.readAsDataURL(img)
 }
@@ -265,6 +266,11 @@ export default {
       logoImageUrl: ''
     }
   },
+  computed: {
+    computedWeight() {
+      return computedWeight
+    }
+  },
   methods: {
     uploadChange(info) {
       if (info.file.status === 'uploading') {
@@ -273,9 +279,7 @@ export default {
       }
       if (info.file.status === 'done') {
         // Get this url from response in real world.
-        console.log(info.file.originFileObj, 'file')
         getBase64(info.file.originFileObj, imageUrl => {
-          console.log(imageUrl)
           this.logoImageUrl = imageUrl
           this.loading = false
         })
@@ -283,7 +287,6 @@ export default {
     },
     beforeUpload(file) {
       this.logoImageUrl = ''
-      console.log('upload...')
       const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
       if (!isJpgOrPng) {
         this.$message.error('You can only upload JPG file!')
@@ -329,7 +332,7 @@ export default {
       this.listPriceTag = '建議售價:' + item.listPrice + '元'
       this.salesPriceTag = '售價:' + item.salesPrice + '元'
       this.weightTag = '重量:100'
-      this.unitTag = '單位:' + item.unit
+      this.unitTag = '單位:' + computedWeight(undefined,item.unit)
       this.logoTag = 'Logo'
       this.previewed = true
       this.currentDrag = [
@@ -343,15 +346,18 @@ export default {
         { name: 'text', text: 'TEXT' },
         { name: 'Logo', text: this.logoTag }
       ]
-      // this.$nextTick(() =>{
-      this.barcodeImageUrl = 'data:image/png;base64,' + item.barcodeBase64
-      // })
+      function loadImage(){
+        return new Promise((resolve, reject) => {
+          this.barcodeImageUrl = 'data:image/png;base64,' + item.barcodeBase64
+          resolve(true)
+        })
+      }
 
-      // setTimeout()
+      await loadImage.bind(this)()
+
       let imgElement
       await this.$nextTick(() => {
         imgElement = document.getElementsByClassName('barcodeImg')[0]
-        console.log(imgElement)
       })
       this.canvas.getObjects().map(o => {
         if (
@@ -359,18 +365,7 @@ export default {
           o.name != 'text'
         ) {
           if (o.name == 'barcode' && this.barcodeImageUrl) {
-            console.log(imgElement.width)
             let { width, height, left, top, scaleX, scaleY } = o
-            console.log(
-              'width:' +
-                width +
-                ',height:' +
-                height +
-                '  scaleX:' +
-                scaleX +
-                ',scaleY:' +
-                scaleY
-            )
             this.canvas.remove(o)
             let element
             element = new fabric.Image(imgElement, {
@@ -381,7 +376,6 @@ export default {
 
             element.scaleX = (width * scaleX) / element.width
             element.scaleY = (height * scaleY) / element.height
-            console.log(element)
             this.canvas.add(element)
             element.on('moved', e => {
               this.checkInArea(e)
@@ -511,7 +505,6 @@ export default {
         } else if (this.currentDragName === 'Logo') {
           this.hasTags.push(this.currentDragName)
           let imgElement = document.getElementsByClassName('logoImg')[0]
-          console.log(imgElement)
           element = new fabric.Image(imgElement, {
             left: 0,
             top: 0,
@@ -604,10 +597,7 @@ export default {
           obj.name != 'text' &&
           obj.name != 'Logo'
         ) {
-          if (obj.name == 'barcode' && obj.type == 'image') {
-            console.log('is image')
-          } else {
-            console.log('set text')
+          if (obj.name !== 'barcode' && obj.type !== 'image') {
             obj.text =
               '{{' + this.currentDrag.find(x => x.name == obj.name).text + '}}'
           }
@@ -629,8 +619,6 @@ export default {
       let svgJsonStr = JSON.stringify(svgJson)
       this.exportCanvasW = this.canvas.width
       this.exportCanvasH = this.canvas.height
-
-      console.log(svgJsonStr)
 
       if (this.labelMode == 'add') {
         const data = {}
@@ -761,7 +749,6 @@ export default {
       const tag = this.canvas.getActiveObject()
       if (tag) {
         let str = this.currentDrag.find(x => x.name == tag.name).text
-        console.log(str)
         const index = this.hasTags.indexOf(tag.name)
         if (index != -1) {
           this.hasTags.splice(index, 1)
@@ -797,7 +784,6 @@ export default {
       this.canvas.renderAll()
     },
     checkInArea(e) {
-      console.log(e.target)
       const left = e.target.left
       const top = e.target.top
       const width =
@@ -931,4 +917,7 @@ export default {
   margin: auto;
   margin-top: 20px;
 }
+/deep/  .ant-modal-body {
+    background: #b2b2b2;
+  }
 </style>
