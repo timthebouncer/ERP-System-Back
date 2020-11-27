@@ -108,10 +108,12 @@ export default {
   },
   methods: {
     onAdd() {
+      sessionStorage.setItem('labelMode','add')
       this.$store.state.labelMode = 'add'
       this.$router.push('EditLabel').catch(() => {})
     },
     onEdit(record) {
+      sessionStorage.setItem('labelMode','edit')
       this.$store.state.labelMode = 'edit'
       const data = {}
       data.id = record.id
@@ -121,6 +123,7 @@ export default {
       data.height = record.height
       data.wide = record.wide
       this.$store.state.labelData = data
+      sessionStorage.setItem('labelData',JSON.stringify(data))
       this.$router.push('EditLabel').catch(() => {})
     },
     onDelete(record) {

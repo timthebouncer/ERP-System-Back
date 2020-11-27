@@ -27,7 +27,8 @@
       <a-row type="flex" style="height: 100%;" align="middle">
         <a-col :span="8" style="height: 100%;">
           <a-row class="label-control" align="middle" style="height: 100%;">
-            <a-row class="label-wrap">
+            <a-row class="label-wrap" type="flex" justify="space-between" align="middle">
+              <a-col>
               <a-auto-complete
                 v-model="searchProductName"
                 @search="searchProduct"
@@ -45,6 +46,33 @@
                 </template>
               </a-auto-complete>
               <a-button type="primary" @click="resetTag">重置</a-button>
+              </a-col>
+              <a-col>
+              <a-upload
+                      name="avatar"
+                      list-type="picture-card"
+                      class="avatar-uploader"
+                      :show-upload-list="false"
+                      action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                      :before-upload="beforeUpload"
+                      @change="uploadChange"
+              >
+                <img
+                        v-if="logoImageUrl"
+                        class="logoImg"
+                        :src="logoImageUrl"
+                        alt="avatar"
+                        style="width: 200px; height: 55px;"
+                        @drag="handleDrag(logoTag, 'Logo')"
+                />
+                <div v-else>
+                  <a-icon :type="loading ? 'loading' : 'plus'" />
+                  <div class="ant-upload-text">
+                    上傳圖片
+                  </div>
+                </div>
+              </a-upload>
+              </a-col>
             </a-row>
             <a-row class="label-wrap" type="flex" justify="space-between">
               <a-col
@@ -58,8 +86,16 @@
                 class="tags"
                 @drag="handleDrag(barcodeTag, 'barcode')"
                 draggable
-                >{{ barcodeTag }}</a-col
               >
+                <img
+                  v-if="barcodeImageUrl"
+                  class="barcodeImg"
+                  :src="barcodeImageUrl"
+                  alt="avatar"
+                  style="width: 190px; height: 45px;"
+                />
+                <span v-else>{{ barcodeTag }}</span>
+              </a-col>
             </a-row>
             <a-row class="label-wrap" type="flex" justify="space-between">
               <a-col
@@ -137,10 +173,17 @@
       </a-row>
       <a-row type="flex" justify="center" align="middle" style="height:100px;">
         <a-space :size="150">
-          <a-button @click="canvas.clear()">取消</a-button>
+          <a-button
+            @click="
+              () => {
+                $router.push('Label').catch(() => {})
+              }
+            "
+            >取消</a-button
+          >
           <a-button type="primary" @click="exportSVG">儲存</a-button>
 <!--          <a-button @click="showSVG">IMPORT</a-button>-->
-          <a-button @click="showImage">SHOW</a-button>
+          <a-button @click="showImage">預覽列印</a-button>
         </a-space>
       </a-row>
     </a-layout>
@@ -148,12 +191,11 @@
     <TextConfirm @confirmText="confirmText" ref="textConfirm" />
     <a-modal
       v-model="showModalVisible"
-      title="SHOW TAG IMAGE"
-      :ok-button-props="{ props: { disabled: true } }"
-      :cancel-button-props="{ props: { disabled: true } }"
+      title="預覽列印"
+      footer=""
       width="700px"
     >
-      <div style="background: #169bd4; text-align: center; height: 550px;">
+      <div style="background: #b2b2b2; text-align: center; height: 550px;">
         <img :src="imageDataUrl" style="margin-top: 20px;" />
       </div>
     </a-modal>
@@ -165,6 +207,12 @@ import { fabric } from 'fabric'
 // import { xml2js, js2xml, xml2json, json2xml } from 'xml-js'
 import TagsDetail from './component/TagsDetail'
 import TextConfirm from './component/TextConfirm'
+import { computedWeight } from "@/unit/dictionary/computed";
+function getBase64(img, callback) {
+  const reader = new FileReader()
+  reader.addEventListener('load', () => callback(reader.result))
+  reader.readAsDataURL(img)
+}
 export default {
   name: 'EditLabel',
   components: { TagsDetail, TextConfirm },
@@ -180,7 +228,8 @@ export default {
         { name: 'salesPrice', text: '售價' },
         { name: 'weight', text: '重量' },
         { name: 'unit', text: '單位' },
-        { name: 'text', text: 'TEXT' }
+        { name: 'text', text: 'TEXT' },
+        { name: 'Logo', text: 'Logo' }
       ],
       currentDragName: '',
       currentDragText: '',
@@ -203,17 +252,51 @@ export default {
       searchProductName: '',
       productNameTag: '商品名稱',
       barcodeTag: '商品條碼',
+      barcodeImageUrl: '',
       costPriceTag: '成本價',
       listPriceTag: '建議售價',
       salesPriceTag: '售價',
       weightTag: '重量',
       unitTag: '單位',
+      logoTag: 'Logo',
       previewed: false,
       showModalVisible: false,
-      imageDataUrl: ''
+      imageDataUrl: '',
+      loading: false,
+      logoImageUrl: ''
+    }
+  },
+  computed: {
+    computedWeight() {
+      return computedWeight
     }
   },
   methods: {
+    uploadChange(info) {
+      if (info.file.status === 'uploading') {
+        this.loading = true
+        return
+      }
+      if (info.file.status === 'done') {
+        // Get this url from response in real world.
+        getBase64(info.file.originFileObj, imageUrl => {
+          this.logoImageUrl = imageUrl
+          this.loading = false
+        })
+      }
+    },
+    beforeUpload(file) {
+      this.logoImageUrl = ''
+      const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
+      if (!isJpgOrPng) {
+        this.$message.error('You can only upload JPG file!')
+      }
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!isLt2M) {
+        this.$message.error('Image must smaller than 2MB!')
+      }
+      return isJpgOrPng && isLt2M
+    },
     showImage() {
       this.showModalVisible = true
       this.imageDataUrl = this.canvas.toDataURL({
@@ -229,7 +312,7 @@ export default {
       this.$api.Label.searchProduct(value, '')
         .then(res => {
           res.data.map(item => {
-            if(item.barcode != ''){
+            if (item.barcode != '') {
               this.productData.push(item)
             }
           })
@@ -238,7 +321,7 @@ export default {
           console.log(err)
         })
     },
-    selectProduct(value) {
+    async selectProduct(value) {
       this.searchProductName = ''
       let item = {}
       item = this.productData.find(x => x.id === value)
@@ -248,8 +331,9 @@ export default {
       this.costPriceTag = '成本價:' + item.costPrice + '元'
       this.listPriceTag = '建議售價:' + item.listPrice + '元'
       this.salesPriceTag = '售價:' + item.salesPrice + '元'
-      this.weightTag = '重量:xxx'
-      this.unitTag = '單位:' + item.unit
+      this.weightTag = '重量:100'
+      this.unitTag = '單位:' + computedWeight(undefined,item.unit)
+      this.logoTag = 'Logo'
       this.previewed = true
       this.currentDrag = [
         { name: 'productName', text: this.productNameTag },
@@ -259,14 +343,48 @@ export default {
         { name: 'salesPrice', text: this.salesPriceTag },
         { name: 'weight', text: this.weightTag },
         { name: 'unit', text: this.unitTag },
-        { name: 'text', text: 'TEXT' }
+        { name: 'text', text: 'TEXT' },
+        { name: 'Logo', text: this.logoTag }
       ]
+      function loadImage(){
+        return new Promise((resolve, reject) => {
+          this.barcodeImageUrl = 'data:image/png;base64,' + item.barcodeBase64
+          resolve(true)
+        })
+      }
+
+      await loadImage.bind(this)()
+
+      let imgElement
+      await this.$nextTick(() => {
+        imgElement = document.getElementsByClassName('barcodeImg')[0]
+      })
       this.canvas.getObjects().map(o => {
         if (
           this.currentDrag.findIndex(x => x.name == o.name) != -1 &&
           o.name != 'text'
         ) {
-          o.text = this.currentDrag.find(x => x.name == o.name).text
+          if (o.name == 'barcode' && this.barcodeImageUrl) {
+            let { width, height, left, top, scaleX, scaleY } = o
+            this.canvas.remove(o)
+            let element
+            element = new fabric.Image(imgElement, {
+              left: left,
+              top: top,
+              name: 'barcode'
+            })
+
+            element.scaleX = (width * scaleX) / element.width
+            element.scaleY = (height * scaleY) / element.height
+            this.canvas.add(element)
+            element.on('moved', e => {
+              this.checkInArea(e)
+              this.canvas.renderAll()
+            })
+            this.canvas.renderAll()
+          } else {
+            o.text = this.currentDrag.find(x => x.name == o.name).text
+          }
         }
       })
       this.canvas.renderAll()
@@ -282,6 +400,7 @@ export default {
       this.salesPriceTag = '售價'
       this.weightTag = '重量'
       this.unitTag = '單位'
+      this.logoTag = 'Logo'
       this.currentDrag = [
         { name: 'productName', text: '商品名稱' },
         { name: 'barcode', text: '商品條碼' },
@@ -290,24 +409,48 @@ export default {
         { name: 'salesPrice', text: '售價' },
         { name: 'weight', text: '重量' },
         { name: 'unit', text: '單位' },
-        { name: 'text', text: 'TEXT' }
+        { name: 'text', text: 'TEXT' },
+        { name: 'Logo', text: 'Logo' }
       ]
       this.canvas.getObjects().map(o => {
         if (
           this.currentDrag.findIndex(x => x.name == o.name) != -1 &&
           o.name != 'text'
         ) {
-          o.text =
-            '{{' + this.currentDrag.find(x => x.name == o.name).text + '}}'
+          if (o.name == 'barcode' && this.barcodeImageUrl) {
+            let { width, height, left, top, scaleX, scaleY } = o
+            this.canvas.remove(o)
+            let element
+            element = new fabric.Text(`{{商品條碼}}`, {
+              fontFamily: '微軟正黑體',
+              hasControls: true,
+              left: left,
+              top: top,
+              name: 'barcode'
+            })
+
+            element.scaleX = (width * scaleX) / element.width
+            element.scaleY = (height * scaleY) / element.height
+            this.canvas.add(element)
+            element.on('moved', e => {
+              this.checkInArea(e)
+              this.canvas.renderAll()
+            })
+            this.canvas.renderAll()
+          } else {
+            o.text =
+              '{{' + this.currentDrag.find(x => x.name == o.name).text + '}}'
+          }
         }
       })
       this.canvas.renderAll()
 
+      this.barcodeImageUrl = ''
       this.productData = []
       this.$api.Label.searchProduct('', '')
         .then(res => {
           res.data.map(item => {
-            if(item.barcode != ''){
+            if (item.barcode != '') {
               this.productData.push(item)
             }
           })
@@ -335,16 +478,40 @@ export default {
           return
         } else if (this.currentDragName === 'barcode') {
           this.hasTags.push(this.currentDragName)
-          element = new fabric.Text(
-            this.previewed
-              ? this.currentDragText
-              : `{{${this.currentDragText}}}`,
-            {
-              fontFamily: '微軟正黑體',
-              hasControls: true,
-              name: this.currentDragName
-            }
-          )
+          if (this.barcodeImageUrl) {
+            let imgElement = document.getElementsByClassName('barcodeImg')[0]
+            element = new fabric.Image(imgElement, {
+              name: 'barcode'
+            })
+
+            element.scaleX = 210 / element.width
+            element.scaleY = 45 / element.height
+          } else {
+            element = new fabric.Text(
+              this.previewed
+                ? this.currentDragText
+                : `{{${this.currentDragText}}}`,
+              {
+                fontFamily: '微軟正黑體',
+                hasControls: true,
+                scaleX: 1,
+                scaleY: 1,
+                name: this.currentDragName
+              }
+            )
+            element.width = 210
+            element.height = 45
+          }
+        } else if (this.currentDragName === 'Logo') {
+          this.hasTags.push(this.currentDragName)
+          let imgElement = document.getElementsByClassName('logoImg')[0]
+          element = new fabric.Image(imgElement, {
+            left: 0,
+            top: 0,
+            scaleX: 0.5,
+            scaleY: 0.5,
+            name: 'Logo'
+          })
         } else {
           this.hasTags.push(this.currentDragName)
           element = new fabric.Textbox(
@@ -381,11 +548,10 @@ export default {
           this.checkInArea(e)
           this.canvas.renderAll()
         })
-
       }
     },
     handleClickTags(e) {
-      if (e.target && e.target.name) {
+      if (e.target && e.target.name != 'barcode' && e.target.name != 'Logo') {
         this.tagItem = e.target
         this.$refs.tagsDetail.visible = true
       }
@@ -411,31 +577,38 @@ export default {
         return
       }
 
-      this.currentDrag = [
-        { name: 'productName', text: '商品名稱' },
-        { name: 'barcode', text: '商品條碼' },
-        { name: 'costPrice', text: '成本價' },
-        { name: 'listPrice', text: '建議售價' },
-        { name: 'salesPrice', text: '售價' },
-        { name: 'weight', text: '重量' },
-        { name: 'unit', text: '單位' },
-        { name: 'text', text: 'TEXT' }
-      ]
+      // this.currentDrag = [
+      //   { name: 'productName', text: '商品名稱' },
+      //   { name: 'barcode', text: '商品條碼' },
+      //   { name: 'costPrice', text: '成本價' },
+      //   { name: 'listPrice', text: '建議售價' },
+      //   { name: 'salesPrice', text: '售價' },
+      //   { name: 'weight', text: '重量' },
+      //   { name: 'unit', text: '單位' },
+      //   { name: 'text', text: 'TEXT' },
+      //   { name: 'Logo', text: 'Logo' }
+      // ]
+
+      this.resetTag()
 
       this.canvas.getObjects().map(obj => {
         if (
           this.currentDrag.findIndex(x => x.name == obj.name) != -1 &&
-          obj.name != 'text'
+          obj.name != 'text' &&
+          obj.name != 'Logo'
         ) {
-          obj.text =
-            '{{' + this.currentDrag.find(x => x.name == obj.name).text + '}}'
+          if (obj.name !== 'barcode' && obj.type !== 'image') {
+            obj.text =
+              '{{' + this.currentDrag.find(x => x.name == obj.name).text + '}}'
+          }
         }
 
         obj.toObject = (function(toObject) {
           return function() {
             return fabric.util.object.extend(toObject.call(this), {
               name: obj.name,
-              editable: obj.name == 'barcode' ? true : false
+              editable:
+                obj.name == 'barcode' || obj.name == 'Logo' ? true : false
             })
           }
         })(obj.toObject)
@@ -480,7 +653,7 @@ export default {
           })
       }
     },
-    showSVG() {
+    async showSVG() {
       this.canvas.clear()
       this.hasTags = []
       this.canvas.setDimensions({
@@ -488,9 +661,10 @@ export default {
         height: this.exportCanvasH
       })
 
-      this.canvas.loadFromJSON(this.svgJson)
+      await this.loadFromJson()
+
       this.canvas.getObjects().map(o => {
-        if (o.type != 'rect' && o.name != 'barcode') {
+        if (o.type != 'rect' && o.name != 'barcode' && o.name != 'Logo') {
           o.setControlsVisibility({
             mt: false, // middle top disable
             mb: false, // midle bottom
@@ -515,7 +689,22 @@ export default {
         })
       })
       this.canvas.controlsAboveOverlay = true
+
       this.canvas.renderAll()
+    },
+    loadFromJson() {
+      return new Promise((resolve, reject) => {
+        this.canvas.loadFromJSON(
+          this.svgJson,
+          () => {
+            this.canvas.renderAll.bind(this.canvas)
+            resolve(true)
+          },
+          (o, obj, error) => {
+            this.canvas._objects.push(obj)
+          }
+        )
+      })
     },
     handleSaveTag(edit) {
       this.tagItem.set(edit)
@@ -597,14 +786,24 @@ export default {
     checkInArea(e) {
       const left = e.target.left
       const top = e.target.top
-      const width = e.target.width
-      const height = e.target.height
+      const width =
+        e.target.scaleX === 1
+          ? e.target.width
+          : e.target.scaleX * e.target.width
+      const height =
+        e.target.scaleY === 1
+          ? e.target.height
+          : e.target.scaleY * e.target.height
       if (left < -width || left > 550 || top < -height || top > 550) {
         this.handleDeleteTag()
       }
     }
   },
   mounted() {
+    if(this.$store.state.labelData.id == '' && sessionStorage.getItem('labelMode') == 'edit'){
+      this.$store.state.labelMode = 'edit'
+      this.$store.state.labelData = JSON.parse(sessionStorage.getItem('labelData'))
+    }
     this.labelMode = this.$store.state.labelMode
     fabric.Group.prototype.hasControls = false
     this.canvas = new fabric.Canvas('label-fabric')
@@ -643,7 +842,7 @@ export default {
     this.$api.Label.searchProduct('', '')
       .then(res => {
         res.data.map(item => {
-          if(item.barcode != ''){
+          if (item.barcode != '') {
             this.productData.push(item)
           }
         })
@@ -718,4 +917,7 @@ export default {
   margin: auto;
   margin-top: 20px;
 }
+/deep/  .ant-modal-body {
+    background: #b2b2b2;
+  }
 </style>

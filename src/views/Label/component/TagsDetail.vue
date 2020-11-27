@@ -79,7 +79,6 @@ export default {
       // }else{
       //   return 'text'
       // }
-      console.log(this.item);
       if(this.item.name!=='text'){
         if(this.item.name === 'barcode'){
           return 'barcode'
@@ -108,7 +107,6 @@ export default {
     visible(value) {
       if (value) {
         const {fontWeight,underline,name,text,fontSize,width,scaleX,height,scaleY} = this.tagItem
-        console.log(this.tagItem)
         this.item = {
           bold: fontWeight === 'bold',
           underline: underline,
