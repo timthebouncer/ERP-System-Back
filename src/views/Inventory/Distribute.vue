@@ -238,8 +238,14 @@ export default {
       endDate:differentDate[1].format("YYYY-MM-DD")
     };
   },
-  created() {
-    this.distributeList();
+   created() {
+    // const res = await this.$api.Login.loginIdentify()
+    // console.log(res)
+    // if(res.data === false){
+    //   this.$router.push('/')
+    // }else{
+      this.distributeList();
+    // }
   },
   methods: {
     changeDate(expression){

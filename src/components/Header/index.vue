@@ -8,8 +8,8 @@
         @click="() => ($store.state.collapsed = !$store.state.collapsed)"
       />
     </div>
-    <div>
-      登出
+    <div class="logout">
+      登出666
       <a-icon class="trigger" align="flex-end" type="logout" />
     </div>
   </div>
@@ -21,4 +21,8 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.logout{
+  background: #000;
+}
+</style>

@@ -614,20 +614,26 @@ export default {
     }
   },
   created() {
-    this.getCustomerList()
-    this.$api.Customer.getClass()
+    // const res = await this.$api.Login.loginIdentify()
+    // console.log(res)
+    // if(res.data === false || res.code === "401"){
+    //   this.$router.push('/')
+    // }else{
+      this.getCustomerList()
+      this.$api.Customer.getClass()
       .then(res => {
         this.classify = res.data
       })
       .catch(err => {
         console.log(err)
       })
-    this.$api.Commodity.getCommodityDetail({
-      searchKey: this.search,
-      barcode: this.barcode
-    }).then(res => {
-      this.discountClass = res.data
-    })
+      this.$api.Commodity.getCommodityDetail({
+        searchKey: this.search,
+        barcode: this.barcode
+      }).then(res => {
+        this.discountClass = res.data
+      })
+    // }
   },
   computed: {
     ListpostCode(){

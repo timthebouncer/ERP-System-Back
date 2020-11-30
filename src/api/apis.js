@@ -7,6 +7,9 @@ const api = {
     },
     loginIdentify(){
       return request.get('session/isAuthenticated')
+    },
+    logOut(){
+      return request.post('/api/logout')
     }
   },
   Customer: {

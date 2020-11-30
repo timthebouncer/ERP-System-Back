@@ -304,8 +304,14 @@ export default {
       return computedWeight
     }
   },
-  created() {
-    this.getCommodity();
+   created() {
+    // const res = await this.$api.Login.loginIdentify()
+    // console.log(res)
+    // if(res.data === false){
+    //   this.$router.push('/')
+    // }else{
+      this.getCommodity();
+    // }
   },
   methods: {
     showModal() {
