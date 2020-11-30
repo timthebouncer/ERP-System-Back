@@ -274,7 +274,7 @@
                   type="close-square"
                   theme="twoTone"
                   two-tone-color="#eb2f96"
-                  :style="{ fontSize: '25px' }"
+                  :style="{ fontSize: '15px' }"
                 />
               </a-popconfirm>
             </template>
@@ -368,6 +368,7 @@ export default {
   },
   data() {
     return {
+      barcodeTdWidth: '',
       customerList: [],
       goodsTable: [],
       inventoryList: [],
@@ -381,56 +382,45 @@ export default {
       barcode: '',
       expandIndex: [],
       tableData: [],
-      // innerData: [
-      //   {
-      //     id: 0,
-      //     barCode: 'T0001',
-      //     productName: '雞胸',
-      //     unit: '2台斤',
-      //     salesPrice: 79,
-      //     listPrice: 80,
-      //     costPrice: 60,
-      //     amount: 2
-      //   }
-      // ],
       orderData: [],
       search: '',
       columns: [
         {
+          class:'expand-td',
           dataIndex: '',
-          width: '20%',
           align: 'center',
           scopedSlots: { customRender: 'expandAction' }
         },
         {
+          class:'barcode-td',
           title: '商品條碼',
           dataIndex: 'barCode',
-          width: '20%',
           align: 'center',
           scopedSlots: { customRender: 'barCode' }
         },
         {
+          class:'product-name-td',
           title: '商品名稱',
           dataIndex: 'productName',
-          width: '15%',
           align: 'center',
           scopedSlots: { customRender: 'productName' }
         },
         {
+          class:'unit-td',
           title: '計價單位',
           dataIndex: 'unit',
-          width: '10%',
           align: 'center',
           scopedSlots: { customRender: 'unit' }
         },
         {
+          class:'sales-price-td',
           title: '售價',
           dataIndex: 'totalSalesPrice',
-          width: '10%',
           align: 'center',
           scopedSlots: { customRender: 'totalSalesPrice' }
         },
         {
+          class:'list-price-td',
           title: '建議售價',
           dataIndex: 'totalListPrice',
           width: '10%',
@@ -438,87 +428,76 @@ export default {
           scopedSlots: { customRender: 'totalListPrice' }
         },
         {
+          class:'cost-price-td',
           title: '成本價',
           dataIndex: 'totalCostPrice',
-          width: '10%',
           align: 'center',
           scopedSlots: { customRender: 'totalCostPrice' }
         },
         {
+          class:'amount-td',
           title: '庫存量',
           dataIndex: 'amount',
-          width: '10%',
           align: 'center',
           scopedSlots: { customRender: 'amount' }
         },
         {
+          class:'action-td',
           title: '操作',
           dataIndex: '',
-          width: '5%',
           align: 'center',
           scopedSlots: { customRender: 'action' }
         }
       ],
       innerColumns: [
         {
-          width: '4%',
+          class:'inner-expand-td',
           scopedSlots: { customRender: 'spaceCol' }
         },
         {
+          class: 'inner-barcode-td',
           dataIndex: 'barcode',
-          width: '20%',
           align: 'center'
         },
         {
+          class: 'inner-product-name-td',
           dataIndex: 'name',
-          width: '20%',
           align: 'center'
         },
         {
+          class: 'inner-unit-td',
           dataIndex: 'unitAmount',
-          width: '15%',
           align: 'center'
         },
         {
+          class: 'inner-sales-price-td',
           dataIndex: 'salesPrice',
-          width: '10%',
           align: 'center'
         },
         {
+          class: 'inner-list-price-td',
           dataIndex: 'listPrice',
-          width: '10%',
           align: 'center'
         },
         {
+          class: 'inner-cost-price-td',
           dataIndex: 'costPrice',
-          width: '10%',
           align: 'center'
         },
         {
+          class: 'inner-amount-td',
           dataIndex: 'amount',
-          width: '10%',
           align: 'center',
           scopedSlots: { customRender: 'amount' }
         },
         {
+          class:'inner-action-td',
           dataIndex: '',
-          width: '2%',
           align: 'center',
           scopedSlots: { customRender: 'action' }
         }
       ],
       orderColumns: [
-        // {
-        //   title: '序',
-        //   dataIndex: 'order',
-        //   align: 'center',
-        //   customRender: (_, __, i) => {
-        //     return {
-        //       children: <div>{i + 1}</div>
-        //     }
-        //   },
-        //   scopedSlots: { customRender: 'order' }
-        // },
         {
           title: '商品條碼',
           dataIndex: 'barCode',
@@ -1127,5 +1106,42 @@ export default {
 
 .editable-cell-icon:hover {
   display: block;
+}
+
+/deep/ .expand-td{
+  width: 3%;
+}
+/deep/ .barcode-td, /deep/ .product-name-td{
+  width: 20%;
+}
+/deep/ .unit-td {
+  width: 8%;
+}
+/deep/ .sales-price-td, /deep/ .cost-price-td, /deep/ .list-price-td{
+  width: 10%;
+}
+/deep/ .amount-td {
+  width: 5%;
+}
+/deep/ .action-td{
+  width: 2%;
+}
+/deep/ .inner-expand-td{
+  width: 3%;
+}
+/deep/ .inner-barcode-td,/deep/ .inner-product-name-td {
+  width: 20%;
+}
+/deep/ .inner-unit-td {
+  width: 8%;
+}
+/deep/ .inner-sales-price-td,/deep/ .inner-cost-price-td,/deep/ .inner-list-price-td {
+  width: 10%;
+}
+/deep/ .inner-amount-td{
+  width: 5%;
+}
+/deep/ .inner-action-td{
+  width: 2%;
 }
 </style>
