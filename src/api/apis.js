@@ -4,6 +4,9 @@ const api = {
   Login:{
     userLogin(formData){
       return request.post("/api/login",formData)
+    },
+    loginIdentify(){
+      return request.get('session/isAuthenticated')
     }
   },
   Customer: {

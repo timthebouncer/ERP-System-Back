@@ -24,7 +24,7 @@
                     <a-input v-model="list.name" placeholder="請輸入" />
                   </a-form-model-item>
 
-                  <a-form-model-item class="custom-form-item" label="商品條碼">
+                  <a-form-model-item class="custom-form-item" label="商品條碼" prop="barcode">
                     <a-input v-model="list.barcode" placeholder="請輸入" />
                   </a-form-model-item>
                   <a-form-model-item
@@ -286,11 +286,12 @@ export default {
         }
       ],
       rules: {
+        barcode: [{pattern:/^\d+$/,message: "請輸入數字", trigger: "blur"}],
         unit: [{ required: true, message: "請選擇", trigger: "blur" }],
         name: [{ required: true, message: "請輸入姓名", trigger: "blur" }],
-        salesPrice: [{ required: true, type:"number",message: "請輸入售價(數字)", trigger: "blur" }],
-        listPrice:[{ type:"number",message: "請輸入數字", trigger: "blur"}],
-        costPrice:[{type:"number",message: "請輸入數字", trigger: "blur"}]
+        salesPrice: [{ required: true, pattern:/^\d+$/,message: "請輸入售價(數字)", trigger: "blur" }],
+        listPrice:[{ pattern:/^\d+$/,message: "請輸入數字", trigger: "blur"}],
+        costPrice:[{pattern:/^\d+$/,message: "請輸入數字", trigger: "blur"}]
       },
       pageSizeOptions: ["10", "30", "50", "100"],
       current: 1,
