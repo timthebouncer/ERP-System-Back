@@ -26,18 +26,28 @@
             <span>商品條碼:</span>
             <a-auto-complete
               v-model="searchBarcode"
-              :dataSource="barCodeSelection"
               placeholder="請輸入商品條碼"
               style="width: 50%;"
+              @search="addChange"
               @select="addSelect"
-              @change="addChange"
-            />
+            >
+              <template slot="dataSource">
+                <a-select-option
+                  v-for="item in barCodeSelection"
+                  :key="item.id"
+                  :title="item.barcode"
+                >
+                  {{ item.barcode }}
+                </a-select-option>
+              </template>
+            </a-auto-complete>
           </div>
           <div class="class-input" style="display: flex;">
             <span>商品名稱:</span>{{ addInventoryProductName }}
           </div>
           <div class="class-input" style="display: flex;">
-            <span>計價單位:</span>{{ computedWeight(undefined,addInventoryProductUnit) }}
+            <span>計價單位:</span
+            >{{ computedWeight(undefined, addInventoryProductUnit) }}
           </div>
           <div class="class-input" style="display: flex;">
             <span>數量:</span>
@@ -48,8 +58,13 @@
                     'addInventoryAmount',
                     {
                       rules: [
-                        {required: true, message: '請輸入數字', pattern: /^\d+$/ }
-                      ],initialValue:1
+                        {
+                          required: true,
+                          message: '請輸入數字',
+                          pattern: /^\d+$/
+                        }
+                      ],
+                      initialValue: 1
                     }
                   ]"
                   style="width: 30%;"
@@ -386,41 +401,41 @@ export default {
       search: '',
       columns: [
         {
-          class:'expand-td',
+          class: 'expand-td',
           dataIndex: '',
           align: 'center',
           scopedSlots: { customRender: 'expandAction' }
         },
         {
-          class:'barcode-td',
+          class: 'barcode-td',
           title: '商品條碼',
           dataIndex: 'barCode',
           align: 'center',
           scopedSlots: { customRender: 'barCode' }
         },
         {
-          class:'product-name-td',
+          class: 'product-name-td',
           title: '商品名稱',
           dataIndex: 'productName',
           align: 'center',
           scopedSlots: { customRender: 'productName' }
         },
         {
-          class:'unit-td',
+          class: 'unit-td',
           title: '計價單位',
           dataIndex: 'unit',
           align: 'center',
           scopedSlots: { customRender: 'unit' }
         },
         {
-          class:'sales-price-td',
+          class: 'sales-price-td',
           title: '售價',
           dataIndex: 'totalSalesPrice',
           align: 'center',
           scopedSlots: { customRender: 'totalSalesPrice' }
         },
         {
-          class:'list-price-td',
+          class: 'list-price-td',
           title: '建議售價',
           dataIndex: 'totalListPrice',
           width: '10%',
@@ -428,21 +443,21 @@ export default {
           scopedSlots: { customRender: 'totalListPrice' }
         },
         {
-          class:'cost-price-td',
+          class: 'cost-price-td',
           title: '成本價',
           dataIndex: 'totalCostPrice',
           align: 'center',
           scopedSlots: { customRender: 'totalCostPrice' }
         },
         {
-          class:'amount-td',
+          class: 'amount-td',
           title: '庫存量',
           dataIndex: 'amount',
           align: 'center',
           scopedSlots: { customRender: 'amount' }
         },
         {
-          class:'action-td',
+          class: 'action-td',
           title: '操作',
           dataIndex: '',
           align: 'center',
@@ -451,7 +466,7 @@ export default {
       ],
       innerColumns: [
         {
-          class:'inner-expand-td',
+          class: 'inner-expand-td',
           scopedSlots: { customRender: 'spaceCol' }
         },
         {
@@ -491,7 +506,7 @@ export default {
           scopedSlots: { customRender: 'amount' }
         },
         {
-          class:'inner-action-td',
+          class: 'inner-action-td',
           dataIndex: '',
           align: 'center',
           scopedSlots: { customRender: 'action' }
@@ -663,8 +678,18 @@ export default {
     addSearch() {
       return debounce(this.addSelect)
     },
-    computedWeight(){
+    computedWeight() {
       return computedWeight
+    }
+  },
+  watch: {
+    searchBarcode: function(newValue) {
+      if (newValue == '') {
+        this.addInventoryProductId = ''
+        this.addInventoryProductName = ''
+        this.addInventoryProductUnit = ''
+        this.CommodityDetail('')
+      }
     }
   },
   methods: {
@@ -726,10 +751,10 @@ export default {
       })
     },
     pushName(barCode, row) {
-      console.log(this.inventoryList,12)
-      console.log(barCode,row,66)
+      console.log(this.inventoryList, 12)
+      console.log(barCode, row, 66)
       this.inventoryList.filter(item => {
-        if(item.barcode === row.barCode){
+        if (item.barcode === row.barCode) {
           row.productId = item.id
           row.unit = computedWeight(undefined, item.unit)
           row.salesPrice = item.salesPrice
@@ -738,7 +763,7 @@ export default {
       })
     },
     filterName(row) {
-      console.log(row,32)
+      console.log(row, 32)
       return this.inventoryList.filter(item => {
         return item.barcode?.indexOf(row.barCode) > -1 && item.barcode !== ''
       })
@@ -782,7 +807,6 @@ export default {
               })
             }
           })
-
         })
         .catch(err => {
           console.log(err)
@@ -790,8 +814,8 @@ export default {
     },
     showAddPurchaseView() {
       this.purchaseViewVisible = true
-      this.barCodeSelection = []
-      this.form.resetFields();
+      this.searchBarcode = ''
+      this.form.resetFields()
     },
     showAddOrderView() {
       this.orderViewVisible = true
@@ -861,26 +885,19 @@ export default {
     deleteOrder(row, index) {
       this.orderData.splice(index, 1)
     },
-    addSelect() {
+    addSelect(value) {
+      this.searchBarcode = ''
       this.addInventoryProductName = ''
       this.addInventoryProductUnit = ''
-      this.$api.Commodity.getCommodityDetail({
-        searchKey: this.search,
-        barcode: this.searchBarcode
-      }).then(res => {
-        this.addInventoryData = res.data
-        // this.addInventoryData=[];
-        if (this.addInventoryData.length) {
-          // this.searchBarcode = this.addInventoryData.barcode
-          this.addInventoryProductId = this.addInventoryData[0].id
-          this.addInventoryProductName = this.addInventoryData[0].name
-          this.addInventoryProductUnit = this.addInventoryData[0].unit
-        }
-      })
+      let item = {}
+      item = this.barCodeSelection.find(x => x.id === value)
+      this.searchBarcode = item.barcode
+      this.addInventoryProductId = item.id
+      this.addInventoryProductName = item.name
+      this.addInventoryProductUnit = item.unit
     },
-    addChange() {
-      // this.addSearch();
-      this.CommodityDetail()
+    addChange(value) {
+      this.CommodityDetail(value)
     },
     submitNonStop() {
       const data = {}
@@ -947,18 +964,20 @@ export default {
         this.customerList = res.data
       })
     },
-    CommodityDetail() {
+    CommodityDetail(value) {
+      this.barCodeSelection = []
       this.$api.Commodity.getCommodityDetail({
-        searchKey: this.search,
-        barcode: this.searchBarcode
+        searchKey: '',
+        barcode: value
       }).then(res => {
         this.inventoryList = res.data
-        this.barCodeSelection = []
+        let data = []
         this.inventoryList.forEach(item => {
           if (item.barcode !== '') {
-            this.barCodeSelection.push(item.barcode)
+            data.push(item)
           }
         })
+        this.barCodeSelection = data
       })
     },
     resetPage() {
@@ -976,9 +995,13 @@ export default {
     // if(res.data === false){
     //   this.$router.push('/')
     // }else{
-      this.getInventoryList(this.search);
-      this.getCustomerList();
+    this.getInventoryList(this.search)
+    this.getCustomerList()
+
     // }
+  },
+  mounted() {
+    this.CommodityDetail(this.searchBarcode)
   }
 }
 </script>
@@ -1113,40 +1136,46 @@ export default {
   display: block;
 }
 
-/deep/ .expand-td{
+/deep/ .expand-td {
   width: 3%;
 }
-/deep/ .barcode-td, /deep/ .product-name-td{
+/deep/ .barcode-td,
+/deep/ .product-name-td {
   width: 20%;
 }
 /deep/ .unit-td {
   width: 8%;
 }
-/deep/ .sales-price-td, /deep/ .cost-price-td, /deep/ .list-price-td{
+/deep/ .sales-price-td,
+/deep/ .cost-price-td,
+/deep/ .list-price-td {
   width: 10%;
 }
 /deep/ .amount-td {
   width: 5%;
 }
-/deep/ .action-td{
+/deep/ .action-td {
   width: 2%;
 }
-/deep/ .inner-expand-td{
+/deep/ .inner-expand-td {
   width: 3%;
 }
-/deep/ .inner-barcode-td,/deep/ .inner-product-name-td {
+/deep/ .inner-barcode-td,
+/deep/ .inner-product-name-td {
   width: 20%;
 }
 /deep/ .inner-unit-td {
   width: 8%;
 }
-/deep/ .inner-sales-price-td,/deep/ .inner-cost-price-td,/deep/ .inner-list-price-td {
+/deep/ .inner-sales-price-td,
+/deep/ .inner-cost-price-td,
+/deep/ .inner-list-price-td {
   width: 10%;
 }
-/deep/ .inner-amount-td{
+/deep/ .inner-amount-td {
   width: 5%;
 }
-/deep/ .inner-action-td{
+/deep/ .inner-action-td {
   width: 2%;
 }
 </style>
