@@ -1,5 +1,5 @@
 import axios from "axios";
-// import router from "../router";
+import router from "../router";
 
 // create an axios instance
 const service = axios.create({
@@ -27,6 +27,9 @@ service.interceptors.response.use(
     return response;
   },
   function(error) {
+    const {status} = error.response
+    if(status === 403 || status === 401)
+      router.replace('/')
     // const { message } = error.response.data;
     // if (error.response.data.data.error === "Forbidden") {
     //     window.sessionStorage.removeItem("userData");

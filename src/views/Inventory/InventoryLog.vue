@@ -219,29 +219,35 @@ export default {
     moment,
   },
   created() {
-    this.today = moment(new Date()).format(this.dateFormat)
-    this.firstThisWeekDay = moment(moment(new Date()).startOf('week'))
-      .add(1, 'd')
-      .format(this.dateFormat)
-    this.endThisWeekDay = moment(moment(new Date()).endOf('week'))
-      .add(1, 'd')
-      .format(this.dateFormat)
-    this.firstThisMonthDay = moment(moment(new Date()).startOf('month')).format(
-      this.dateFormat
-    )
-    this.endThisMonthDay = moment(moment(new Date()).endOf('month')).format(
-      this.dateFormat
-    )
-    this.firstLastMonthDay = moment(
-      moment(new Date()).subtract(1, 'M').startOf('month')
-    ).format(this.dateFormat)
-    this.endLastMonthDay = moment(
-      moment(new Date()).subtract(1, 'M').endOf('month')
-    ).format(this.dateFormat)
-    this.startDate = this.firstThisMonthDay
-    this.endDate = this.endThisMonthDay
-    this.dateRange = [this.startDate, this.endDate]
-    this.onSearch()
+    // const res = await this.$api.Login.loginIdentify()
+    // console.log(res)
+    // if(res.data === false){
+    //   this.$router.push('/')
+    // }else{
+      this.today = moment(new Date()).format(this.dateFormat)
+      this.firstThisWeekDay = moment(moment(new Date()).startOf('week'))
+          .add(1, 'd')
+          .format(this.dateFormat)
+      this.endThisWeekDay = moment(moment(new Date()).endOf('week'))
+          .add(1, 'd')
+          .format(this.dateFormat)
+      this.firstThisMonthDay = moment(moment(new Date()).startOf('month')).format(
+          this.dateFormat
+      )
+      this.endThisMonthDay = moment(moment(new Date()).endOf('month')).format(
+          this.dateFormat
+      )
+      this.firstLastMonthDay = moment(
+          moment(new Date()).subtract(1, 'M').startOf('month')
+      ).format(this.dateFormat)
+      this.endLastMonthDay = moment(
+          moment(new Date()).subtract(1, 'M').endOf('month')
+      ).format(this.dateFormat)
+      this.startDate = this.firstThisMonthDay
+      this.endDate = this.endThisMonthDay
+      this.dateRange = [this.startDate, this.endDate]
+      this.onSearch()
+    // }
   },
 }
 </script>

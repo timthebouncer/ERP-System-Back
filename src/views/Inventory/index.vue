@@ -803,7 +803,7 @@ export default {
               })
             }
           })
-          
+
         })
         .catch(err => {
           console.log(err)
@@ -992,10 +992,15 @@ export default {
     moment
   },
   created() {
-    this.getInventoryList(this.search)
-    this.getCustomerList()
-  },
-  mounted() {}
+    // const res = await this.$api.Login.loginIdentify()
+    // console.log(res)
+    // if(res.data === false){
+    //   this.$router.push('/')
+    // }else{
+      this.getInventoryList(this.search);
+      this.getCustomerList();
+    // }
+  }
 }
 </script>
 <style scoped lang="scss">
