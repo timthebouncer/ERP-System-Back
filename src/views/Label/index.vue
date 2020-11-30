@@ -37,9 +37,24 @@
             >
             <a-col :span="2"></a-col>
             <a-col :span="11" align="left"
-              ><a-button v-show="!record.showFront" @click="onDelete(record)"
-                >刪除</a-button
-              ></a-col
+              >
+              <a-popconfirm
+                      class="labelDeletePopconfirm"
+                      @confirm="() => onDelete(record)"
+              >
+                <template slot="title">
+                  <span
+                          class="labelDeletePopTitle"
+                          style="font-size: larger;"
+                  >確定刪除此標籤資料嗎?</span
+                  >
+                </template>
+                <a-button v-show="!record.showFront"
+                >刪除</a-button>
+              </a-popconfirm>
+
+
+              </a-col
             >
           </a-row>
         </template>
@@ -108,10 +123,12 @@ export default {
   },
   methods: {
     onAdd() {
+      sessionStorage.setItem('labelMode','add')
       this.$store.state.labelMode = 'add'
       this.$router.push('EditLabel').catch(() => {})
     },
     onEdit(record) {
+      sessionStorage.setItem('labelMode','edit')
       this.$store.state.labelMode = 'edit'
       const data = {}
       data.id = record.id
@@ -121,6 +138,7 @@ export default {
       data.height = record.height
       data.wide = record.wide
       this.$store.state.labelData = data
+      sessionStorage.setItem('labelData',JSON.stringify(data))
       this.$router.push('EditLabel').catch(() => {})
     },
     onDelete(record) {
