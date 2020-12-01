@@ -358,7 +358,7 @@ export default {
         { name: 'Logo', text: this.logoTag }
       ]
       function loadImage() {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
           this.barcodeImageUrl = 'data:image/png;base64,' + item.barcodeBase64
           resolve(true)
         })
@@ -704,14 +704,14 @@ export default {
       this.canvas.renderAll()
     },
     loadFromJson() {
-      return new Promise((resolve, reject) => {
+      return new Promise(resolve => {
         this.canvas.loadFromJSON(
           this.svgJson,
           () => {
             this.canvas.renderAll.bind(this.canvas)
             resolve(true)
           },
-          (o, obj, error) => {
+          (o, obj) => {
             this.canvas._objects.push(obj)
           }
         )
