@@ -320,11 +320,13 @@ export default {
       this.productData = []
       this.$api.Label.searchProduct(value, '')
         .then(res => {
+          let data = []
           res.data.map(item => {
             if (item.barcode != '') {
-              this.productData.push(item)
+              data.push(item)
             }
           })
+          this.productData = data
         })
         .catch(err => {
           console.log(err)
