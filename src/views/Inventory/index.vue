@@ -347,7 +347,7 @@
       :total="total"
       show-size-changer
       :page-size="pageSize"
-      :show-total="total => `總共 ${total} 筆`"
+      :show-total="total => ``"
       @showSizeChange="onShowSizeChange"
       @change="onPageChange"
     >

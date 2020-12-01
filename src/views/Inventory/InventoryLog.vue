@@ -4,39 +4,39 @@
       <div class="action-add"></div>
       <div class="search-wrapper">
         <a-space>
-        <a-select
-          default-value="3"
-          style="width: 100px"
-          @change="onSelectDateChange"
-        >
-          <a-select-option value="1">今天</a-select-option>
-          <a-select-option value="2">本週</a-select-option>
-          <a-select-option value="3">本月</a-select-option>
-          <a-select-option value="4">上個月</a-select-option>
-          <a-select-option value="all">全部</a-select-option>
-        </a-select>
-        <a-range-picker v-model="dateRange" :format="dateFormat" />
-        <span style="margin: auto 8px;font-weight:bolder;">異動方式</span>
-        <a-select
-          default-value="all"
-          style="width: 100px"
-          @change="onSelectActionChange"
-        >
-          <a-select-option value="all">全部</a-select-option>
-          <a-select-option value="STOCK_IN">進貨</a-select-option>
-          <a-select-option value="STOCK_OUT">銷貨</a-select-option>
-          <a-select-option value="STOCK_EDIT">編輯庫存</a-select-option>
-          <a-select-option value="STOCK_DELETE">刪除庫存</a-select-option>
-          <a-select-option value="CANCEL_ORDER">取消訂單</a-select-option>
-        </a-select>
-        <div class="searchInput">
-          <a-input-search
-            v-model="searchValue"
-            placeholder="搜尋商品"
-            enter-button
-            @search="onSearch"
-          />
-        </div>
+          <a-select
+            default-value="3"
+            style="width: 100px"
+            @change="onSelectDateChange"
+          >
+            <a-select-option value="1">今天</a-select-option>
+            <a-select-option value="2">本週</a-select-option>
+            <a-select-option value="3">本月</a-select-option>
+            <a-select-option value="4">上個月</a-select-option>
+            <a-select-option value="all">全部</a-select-option>
+          </a-select>
+          <a-range-picker v-model="dateRange" :format="dateFormat" />
+          <span style="margin: auto 8px;font-weight:bolder;">異動方式</span>
+          <a-select
+            default-value="all"
+            style="width: 100px"
+            @change="onSelectActionChange"
+          >
+            <a-select-option value="all">全部</a-select-option>
+            <a-select-option value="STOCK_IN">入庫</a-select-option>
+            <a-select-option value="STOCK_OUT">出庫</a-select-option>
+            <a-select-option value="STOCK_EDIT">編輯庫存</a-select-option>
+            <a-select-option value="STOCK_DELETE">刪除庫存</a-select-option>
+            <a-select-option value="CANCEL_ORDER">取消訂單</a-select-option>
+          </a-select>
+          <div class="searchInput">
+            <a-input-search
+              v-model="searchValue"
+              placeholder="搜尋商品"
+              enter-button
+              @search="onSearch"
+            />
+          </div>
         </a-space>
       </div>
     </div>
@@ -50,8 +50,8 @@
         rowKey="id"
       >
         <template slot="amount" slot-scope="text">
-          <span v-if="~text.indexOf('-')" class="amount--red">{{text}}</span>
-          <span v-else>{{text}}</span>
+          <span v-if="~text.indexOf('-')" class="amount--red">{{ text }}</span>
+          <span v-else>{{ text }}</span>
         </template>
       </a-table>
     </div>
@@ -87,19 +87,19 @@ export default {
           title: '日期',
           dataIndex: 'updateDate',
           width: '10%',
-          align: 'center',
+          align: 'center'
         },
         {
           title: '異動方式',
           dataIndex: 'action',
           width: '10%',
-          align: 'center',
+          align: 'center'
         },
         {
           title: '商品名稱',
           dataIndex: 'productName',
           width: '20%',
-          align: 'center',
+          align: 'center'
         },
         {
           title: '數量',
@@ -107,13 +107,7 @@ export default {
           width: '10%',
           align: 'center',
           scopedSlots: { customRender: 'amount' }
-        },
-        {
-          title: '備註',
-          dataIndex: '',
-          width: '25%',
-          align: 'center',
-        },
+        }
       ],
       pageSizeOptions: ['10', '30', '50', '100'],
       current: 1,
@@ -130,7 +124,7 @@ export default {
       firstLastMonthDay: '',
       endLastMonthDay: '',
       dateRange: [],
-      action: '',
+      action: ''
     }
   },
   methods: {
@@ -147,7 +141,7 @@ export default {
           console.log('今天')
           this.startDate = this.today
           this.endDate = this.today
-          this.dateRange = [this.starDtate, this.endDate]
+          this.dateRange = [this.startDate, this.endDate]
           break
         case '2':
           console.log('本周')
@@ -176,9 +170,11 @@ export default {
         default:
           break
       }
+      this.onSearch()
     },
     onSelectActionChange(value) {
       this.action = value == 'all' ? '' : value
+      this.onSearch()
     },
     onShowSizeChange(current, pageSize) {
       this.pageSize = pageSize
@@ -205,7 +201,7 @@ export default {
           this.tableData = res.data.content.map((item, index) => {
             let obj = {
               id: index,
-              ...item,
+              ...item
             }
             return obj
           })
@@ -216,7 +212,7 @@ export default {
           console.log(err)
         })
     },
-    moment,
+    moment
   },
   created() {
     // const res = await this.$api.Login.loginIdentify()
@@ -224,31 +220,35 @@ export default {
     // if(res.data === false){
     //   this.$router.push('/')
     // }else{
-      this.today = moment(new Date()).format(this.dateFormat)
-      this.firstThisWeekDay = moment(moment(new Date()).startOf('week'))
-          .add(1, 'd')
-          .format(this.dateFormat)
-      this.endThisWeekDay = moment(moment(new Date()).endOf('week'))
-          .add(1, 'd')
-          .format(this.dateFormat)
-      this.firstThisMonthDay = moment(moment(new Date()).startOf('month')).format(
-          this.dateFormat
-      )
-      this.endThisMonthDay = moment(moment(new Date()).endOf('month')).format(
-          this.dateFormat
-      )
-      this.firstLastMonthDay = moment(
-          moment(new Date()).subtract(1, 'M').startOf('month')
-      ).format(this.dateFormat)
-      this.endLastMonthDay = moment(
-          moment(new Date()).subtract(1, 'M').endOf('month')
-      ).format(this.dateFormat)
-      this.startDate = this.firstThisMonthDay
-      this.endDate = this.endThisMonthDay
-      this.dateRange = [this.startDate, this.endDate]
-      this.onSearch()
+    this.today = moment(new Date()).format(this.dateFormat)
+    this.firstThisWeekDay = moment(moment(new Date()).startOf('week'))
+      .add(1, 'd')
+      .format(this.dateFormat)
+    this.endThisWeekDay = moment(moment(new Date()).endOf('week'))
+      .add(1, 'd')
+      .format(this.dateFormat)
+    this.firstThisMonthDay = moment(moment(new Date()).startOf('month')).format(
+      this.dateFormat
+    )
+    this.endThisMonthDay = moment(moment(new Date()).endOf('month')).format(
+      this.dateFormat
+    )
+    this.firstLastMonthDay = moment(
+      moment(new Date())
+        .subtract(1, 'M')
+        .startOf('month')
+    ).format(this.dateFormat)
+    this.endLastMonthDay = moment(
+      moment(new Date())
+        .subtract(1, 'M')
+        .endOf('month')
+    ).format(this.dateFormat)
+    this.startDate = this.firstThisMonthDay
+    this.endDate = this.endThisMonthDay
+    this.dateRange = [this.startDate, this.endDate]
+    this.onSearch()
     // }
-  },
+  }
 }
 </script>
 
@@ -258,7 +258,7 @@ export default {
   justify-content: flex-end;
   margin-top: 20px;
 }
-.amount--red{
-  color: #f00
+.amount--red {
+  color: #f00;
 }
 </style>
