@@ -19,6 +19,7 @@ export default {
     value: {
       required: true,
       type: String,
+      default: "KG"
     },
     placeholder: {
       required: false,

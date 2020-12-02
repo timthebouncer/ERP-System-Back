@@ -48,17 +48,24 @@
           </div>
         </template>
         <template slot="operation" slot-scope="text, record">
-          <a-space>
-            <a-button type="link" size="small" @click="editHandler(record)"
+          <template v-if="record.clientCount === 0">
+            <a-space>
+              <a-button type="link" size="small" @click="editHandler(record)"
               >編輯</a-button
+              >
+              <a-popconfirm
+                  title="確定要刪除嗎?"
+                  @confirm="() => onDelete(record.id)"
+              >
+                <a-button type="link" size="small">刪除</a-button>
+              </a-popconfirm>
+            </a-space>
+          </template>
+          <template v-else>
+            <a-button type="link" size="small" @click="editHandler(record)"
+            >編輯</a-button
             >
-            <a-popconfirm
-              title="確定要刪除嗎?"
-              @confirm="() => onDelete(record.id)"
-            >
-              <a-button type="link" size="small">刪除</a-button>
-            </a-popconfirm>
-          </a-space>
+          </template>
         </template>
       </a-table>
     </div>
@@ -106,13 +113,13 @@ export default {
       changeTitle: '',
       list: { id: '', className: '' },
       columns: [
-        {
-          title: ' ',
-          dataIndex: 'order',
-          width: '2%',
-          align: 'center',
-          scopedSlots: { customRender: 'order' },
-        },
+        // {
+        //   title: ' ',
+        //   dataIndex: 'order',
+        //   width: '2%',
+        //   align: 'center',
+        //   scopedSlots: { customRender: 'order' },
+        // },
         {
           title: '類別名稱',
           dataIndex: 'className',
@@ -164,30 +171,38 @@ export default {
     },
     handleOk() {
       if (this.changeTitle === '新增類別') {
-        this.$api.Classify.addClass({ name: this.list.className })
-          .then(() => {
-            this.getClassifyList()
-            this.$message.success('新增類別成功')
-          })
-          .catch(err => {
-            this.$message.error('新增類別失敗')
-            console.log(err)
-          })
-        this.visible = false
+        if(this.list.className){
+          this.$api.Classify.addClass({ name: this.list.className })
+              .then(() => {
+                this.getClassifyList()
+                this.$message.success('新增類別成功')
+              })
+              .catch(err => {
+                this.$message.error('新增類別失敗')
+                console.log(err)
+              })
+          this.visible = false
+        }else{
+          this.$message.error("請輸入客戶類別")
+        }
       } else {
-        this.$api.Classify.updateClass({
-          classId: this.track,
-          className: this.list.className,
-        })
-          .then(() => {
-            this.getClassifyList()
-            this.$message.success('修改類別成功')
+        if(!this.list.className){
+          this.$message.error("請輸入客戶類別")
+        }else {
+          this.$api.Classify.updateClass({
+            classId: this.track,
+            className: this.list.className,
           })
-          .catch(err => {
-            this.$message.error('修改類別失敗')
-            console.log(err)
-          })
-        this.visible = false
+              .then(() => {
+                this.getClassifyList()
+                this.$message.success('修改類別成功')
+              })
+              .catch(err => {
+                this.$message.error('修改類別失敗')
+                console.log(err)
+              })
+          this.visible = false
+        }
       }
     },
     handleCancel() {

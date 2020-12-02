@@ -72,7 +72,7 @@ export default {
   created () {
     if (sessionStorage.getItem('account')){
       this.formInline.account = sessionStorage.getItem('account')
-      this.checkbox = sessionStorage.getItem('rememberAccountStatus')
+      this.checkbox = Boolean(sessionStorage.getItem('rememberAccountStatus'))
     }
   },
   methods: {
@@ -84,7 +84,6 @@ export default {
           formData.append("password", this.formInline.password)
           this.$api.Login.userLogin(formData)
             .then((res)=>{
-              this.checkbox=true
               this.rememberAccount()
               this.$router.replace('/Inventory')
               console.log(res)

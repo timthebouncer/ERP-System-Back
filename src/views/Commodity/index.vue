@@ -67,6 +67,9 @@
             </a-form-model>
           </div>
           <template slot="footer">
+            <div v-show="changeTitle === '編輯商品'">
+              <span>上次更新時間:{{this.list.updateTime}}</span>
+            </div>
             <a-button
               v-show="changeTitle === '新增商品'"
               type="primary"
@@ -188,14 +191,15 @@ export default {
       search: "",
       list: {
         name: "",
-        unit: "",
+        unit: "KG",
         unitType: "",
         barcode: "",
         salesPrice: undefined,
         costPrice: undefined,
         listPrice: undefined,
         description: "",
-        using: undefined
+        using: undefined,
+        updateTime: "",
       },
       tableData: [],
       changeTitle: "",
@@ -288,7 +292,7 @@ export default {
       rules: {
         barcode: [{pattern:/^\d+$/,message: "請輸入數字", trigger: "blur"}],
         unit: [{ required: true, message: "請選擇", trigger: "blur" }],
-        name: [{ required: true, message: "請輸入姓名", trigger: "blur" }],
+        name: [{ required: true, message: "請輸入商品名稱", trigger: "blur" }],
         salesPrice: [{ required: true, pattern:/^\d+$/,message: "請輸入售價(數字)", trigger: "blur" }],
         listPrice:[{ pattern:/^\d+$/,message: "請輸入數字", trigger: "blur"}],
         costPrice:[{pattern:/^\d+$/,message: "請輸入數字", trigger: "blur"}]
@@ -336,7 +340,7 @@ export default {
     clearInput() {
       this.list = {
         name: "",
-        unit: "",
+        unit: "KG",
         barcode: "",
         salesPrice: "",
         costPrice: "",
@@ -362,6 +366,7 @@ export default {
               this.getCommodity();
               this.$message.success("新增商品成功");
             });
+            this.clearInput();
             this.visible = true;
           }
         }
@@ -379,14 +384,17 @@ export default {
               salesPrice: this.list.salesPrice,
               listPrice: this.list.listPrice,
               costPrice: this.list.costPrice,
-              description: this.list.description
-            }).then(() => {
+              description: this.list.description,
+              using: true
+            }).then((res) => {
               this.getCommodity();
-              this.$message.success("新增商品成功");
+              this.$message.success(`新增${res.data.name}成功`);
+            }).catch(()=>{
+              this.$message.error('此商品條碼已存在')
             });
             this.visible = false;
+            this.clearInput();
           } else {
-            console.log(this.list.unit,6)
             this.$api.Commodity.updateCommodity({
               id: this.track,
               name: this.list.name,
@@ -401,6 +409,8 @@ export default {
             }).then(() => {
               this.getCommodity();
               this.$message.success("修改商品成功");
+            }).catch(()=>{
+              this.$message.error('此商品條碼已存在')
             });
             this.visible = false;
             this.loading = false;
@@ -427,12 +437,13 @@ export default {
             (this.list.listPrice = record.listPrice),
             (this.list.costPrice = record.costPrice),
             (this.list.description = record.description);
+            (this.list.updateTime = record.updateTime)
           this.visible = true;
         }
       }
     },
     onSearch() {
-        this.getCommodity();
+        this.getCommodity(this.current = 1);
     },
     onShowSizeChange(current, pageSize){
       this.current = 1;
