@@ -238,6 +238,18 @@
             </a-form-model>
           </div>
           <template slot="footer">
+            <div v-show="changeTitle === '編輯客戶'">
+              <span>上次更新時間{{list.updateTime}}</span>
+            </div>
+            <a-button
+                v-show="changeTitle === '新增客戶'"
+                key="submit"
+                type="primary"
+                :loading="loading"
+                @click="submitNonstop()"
+            >
+              儲存並新增
+            </a-button>
             <a-button
               key="submit"
               type="primary"
@@ -379,7 +391,8 @@ export default {
         companyFax: null,
         companyEmail: null,
         companyPostCode: null,
-        companyAddress: null
+        companyAddress: null,
+        updateTime: ""
       },
       discountClass: [],
       columns: [
@@ -729,6 +742,7 @@ export default {
     showModal() {
       this.visible = true
       this.changeTitle = '新增客戶'
+      this.pl=[]
     },
     clearInput() {
       this.list = {
@@ -749,6 +763,50 @@ export default {
       }
       this.discountTable = []
       this.resetForm()
+    },
+    submitNonstop(){
+      this.$refs.ruleForm.validate(valid => {
+        if (valid) {
+          if (this.changeTitle === '新增客戶') {
+            this.$api.Customer.add({
+              name: this.list.name,
+              classesId: this.list.classes.id,
+              vatNumber: this.list.vatNumber,
+              companyName: this.list.companyName,
+              contactPerson: this.list.contactPerson,
+              companyTel: this.list.companyTel,
+              postCode: this.list.postCode,
+              address: this.list.address,
+              email: this.list.email,
+              remark: this.list.remark,
+              tel: this.list.tel,
+              companyFax: this.list.companyFax,
+              companyEmail: this.list.companyEmail,
+              companyPostCode: this.list.companyPostCode,
+              companyAddress: this.list.companyAddress,
+              discountList: this.discountTable.map(item => {
+                return {
+                  discountId: '',
+                  productId: item.productId,
+                  discountPrice: item.discountPrice,
+                  remark: item.remark,
+                  unit: item.unit
+                }
+              })
+            })
+            .then(() => {
+            this.getCustomerList()
+            this.$message.success('新增客戶成功')
+            })
+            .catch(err => {
+            console.log(err)
+            this.$message.error('新增客戶失敗')
+            })
+            this.visible = true
+            this.clearInput();
+          }
+        }
+      });
     },
     handleOk() {
       this.$refs.ruleForm.validate(valid => {
@@ -789,6 +847,7 @@ export default {
                 this.$message.error('新增客戶失敗')
               })
             this.visible = false
+            this.clearInput();
           } else {
             this.$api.Customer.update({
               clientId: this.track,
@@ -840,13 +899,14 @@ export default {
       this.changeTitle = '編輯客戶'
       this.$api.Customer.getSingleList(record)
         .then(res => {
+          this.discountTable = []
           if (res.data !== '') {
             this.list = res.data
             this.$api.Customer.discountNoPages({
               clientId: this.track
             }).then(res => {
               console.log(res, 321)
-              this.total = res.data.length
+              // this.total = res.data.length
               this.discountTable = res.data.map(d => ({
                 id: d.discountId,
                 name: d.productName,
@@ -857,8 +917,11 @@ export default {
                 remark: d.remark,
                 isEditDiscountPrice: true,
                 isEditRemark: true,
-                using: d.using
+                using: d.using,
+                updateTime: d.updateTime
               }))
+              this.keepSelection()
+            }).catch(() => {
               this.keepSelection()
             })
             this.visible = true
@@ -923,6 +986,7 @@ export default {
       }
     },
     keepSelection() {
+      console.log(this.discountTable,565)
       this.pl = this.discountTable.reduce((p, v) => {
         return v.productId ? { ...p, [v.productId]: true } : p
       }, {})
@@ -940,7 +1004,7 @@ export default {
         isEditRemark: true
       }
       this.discountTable = [...discountTable, newData]
-      this.total++
+      // this.total++
     },
     pushValue(id, index) {
       const item = this.discountClass.find(item => item.id === id)
