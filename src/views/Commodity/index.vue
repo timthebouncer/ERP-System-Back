@@ -67,8 +67,9 @@
             </a-form-model>
           </div>
           <template slot="footer">
-            <div v-show="changeTitle === '編輯商品'">
-              <span>上次更新時間:{{this.list.updateTime}}</span>
+            <div v-if="list.updateTime">
+              <span>上次更新時間: {{list.updateTime.split(" ")[0]}}<span style="display: inline-block; width: 10px;" />
+                {{list.updateTime.split(" ")[1]}}</span>
             </div>
             <a-button
               v-show="changeTitle === '新增商品'"
@@ -361,12 +362,16 @@ export default {
               salesPrice: this.list.salesPrice,
               listPrice: this.list.listPrice,
               costPrice: this.list.costPrice,
-              description: this.list.description
-            }).then(() => {
+              description: this.list.description,
+              using: true
+            }).then((res) => {
               this.getCommodity();
-              this.$message.success("新增商品成功");
+              this.clearInput();
+              this.$message.success(`新增${res.data.name}成功`);
+            }).catch(()=>{
+              this.visible = true
+              this.$message.error('此商品已存在')
             });
-            this.clearInput();
             this.visible = true;
           }
         }
@@ -389,11 +394,13 @@ export default {
             }).then((res) => {
               this.getCommodity();
               this.$message.success(`新增${res.data.name}成功`);
+              this.visible = false;
+              this.clearInput();
             }).catch(()=>{
-              this.$message.error('此商品條碼已存在')
+              this.visible = true
+              this.$message.error('此商品已存在')
             });
-            this.visible = false;
-            this.clearInput();
+
           } else {
             this.$api.Commodity.updateCommodity({
               id: this.track,
@@ -409,11 +416,11 @@ export default {
             }).then(() => {
               this.getCommodity();
               this.$message.success("修改商品成功");
+              this.visible = false;
             }).catch(()=>{
               this.$message.error('此商品條碼已存在')
+              this.visible = true;
             });
-            this.visible = false;
-            this.loading = false;
           }
         }
       });

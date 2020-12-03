@@ -36,6 +36,10 @@
   font-size: large;
   border: unset;
 }
+.button1:focus{
+  background-color: #1ebf1e;
+  color: #fcfcfc;
+}
 .action {
   display: flex;
   justify-content: space-between;
