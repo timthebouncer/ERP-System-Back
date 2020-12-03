@@ -6,16 +6,25 @@
         <a-space>
           <a-select
             default-value="3"
+            v-model="dateSelectValue"
             style="width: 100px"
             @change="onSelectDateChange"
+            class="dateSelect"
           >
             <a-select-option value="1">今天</a-select-option>
             <a-select-option value="2">本週</a-select-option>
             <a-select-option value="3">本月</a-select-option>
             <a-select-option value="4">上個月</a-select-option>
             <a-select-option value="all">全部</a-select-option>
+            <a-select-option value="custom" v-if="customDateShow"
+              >自訂時間</a-select-option
+            >
           </a-select>
-          <a-range-picker v-model="dateRange" :format="dateFormat" />
+          <a-range-picker
+            v-model="dateRange"
+            :format="dateFormat"
+            @change="onDateChange"
+          />
           <span style="margin: auto 8px;font-weight:bolder;">異動方式</span>
           <a-select
             default-value="all"
@@ -82,6 +91,8 @@ export default {
     return {
       searchValue: '',
       tableData: [],
+      customDateShow: false,
+      dateSelectValue: '3',
       columns: [
         {
           title: '日期',
@@ -132,10 +143,15 @@ export default {
       this.current = 1
       this.getInventoryLogList()
     },
+    onDateChange(value) {
+      this.startDate = moment(value[0]._d).format(this.dateFormat)
+      this.endDate = moment(value[1]._d).format(this.dateFormat)
+      this.onSearch()
+      this.customDateShow = true
+      this.dateSelectValue = 'custom'
+    },
     onSelectDateChange(value) {
-      // let today = moment(new Date(),this.dateFormat);
-      // console.log(value);
-      // console.log(today);
+      this.customDateShow = false
       switch (value) {
         case '1':
           console.log('今天')
@@ -182,7 +198,7 @@ export default {
       this.getInventoryLogList()
     },
     onPageChange(current, pageSize) {
-      // console.log(pageSize);
+      console.log(pageSize)
       // console.log(this.total);
       this.current = current
       this.getInventoryLogList()
@@ -192,8 +208,10 @@ export default {
       const data = {}
       data.searchKey = this.searchValue
       data.action = this.action
-      data.startDate = this.startDate
-      data.endDate = this.endDate
+      data.startDate =
+        this.startDate === '' ? this.startDate : this.startDate + ' 00:00:00'
+      data.endDate =
+        this.endDate === '' ? this.endDate : this.endDate + ' 23:59:59'
       data.pageNumber = this.current
       data.pageSize = this.pageSize
       this.$api.Inventory.getInventoryLogList(data)
