@@ -33,7 +33,7 @@
                     labelAlign="left"
                     prop="unit"
                   >
-                    <NNN v-model="list.unit" style="width: 175px" />
+                    <translate v-model="list.unit" style="width: 175px" />
                   </a-form-model-item>
                   <a-form-model-item
                     class="custom-form-item"
@@ -178,12 +178,12 @@
 
 <script>
 import axios from "axios";
-import NNN from "@/components/NNN";
+import translate from "@/components/translate";
 import { computedWeight } from "@/unit/dictionary/computed";
 // import AAA from "@/components/AAA";
 export default {
   name: "Merchant",
-  components: { NNN },
+  components: { translate },
   data() {
     return {
       loading: false,

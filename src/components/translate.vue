@@ -14,7 +14,7 @@
 import {dWeight} from "@/unit/dictionary";
 
 export default {
-  name: 'NNN',
+  name: 'translate',
   props: {
     value: {
       required: true,
