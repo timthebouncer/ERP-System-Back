@@ -238,8 +238,9 @@
             </a-form-model>
           </div>
           <template slot="footer">
-            <div v-show="changeTitle === '編輯客戶'">
-              <span>上次更新時間{{list.updateTime}}</span>
+            <div v-if="list.updateTime">
+              <span>上次更新時間: {{list.updateTime.split(" ")[0]}}<span style="display: inline-block; width: 10px;" />
+                {{list.updateTime.split(" ")[1]}}</span>
             </div>
             <a-button
                 v-show="changeTitle === '新增客戶'"
