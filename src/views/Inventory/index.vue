@@ -308,7 +308,19 @@
           </div>
           <span v-else></span>
         </template>
-
+        <template slot="barCode" slot-scope="text, record">
+          <div
+            @click="handleExpand(record.id)"
+            style="height: 20px; cursor: pointer;"
+          >
+            <span>{{ text !== undefined ? text : ' ' }}</span>
+          </div>
+        </template>
+        <template slot="productName" slot-scope="text, record">
+          <div @click="handleExpand(record.id)" style="cursor: pointer;">
+            <span>{{ text }}</span>
+          </div>
+        </template>
         <template slot="amount" slot-scope="text, record">
           <editable-cell
             v-if="!record.inventoryList.length"
