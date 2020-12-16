@@ -271,7 +271,7 @@
           class="search-select"
           v-model="match.name"
           style="width: 100px"
-          @change="getCustomerList"
+          @change="customerSelection"
         >
           <a-select-option value="">
             全部
@@ -283,7 +283,7 @@
         <div class="search-input">
           <a-input-search
             v-model="search"
-            placeholder="搜尋客戶"
+            placeholder="搜尋資料"
             enter-button
             AutoFoucus
             @search="searchHandler"
@@ -391,8 +391,8 @@ export default {
         companyTel: null,
         companyFax: null,
         companyEmail: null,
-        companyPostCode: null,
-        companyAddress: null,
+        companyPostCode: "",
+        companyAddress: "",
         updateTime: ""
       },
       discountClass: [],
@@ -529,7 +529,7 @@ export default {
           title: '商品名稱',
           dataIndex: 'productName',
           align: 'center',
-          customRender: (value, row, index) => {
+          customRender: (value, row, index=1) => {
             if (row.name === '') {
               return {
                 children: (
@@ -537,7 +537,7 @@ export default {
                     <a-select
                       value={row.productId}
                       placeholder="請選擇"
-                      onChange={id => this.pushValue(id, index)}
+                      onChange={id => this.pushValue(id, index= (this.current-1)*this.pageSize + index )}
                       show-search
                       filter-option={this.filterOption}
                     >
@@ -577,7 +577,6 @@ export default {
           align: 'center',
           width: 100,
           customRender: (val, row) => {
-            console.log(row, 999)
             return this.priceAndRemarkEditor(val, row, 'discountPrice')
           },
           scopedSlots: { customRender: 'discountPrice' }
@@ -604,7 +603,7 @@ export default {
                   <div>
                     <a-popconfirm
                       title="確定要刪除嗎?"
-                      onConfirm={() => this.deleteDiscount(row, index)}
+                      onConfirm={() => this.deleteDiscount(row, index=((this.current-1)*this.pageSize+index))}
                     >
                       <a>刪除</a>
                     </a-popconfirm>
@@ -658,7 +657,6 @@ export default {
         let editKey =
           'isEdit' + key[0].toUpperCase() + key.substring(1, key.length)
         // let editKey = key==='remark'?'isEditRemark':'isEditDiscountPrice';
-        console.log(row, 123)
         if (row.using === false) {
           return <div>{row[key]}</div>
         } else{
@@ -740,6 +738,22 @@ export default {
           console.log(err)
         })
     },
+    customerSelection(){
+      this.$api.Customer.getList({
+        searchKeyword: this.search,
+        className: this.match.name,
+        pageNumber: 1,
+        pageSize: this.pageSize
+      })
+          .then(res => {
+            this.current = 1
+            this.total = res.data.totalElements
+            this.tableData = res.data.content
+          })
+          .catch(err => {
+            console.log(err)
+          })
+    },
     showModal() {
       this.visible = true
       this.changeTitle = '新增客戶'
@@ -797,6 +811,7 @@ export default {
             })
             .then(() => {
             this.getCustomerList()
+              this.keepSelection()
             this.$message.success('新增客戶成功')
             })
             .catch(err => {
@@ -884,6 +899,7 @@ export default {
                 this.$message.error('編輯客戶失敗')
               })
             this.visible = false
+            this.clearInput();
           }
         }
       })
@@ -960,34 +976,48 @@ export default {
     discountTableChange({ current, pageSize }) {
       this.current = current
       this.pageSize = pageSize
+      // this.$api.Commodity.getCommodityList({
+      //   productName: this.search,
+      //   pageNumber: this.current,
+      //   pageSize: this.pageSize
+      // })
+      //     .then(res => {
+      //       console.log(res)
+      //       this.total = res.data.totalElements;
+      //       this.tableData = res.data.content;
+      //     })
+      //     .catch(err => {
+      //       console.log(err);
+      //     });
     },
     searchHandler() {
       this.getCustomerList()
     },
-    deleteDiscount(row, index) {
+    async deleteDiscount(row, index) {
       if (this.changeTitle === '新增客戶') {
         this.discountTable.splice(index, 1)
         this.keepSelection()
       } else {
         if (row.id) {
-          this.$api.Customer.discountRemove(row)
-            .then(() => {
-              this.discountTable.splice(index, 1)
-              this.$message.success('刪除折扣成功')
-              this.keepSelection()
-            })
-            .catch(err => {
-              console.log(err)
-              this.$message.error('刪除折扣失敗')
-            })
+              try{
+                await this.$api.Customer.discountRemove(row)
+                this.discountTable.splice(index, 1)
+                this.$message.success('刪除折扣成功')
+                this.keepSelection()
+              }catch(err){
+                this.$message.error('刪除折扣失敗')
+                console.log(err)
+              }
         } else {
           this.discountTable.splice(index, 1)
           this.keepSelection()
         }
       }
+      if(index%10+1 === 1 && index !==0){
+        this.current --
+      }
     },
     keepSelection() {
-      console.log(this.discountTable,565)
       this.pl = this.discountTable.reduce((p, v) => {
         return v.productId ? { ...p, [v.productId]: true } : p
       }, {})
@@ -1008,22 +1038,25 @@ export default {
       // this.total++
     },
     pushValue(id, index) {
-      const item = this.discountClass.find(item => item.id === id)
-      this.discountTable[index].productId = id
+      console.log(index,666)
+      // const item = this.discountClass.find(item => item.id === id)
+      // console.log(id,item,3213)
+        this.discountTable[index].productId = id
+      console.log(this.discountTable[0])
       this.pl = this.discountTable.reduce((p, v) => {
-        console.log(p)
         return v.productId ? { ...p, [v.productId]: true } : p
       }, {})
-      axios
-        .get(
-          `/erp/product/productList?productName=${item.name}&pageNumber=1&pageSize=10`
-        )
-        .then(res => {
+      // this.$api.Commodity.getCommodityList(
+      // productName: item.name,
+      // pageNumber: this.current,
+      // pageSize: this.pageSize)
+      this.$api.Commodity.getCommodityDetail({
+        searchKey: this.search,
+        barcode: this.barcode
+      }).then(res => {
           let content = res.data.content
           let result = content.find(item => item.id === id)
-          console.log(result, 3333)
           let rows = this.discountTable[index]
-          console.log(rows, 'rows')
           // rows.using = result.using
           rows.productId = result.id
           rows.unit = computedWeight(undefined, result.unit)

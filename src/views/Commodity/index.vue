@@ -366,13 +366,13 @@ export default {
               using: true
             }).then((res) => {
               this.getCommodity();
-              this.clearInput();
               this.$message.success(`新增${res.data.name}成功`);
             }).catch(()=>{
               this.visible = true
               this.$message.error('此商品已存在')
             });
             this.visible = true;
+            this.clearInput();
           }
         }
       });
