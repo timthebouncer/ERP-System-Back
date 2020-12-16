@@ -296,28 +296,32 @@
           </a-table>
         </template>
         <template slot="expandAction" slot-scope="record">
-          <div v-if="record.inventoryList.length">
+          <div
+            v-if="record.inventoryList.length"
+            class="expandAction"
+            @click="handleExpand(record.id)"
+          >
             <a-icon
               :type="
                 expandIndex.indexOf(record.id) != -1
                   ? 'minus-square'
                   : 'plus-square'
               "
-              @click="handleExpand(record.id)"
             />
           </div>
           <span v-else></span>
         </template>
         <template slot="barCode" slot-scope="text, record">
           <div
+            class="barCodeExpand"
             @click="handleExpand(record.id)"
             style="height: 20px; cursor: pointer;"
           >
             <span>{{ text !== undefined ? text : ' ' }}</span>
           </div>
         </template>
-        <template slot="productName" slot-scope="text, record">
-          <div @click="handleExpand(record.id)" style="cursor: pointer;">
+        <template slot="productName" slot-scope="text">
+          <div>
             <span>{{ text }}</span>
           </div>
         </template>
@@ -1189,5 +1193,28 @@ export default {
 }
 /deep/ .inner-action-td {
   width: 2%;
+}
+.expandAction {
+  position: relative;
+  cursor: pointer;
+}
+.expandAction::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  bottom: -20px;
+  left: -20px;
+}
+.barCodeExpand {
+  position: relative;
+}
+.barCodeExpand::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  bottom: -20px;
+  left: -20px;
 }
 </style>
