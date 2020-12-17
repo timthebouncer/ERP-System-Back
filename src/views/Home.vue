@@ -14,12 +14,9 @@
       </a-layout-header>
       <a-layout style="padding: 0 24px 24px">
         <a-breadcrumb style="margin: 16px 0" :routes="breadcrumbList">
-          <template
-            slot="itemRender"
-            slot-scope="{ route, routes, paths }"
-          >
+          <template slot="itemRender" slot-scope="{ route, routes, paths }">
             <span v-if="routes.indexOf(route) === routes.length - 1">
-              {{ route.name }}
+              {{ labelMode == 'add' ? route.name : '編輯標籤' }}
             </span>
             <router-link v-else :to="paths.join('/')">
               {{ route.name }}
@@ -42,38 +39,41 @@
 </template>
 
 <script>
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
+import Header from '../components/Header'
+import Sidebar from '../components/Sidebar'
 export default {
-  name: "Home",
+  name: 'Home',
   components: { Sidebar, Header },
   data() {
     return {
       breadcrumbList: [],
-      routes: []
-    };
+      routes: [],
+      labelMode: ''
+    }
   },
   mounted() {
     // this.$router.push('Inventory').catch(()=>{});
-    this.updateList();
+    this.updateList()
     // console.log(this.$route);
   },
   watch: {
     $route() {
-      this.updateList();
+      this.updateList()
     }
   },
   methods: {
     routeTo(pRouteTo) {
       if (this.breadcrumbList[pRouteTo].link) {
-        this.$router.push(this.breadcrumbList[pRouteTo].link);
+        this.$router.push(this.breadcrumbList[pRouteTo].link)
       }
     },
     updateList() {
-      this.breadcrumbList = this.$route.meta.breadcrumb;
+      this.breadcrumbList = this.$route.meta.breadcrumb
+      this.labelMode =
+        this.$route.name == 'EditLabel' ? this.$store.state.labelMode : 'add'
     }
   }
-};
+}
 </script>
 
 <style scoped></style>

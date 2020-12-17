@@ -25,7 +25,7 @@
     <a-divider />
     <a-layout style="width: 100%; height: 700px;">
       <a-row type="flex" style="height: 100%;" align="middle">
-        <a-col :span="8" style="height: 100%;">
+        <a-col :span="10" style="height: 100%;">
           <a-row class="label-control" align="middle" style="height: 100%;">
             <a-row
               class="label-wrap"
@@ -33,7 +33,7 @@
               justify="space-between"
               align="middle"
             >
-              <a-col>
+              <a-col :span="10">
                 <a-auto-complete
                   v-model="searchProductName"
                   @search="searchProduct"
@@ -52,33 +52,40 @@
                 </a-auto-complete>
                 <a-button type="primary" @click="resetTag">重置</a-button>
               </a-col>
-              <a-col>
-                <a-upload
-                  name="avatar"
-                  list-type="picture-card"
-                  class="avatar-uploader"
-                  :show-upload-list="false"
-                  action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                  :before-upload="beforeUpload"
-                  @change="uploadChange"
-                >
-                  <!--                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"-->
-                  <!--                :customRequest="uploadImage"-->
-                  <img
-                    v-if="logoImageUrl"
-                    class="logoImg"
-                    :src="logoImageUrl"
-                    alt="avatar"
-                    style="width: 200px; height: 55px;"
-                    @drag="handleDrag(logoTag, 'Logo')"
-                  />
-                  <div v-else>
-                    <a-icon :type="loading ? 'loading' : 'plus'" />
-                    <div class="ant-upload-text">
-                      上傳圖片
+              <a-col :span="14">
+                <a-row>
+                  <span style="color: red;"
+                    >*請上傳JPEG、PNG檔案格式圖片，圖片大小不超過2MB</span
+                  >
+                </a-row>
+                <a-row style="">
+                  <a-upload
+                    name="avatar"
+                    list-type="picture-card"
+                    class="avatar-uploader"
+                    :show-upload-list="false"
+                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                    :before-upload="beforeUpload"
+                    @change="uploadChange"
+                  >
+                    <!--                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"-->
+                    <!--                :customRequest="uploadImage"-->
+                    <img
+                      v-if="logoImageUrl"
+                      class="logoImg"
+                      :src="logoImageUrl"
+                      alt="avatar"
+                      style="width: 200px; height: 55px;"
+                      @drag="handleDrag(logoTag, 'Logo')"
+                    />
+                    <div v-else>
+                      <a-icon :type="loading ? 'loading' : 'plus'" />
+                      <div class="ant-upload-text">
+                        上傳圖片
+                      </div>
                     </div>
-                  </div>
-                </a-upload>
+                  </a-upload>
+                </a-row>
               </a-col>
             </a-row>
             <a-row class="label-wrap" type="flex" justify="space-between">
@@ -87,12 +94,14 @@
                 class="tags"
                 @drag="handleDrag(productNameTag, 'productName')"
                 draggable
+                style="margin-left: 50px;"
                 >{{ productNameTag }}</a-col
               ><a-col
                 :span="6"
                 class="tags"
                 @drag="handleDrag(barcodeTag, 'barcode')"
                 draggable
+                style="margin-right: 50px;"
               >
                 <img
                   v-if="barcodeImageUrl"
@@ -110,6 +119,7 @@
                 class="tags"
                 @drag="handleDrag(costPriceTag, 'costPrice')"
                 draggable
+                style="margin-left: 50px;"
                 >{{ costPriceTag }}</a-col
               >
               <a-col
@@ -117,6 +127,7 @@
                 class="tags"
                 @drag="handleDrag(listPriceTag, 'listPrice')"
                 draggable
+                style="margin-right: 50px;"
                 >{{ listPriceTag }}</a-col
               >
             </a-row>
@@ -126,6 +137,7 @@
                 class="tags"
                 @drag="handleDrag(weightTag, 'weight')"
                 draggable
+                style="margin-left: 50px;"
                 >{{ weightTag }}</a-col
               >
               <a-col
@@ -133,6 +145,7 @@
                 class="tags"
                 @drag="handleDrag(unitTag, 'unit')"
                 draggable
+                style="margin-right: 50px;"
                 >{{ unitTag }}</a-col
               >
             </a-row>
@@ -142,6 +155,7 @@
                 class="tags"
                 @drag="handleDrag(salesPriceTag, 'salesPrice')"
                 draggable
+                style="margin-left: 50px;"
                 >{{ salesPriceTag }}</a-col
               >
               <a-col
@@ -149,19 +163,22 @@
                 class="tags"
                 @drag="handleDrag('text', 'text')"
                 draggable
+                style="margin-right: 50px;"
                 >TEXT</a-col
               >
             </a-row>
           </a-row>
         </a-col>
-        <a-col :span="16" style="height: 100%;">
+        <a-col :span="14" style="height: 100%;">
           <!--          <a-row style="height: 10%;">-->
 
           <!--          </a-row>-->
           <!--          <a-row type="flex" style="height: 90%;" align="middle" justify="center">-->
           <div class="label-canvas">
             <span>
-              <span>＊重量預設顯示100，列印時會依實際重量為主</span>
+              <span style="color: red;"
+                >＊重量預設顯示100，列印時會依實際重量為主</span
+              >
               <br />
               <span style="color: red;">＊注意:實際列印範圍為白色區塊</span>
             </span>
@@ -562,7 +579,12 @@ export default {
       }
     },
     handleClickTags(e) {
-      if (e.target && e.target.name != 'barcode' && e.target.name != 'Logo') {
+      if (
+        e.target &&
+        e.target.name != 'barcode' &&
+        e.target.name != 'Logo' &&
+        e.target.type != 'rect'
+      ) {
         this.tagItem = e.target
         this.$refs.tagsDetail.visible = true
       }
@@ -935,5 +957,11 @@ export default {
 }
 /deep/ .ant-modal-body {
   background: #b2b2b2;
+}
+/deep/ .ant-upload-picture-card-wrapper {
+  display: flex;
+}
+/deep/ .ant-upload {
+  margin: auto;
 }
 </style>

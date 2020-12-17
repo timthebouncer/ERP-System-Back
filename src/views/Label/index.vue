@@ -33,29 +33,26 @@
         <template slot="action" slot-scope="text, record">
           <a-row type="flex">
             <a-col :span="11" align="right"
-              ><a-button @click="onEdit(record)">編輯</a-button></a-col
+              ><a-button type="link" size="small" @click="onEdit(record)"
+                >編輯</a-button
+              ></a-col
             >
             <a-col :span="2"></a-col>
-            <a-col :span="11" align="left"
-              >
+            <a-col :span="11" align="left">
               <a-popconfirm
-                      class="labelDeletePopconfirm"
-                      @confirm="() => onDelete(record)"
+                class="labelDeletePopconfirm"
+                @confirm="() => onDelete(record)"
               >
                 <template slot="title">
-                  <span
-                          class="labelDeletePopTitle"
-                          style="font-size: larger;"
-                  >確定刪除此標籤資料嗎?</span
+                  <span class="labelDeletePopTitle" style="font-size: larger;"
+                    >確定刪除此標籤資料嗎?</span
                   >
                 </template>
-                <a-button v-show="!record.showFront"
-                >刪除</a-button>
+                <a-button type="link" size="small" v-show="!record.showFront"
+                  >刪除</a-button
+                >
               </a-popconfirm>
-
-
-              </a-col
-            >
+            </a-col>
           </a-row>
         </template>
       </a-table>
@@ -108,7 +105,7 @@ export default {
           align: 'center'
         },
         {
-          title: '動作',
+          title: '操作',
           dataIndex: 'action',
           width: '10%',
           align: 'center',
@@ -123,12 +120,12 @@ export default {
   },
   methods: {
     onAdd() {
-      sessionStorage.setItem('labelMode','add')
+      sessionStorage.setItem('labelMode', 'add')
       this.$store.state.labelMode = 'add'
       this.$router.push('EditLabel').catch(() => {})
     },
     onEdit(record) {
-      sessionStorage.setItem('labelMode','edit')
+      sessionStorage.setItem('labelMode', 'edit')
       this.$store.state.labelMode = 'edit'
       const data = {}
       data.id = record.id
@@ -138,7 +135,7 @@ export default {
       data.height = record.height
       data.wide = record.wide
       this.$store.state.labelData = data
-      sessionStorage.setItem('labelData',JSON.stringify(data))
+      sessionStorage.setItem('labelData', JSON.stringify(data))
       this.$router.push('EditLabel').catch(() => {})
     },
     onDelete(record) {
