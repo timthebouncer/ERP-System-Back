@@ -7,7 +7,7 @@
           <a-button class="addButton1" @click="showAddPurchaseView"
             >入庫</a-button
           >
-          <a-button class="addButton2" @click="showAddOrderView">出庫</a-button>
+          <a-button class="addButton2" @click="showAddOrderView">出貨</a-button>
         </a-space>
       </div>
       <div>
@@ -23,7 +23,7 @@
             ><span>{{ moment(new Date()).format('YYYY-MM-DD') }}</span>
           </div>
           <div class="class-input" style="display: flex;">
-            <span>商品條碼:</span>
+            <span style="line-height:29px">商品條碼:</span>
             <a-auto-complete
               v-model="searchBarcode"
               placeholder="請輸入商品條碼"
@@ -50,7 +50,7 @@
             >{{ computedWeight(undefined, addInventoryProductUnit) }}
           </div>
           <div class="class-input" style="display: flex;">
-            <span>數量:</span>
+            <span style="line-height: 35px">數量:</span>
             <a-form :form="form">
               <a-form-item>
                 <a-input
@@ -221,7 +221,7 @@
           </div>
           <template slot="footer">
             <a-button key="submit" type="primary" @click="handleOk">
-              出庫確認
+              出貨確認
             </a-button>
             <a-button key="back" @click="handleCancel">
               取消
@@ -407,7 +407,7 @@ export default {
       purchaseViewVisible: false,
       orderViewVisible: false,
       purchaseModalTitle: '入庫',
-      orderModalTitle: '出庫',
+      orderModalTitle: '出貨',
       list: {},
       remark: '',
       barcode: '',
@@ -796,7 +796,7 @@ export default {
           }
         })
       }).then(res => {
-        alert(`出庫確認成功，已新增銷貨單號:${res.data.orderNo}`)
+        alert(`出貨確認成功，已新增銷貨單號:${res.data.orderNo}`)
         this.orderViewVisible = false
         console.log(res)
       })
@@ -928,6 +928,7 @@ export default {
           console.log(res)
           this.purchaseViewVisible = true
           this.addSearchValue = ''
+          this.searchBarcode = ''
           this.addInventoryData = []
           this.addInventoryProductId = ''
           this.addInventoryProductName = ''
