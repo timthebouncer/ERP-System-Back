@@ -47,7 +47,7 @@
                     <a-input v-model="list.listPrice" placeholder="請輸入" />
                   </a-form-model-item>
 
-                  <a-form-model-item class="custom-form-item" label="成本售價" prop="costPrice">
+                  <a-form-model-item class="custom-form-item" label="成本價" prop="costPrice">
                     <a-input v-model="list.costPrice" placeholder="請輸入" />
                   </a-form-model-item>
 

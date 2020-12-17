@@ -53,8 +53,8 @@
                       <div
                         class="detail-menu"
                       >
-                        <span> 銷貨日期: {{ record.date }} </span>
-                        <span> 銷貨單號: {{ record.orderNo }} </span>
+                        <span> 出貨日期: {{ record.date }} </span>
+                        <span> 出貨單號: {{ record.orderNo }} </span>
                         <span> 客戶姓名: {{ record.clientName }} </span>
                       </div>
                     </template>

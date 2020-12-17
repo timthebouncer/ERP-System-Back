@@ -239,15 +239,17 @@
           </div>
           <template slot="footer">
             <div v-if="list.updateTime">
-              <span>上次更新時間: {{list.updateTime.split(" ")[0]}}<span style="display: inline-block; width: 10px;" />
-                {{list.updateTime.split(" ")[1]}}</span>
+              <span
+                >上次更新時間: {{ list.updateTime.split(' ')[0]
+                }}<span style="display: inline-block; width: 10px;" />
+                {{ list.updateTime.split(' ')[1] }}</span
+              >
             </div>
             <a-button
-                v-show="changeTitle === '新增客戶'"
-                key="submit"
-                type="primary"
-                :loading="loading"
-                @click="submitNonstop()"
+              v-show="changeTitle === '新增客戶'"
+              type="primary"
+              :loading="loading"
+              @click="submitNonstop()"
             >
               儲存並新增
             </a-button>
@@ -391,9 +393,9 @@ export default {
         companyTel: null,
         companyFax: null,
         companyEmail: null,
-        companyPostCode: "",
-        companyAddress: "",
-        updateTime: ""
+        companyPostCode: '',
+        companyAddress: '',
+        updateTime: ''
       },
       discountClass: [],
       columns: [
@@ -478,10 +480,14 @@ export default {
             trigger: 'blur'
           }
         ],
-        vatNumber: [{ pattern:/^\d+$/, message: '請輸入數字', trigger: 'blur' }],
-        postCode: [{ pattern:/^\d+$/, message: '請輸入數字', trigger: 'blur' }],
+        vatNumber: [
+          { pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }
+        ],
+        postCode: [
+          { pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }
+        ],
         companyPostCode: [
-          { pattern:/^\d+$/, message: '請輸入數字', trigger: 'blur' }
+          { pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }
         ],
         email: [
           {
@@ -529,7 +535,7 @@ export default {
           title: '商品名稱',
           dataIndex: 'productName',
           align: 'center',
-          customRender: (value, row, index=1) => {
+          customRender: (value, row, index = 1) => {
             if (row.name === '') {
               return {
                 children: (
@@ -537,7 +543,12 @@ export default {
                     <a-select
                       value={row.productId}
                       placeholder="請選擇"
-                      onChange={id => this.pushValue(id, index= (this.current-1)*this.pageSize + index )}
+                      onChange={id =>
+                        this.pushValue(
+                          id,
+                          (index = (this.current - 1) * this.pageSize + index)
+                        )
+                      }
                       show-search
                       filter-option={this.filterOption}
                     >
@@ -603,7 +614,12 @@ export default {
                   <div>
                     <a-popconfirm
                       title="確定要刪除嗎?"
-                      onConfirm={() => this.deleteDiscount(row, index=((this.current-1)*this.pageSize+index))}
+                      onConfirm={() =>
+                        this.deleteDiscount(
+                          row,
+                          (index = (this.current - 1) * this.pageSize + index)
+                        )
+                      }
                     >
                       <a>刪除</a>
                     </a-popconfirm>
@@ -632,25 +648,25 @@ export default {
     // if(res.data === false || res.code === "401"){
     //   this.$router.push('/')
     // }else{
-      this.getCustomerList()
-      this.$api.Customer.getClass()
+    this.getCustomerList()
+    this.$api.Customer.getClass()
       .then(res => {
         this.classify = res.data
       })
       .catch(err => {
         console.log(err)
       })
-      this.$api.Commodity.getCommodityDetail({
-        searchKey: this.search,
-        barcode: this.barcode
-      }).then(res => {
-        this.discountClass = res.data
-      })
+    this.$api.Commodity.getCommodityDetail({
+      searchKey: this.search,
+      barcode: this.barcode
+    }).then(res => {
+      this.discountClass = res.data
+    })
     // }
   },
   computed: {
-    ListpostCode(){
-      return parseInt(this.list.postCode, 10);
+    ListpostCode() {
+      return parseInt(this.list.postCode, 10)
     },
     priceAndRemarkEditor() {
       return (val, row, key) => {
@@ -659,38 +675,38 @@ export default {
         // let editKey = key==='remark'?'isEditRemark':'isEditDiscountPrice';
         if (row.using === false) {
           return <div>{row[key]}</div>
-        } else{
+        } else {
           return {
             children: (
-                <div class="displayInput">
-                  {row[editKey] ? (
-                      <div>
-                        <a-input
-                            autoFocus
-                            placeholder="請輸入"
-                            value={row[key]}
-                            vModel={row[key]}
-                            vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
-                            onKeyup={() =>
-                                key === 'discountPrice' &&
-                                (row[key] = row[key].replace(/[^\d]/g, ''))
-                            }
-                        />
-                      </div>
-                  ) : (
-                      <Fragment>
+              <div class="displayInput">
+                {row[editKey] ? (
+                    <Fragment>
                     <span onClick={() => this.inputORnot(row, editKey)}>
                       {val}
                     </span>
-                        <div class="displayEdit" />
-                        <a-icon
-                            class="editable-cell-icon"
-                            type="edit"
-                            onClick={() => this.inputORnot(row, editKey)}
-                        />
-                      </Fragment>
-                  )}
-                </div>
+                      <div class="displayEdit" />
+                      <a-icon
+                          class="editable-cell-icon"
+                          type="edit"
+                          onClick={() => this.inputORnot(row, editKey)}
+                      />
+                    </Fragment>
+                ) : (
+                    <div>
+                      <a-input
+                          autoFocus
+                          placeholder="請輸入"
+                          value={row[key]}
+                          vModel={row[key]}
+                          vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
+                          onKeyup={() =>
+                              key === 'discountPrice' &&
+                              (row[key] = row[key].replace(/[^\d]/g, ''))
+                          }
+                      />
+                    </div>
+                )}
+              </div>
             )
           }
         }
@@ -718,10 +734,10 @@ export default {
       )
     },
     addNewItem(row, editKey) {
-      row[editKey] = false
+      row[editKey] = true
     },
     inputORnot(row, editKey) {
-      row[editKey] = true
+      row[editKey] = false
     },
     getCustomerList() {
       this.$api.Customer.getList({
@@ -738,26 +754,26 @@ export default {
           console.log(err)
         })
     },
-    customerSelection(){
+    customerSelection() {
       this.$api.Customer.getList({
         searchKeyword: this.search,
         className: this.match.name,
         pageNumber: 1,
         pageSize: this.pageSize
       })
-          .then(res => {
-            this.current = 1
-            this.total = res.data.totalElements
-            this.tableData = res.data.content
-          })
-          .catch(err => {
-            console.log(err)
-          })
+        .then(res => {
+          this.current = 1
+          this.total = res.data.totalElements
+          this.tableData = res.data.content
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     showModal() {
       this.visible = true
       this.changeTitle = '新增客戶'
-      this.pl=[]
+      this.pl = []
     },
     clearInput() {
       this.list = {
@@ -779,7 +795,7 @@ export default {
       this.discountTable = []
       this.resetForm()
     },
-    submitNonstop(){
+    submitNonstop() {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
           if (this.changeTitle === '新增客戶') {
@@ -809,20 +825,20 @@ export default {
                 }
               })
             })
-            .then(() => {
-            this.getCustomerList()
-              this.keepSelection()
-            this.$message.success('新增客戶成功')
-            })
-            .catch(err => {
-            console.log(err)
-            this.$message.error('新增客戶失敗')
-            })
+              .then(() => {
+                this.getCustomerList()
+                this.keepSelection()
+                this.$message.success('新增客戶成功')
+              })
+              .catch(err => {
+                console.log(err)
+                this.$message.error('新增客戶失敗')
+              })
             this.visible = true
-            this.clearInput();
+            this.clearInput()
           }
         }
-      });
+      })
     },
     handleOk() {
       this.$refs.ruleForm.validate(valid => {
@@ -863,7 +879,7 @@ export default {
                 this.$message.error('新增客戶失敗')
               })
             this.visible = false
-            this.clearInput();
+            this.clearInput()
           } else {
             this.$api.Customer.update({
               clientId: this.track,
@@ -899,7 +915,7 @@ export default {
                 this.$message.error('編輯客戶失敗')
               })
             this.visible = false
-            this.clearInput();
+            this.clearInput()
           }
         }
       })
@@ -921,26 +937,28 @@ export default {
             this.list = res.data
             this.$api.Customer.discountNoPages({
               clientId: this.track
-            }).then(res => {
-              console.log(res, 321)
-              // this.total = res.data.length
-              this.discountTable = res.data.map(d => ({
-                id: d.discountId,
-                name: d.productName,
-                productId: d.productId,
-                unit: computedWeight(d.productUnit),
-                salesPrice: d.productPrice,
-                discountPrice: d.discountPrice,
-                remark: d.remark,
-                isEditDiscountPrice: true,
-                isEditRemark: true,
-                using: d.using,
-                updateTime: d.updateTime
-              }))
-              this.keepSelection()
-            }).catch(() => {
-              this.keepSelection()
             })
+              .then(res => {
+                console.log(res, 321)
+                // this.total = res.data.length
+                this.discountTable = res.data.map(d => ({
+                  id: d.discountId,
+                  name: d.productName,
+                  productId: d.productId,
+                  unit: computedWeight(d.productUnit),
+                  salesPrice: d.productPrice,
+                  discountPrice: d.discountPrice,
+                  remark: d.remark,
+                  isEditDiscountPrice: true,
+                  isEditRemark: true,
+                  using: d.using,
+                  updateTime: d.updateTime
+                }))
+                this.keepSelection()
+              })
+              .catch(() => {
+                this.keepSelection()
+              })
             this.visible = true
           } else {
             alert('123')
@@ -976,19 +994,6 @@ export default {
     discountTableChange({ current, pageSize }) {
       this.current = current
       this.pageSize = pageSize
-      // this.$api.Commodity.getCommodityList({
-      //   productName: this.search,
-      //   pageNumber: this.current,
-      //   pageSize: this.pageSize
-      // })
-      //     .then(res => {
-      //       console.log(res)
-      //       this.total = res.data.totalElements;
-      //       this.tableData = res.data.content;
-      //     })
-      //     .catch(err => {
-      //       console.log(err);
-      //     });
     },
     searchHandler() {
       this.getCustomerList()
@@ -999,22 +1004,22 @@ export default {
         this.keepSelection()
       } else {
         if (row.id) {
-              try{
-                await this.$api.Customer.discountRemove(row)
-                this.discountTable.splice(index, 1)
-                this.$message.success('刪除折扣成功')
-                this.keepSelection()
-              }catch(err){
-                this.$message.error('刪除折扣失敗')
-                console.log(err)
-              }
+          try {
+            await this.$api.Customer.discountRemove(row)
+            this.discountTable.splice(index, 1)
+            this.$message.success('刪除折扣成功')
+            this.keepSelection()
+          } catch (err) {
+            this.$message.error('刪除折扣失敗')
+            console.log(err)
+          }
         } else {
           this.discountTable.splice(index, 1)
           this.keepSelection()
         }
       }
-      if(index%10+1 === 1 && index !==0){
-        this.current --
+      if ((index % 10) + 1 === 1 && index !== 0) {
+        this.current--
       }
     },
     keepSelection() {
@@ -1038,11 +1043,9 @@ export default {
       // this.total++
     },
     pushValue(id, index) {
-      console.log(index,666)
       // const item = this.discountClass.find(item => item.id === id)
       // console.log(id,item,3213)
-        this.discountTable[index].productId = id
-      console.log(this.discountTable[0])
+      this.discountTable[index].productId = id
       this.pl = this.discountTable.reduce((p, v) => {
         return v.productId ? { ...p, [v.productId]: true } : p
       }, {})
@@ -1054,15 +1057,16 @@ export default {
         searchKey: this.search,
         barcode: this.barcode
       }).then(res => {
-          let content = res.data.content
-          let result = content.find(item => item.id === id)
-          let rows = this.discountTable[index]
-          // rows.using = result.using
-          rows.productId = result.id
-          rows.unit = computedWeight(undefined, result.unit)
-          rows.salesPrice = result.salesPrice
-          rows.using = result.using
-        })
+        console.log(res)
+        let content = res.data
+        let result = content.find(item => item.id === id)
+        let rows = this.discountTable[index]
+        // rows.using = result.using
+        rows.productId = result.id
+        rows.unit = computedWeight(undefined, result.unit)
+        rows.salesPrice = result.salesPrice
+        rows.using = result.using
+      })
     }
   }
 }
@@ -1171,14 +1175,11 @@ export default {
   //position: absolute;
 }
 .editable-cell-icon {
-  display: none;
+  display: block;
   position: relative;
   z-index: 1;
   cursor: pointer;
   top: 3.5px;
 }
 
-.editable-cell-icon:hover {
-  display: block;
-}
 </style>

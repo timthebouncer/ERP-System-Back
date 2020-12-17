@@ -22,9 +22,9 @@
           </a-menu-item>
         </a-sub-menu>
         <a-sub-menu key="sub2">
-          <span slot="title"><a-icon type="dollar" /><span>銷貨管理</span></span>
+          <span slot="title"><a-icon type="shop" /><span>出貨管理</span></span>
           <a-menu-item key="Distribute" @click="()=>{$router.push('Distribute').catch(()=>{})}">
-            銷貨資料
+            出貨資料
           </a-menu-item>
         </a-sub-menu>
         <a-sub-menu key="sub3">

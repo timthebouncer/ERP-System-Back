@@ -99,12 +99,12 @@
               <!--              :rules="rules"-->
               <div class="firstPart">
                 <div class="firstPart-item">
-                  <a-form-model-item class="custom-form-item" label="銷貨日期">
+                  <a-form-model-item class="custom-form-item" label="出貨日期">
                     <div>{{ list.date }}</div>
                   </a-form-model-item>
                   <a-form-model-item
                     class="custom-form-item"
-                    label="銷貨單號"
+                    label="出貨單號"
                     prop="classes"
                   >
                   </a-form-model-item>
@@ -197,7 +197,7 @@
               <div class="second-part">
                 <div class="second-part-item">
                   <div>
-                    銷貨商品
+                    出貨商品
                     <a-button
                       type="primary"
                       size="small"
@@ -516,7 +516,7 @@ export default {
         {
           title: '商品條碼',
           dataIndex: 'barCode',
-          width: '23%',
+          width: '27%',
           align: 'center',
           customRender: (value, row) => {
             return {
@@ -525,7 +525,7 @@ export default {
                   <a-input
                     onChange={barCode => this.pushName(barCode, row)}
                     vModel={row.barCode}
-                    placeholder="請掃一維碼或手動輸入"
+                    placeholder="請手動輸入商品條碼"
                   ></a-input>
                 </div>
               )
@@ -536,8 +536,10 @@ export default {
         {
           title: '商品名稱',
           dataIndex: 'name',
+          width: '27%',
           align: 'center',
           customRender: (value, row, index) => {
+            console.log(row)
             return {
               children: (
                 <div>
@@ -548,7 +550,7 @@ export default {
                     show-search
                     filter-option={this.filterOption}
                   >
-                    {this.filterName(row).map(item => {
+                    {this.inventoryList.map(item => {
                       return (
                         <a-select-option value={item.id}>
                           {item.name}
@@ -585,7 +587,7 @@ export default {
           scopedSlots: { customRender: 'stockAmount' }
         },
         {
-          title: '銷貨金額',
+          title: '出貨金額',
           dataIndex: 'orderPrice',
           align: 'center',
           customRender: (_, row) => {
@@ -732,17 +734,12 @@ export default {
     },
     pushValue(id, index) {
       this.orderData[index].productId = id
-      this.$api.Commodity.getCommodityList({
-        productName: this.search,
-        pageNumber: this.current,
-        pageSize: this.pageSize
+      this.$api.Commodity.getCommodityDetail({
+        searchKey: '',
+        barcode: ''
       }).then(res => {
-        console.log(res)
-        let content = res.data.content
+        let content = res.data
         let value = content.find(item => item.id === id)
-        // let result = this.goodsTable.find(item => {
-        //   return item.id === id
-        // })
         let rows = this.orderData[index]
         rows.barCode = value.barcode
         rows.productId = value.id
@@ -751,39 +748,69 @@ export default {
       })
     },
     pushName(barCode, row) {
-      console.log(this.inventoryList, 12)
-      console.log(barCode, row, 66)
-      this.inventoryList.filter(item => {
-        if (item.barcode === row.barCode) {
-          row.productId = item.id
-          row.unit = computedWeight(undefined, item.unit)
-          row.salesPrice = item.salesPrice
-        }
-        return item.barcode === row.barCode
-      })
-    },
-    filterName(row) {
-      console.log(row, 32)
-      return this.inventoryList.filter(item => {
-        return item.barcode?.indexOf(row.barCode) > -1 && item.barcode !== ''
-      })
-    },
-    handleOk() {
-      this.$api.Distribute.addOrder({
-        clientId: this.list.id,
-        remark: this.remark,
-        orderItemRequestList: this.orderData.map(item => {
-          return {
-            barcode: item.barCode,
-            price: item.salesPrice,
-            amount: item.stockAmount
+      console.log(row, 66)
+      if(row.barCode !== ""){
+        this.inventoryList.filter(item => {
+          if (item.barcode === row.barCode) {
+            row.productId = item.id
+            row.unit = computedWeight(undefined, item.unit)
+            row.salesPrice = item.salesPrice
           }
+          return item.barcode === row.barCode
         })
-      }).then(res => {
-        alert(`出貨確認成功，已新增銷貨單號:${res.data.orderNo}`)
-        this.orderViewVisible = false
-        console.log(res)
-      })
+      }else {
+       row.productId = ""
+      }
+    },
+    // filterName(row) {
+    //   return this.inventoryList.filter(item => {
+    //     return item.barcode?.indexOf(row.barCode) > -1 && item.barcode !== ''
+    //   })
+    // },
+    // handleOk() {
+    //   this.$api.Distribute.addOrder({
+    //     clientId: this.list.id,
+    //     remark: this.remark,
+    //     orderItemRequestList: this.orderData.map(item => {
+    //       return {
+    //         barcode: item.barCode,
+    //         price: item.salesPrice,
+    //         amount: item.stockAmount
+    //       }
+    //     })
+    //   }).then(res => {
+    //     alert(`出貨確認成功，已新增銷貨單號:${res.data.orderNo}`)
+    //     this.orderViewVisible = false
+    //     console.log(res)
+    //   })
+    // },
+    handleOk() {
+      if(this.list.id){
+        if(this.orderData.productId === undefined){
+          console.log(this.orderData)
+          this.$api.Distribute.addOrder({
+            clientId: this.list.id,
+            remark: this.remark,
+            orderItemRequestList: this.orderData.map(item => {
+              return {
+                barcode: item.barCode,
+                price: item.salesPrice,
+                amount: item.stockAmount
+              }
+            })
+          }).then(res => {
+            alert(`出貨確認成功，已新增出貨單號:${res.data.orderNo}`)
+            this.orderViewVisible = false
+            this.handleCancel()
+          }).catch(()=>{
+            this.$message.error("出貨量大於庫存量")
+          })
+        }else {
+          this.$message.error("請選擇商品")
+        }
+      } else {
+        this.$message.error("請選擇客戶")
+      }
     },
     getInventoryList(productName) {
       this.tableData = []
@@ -857,6 +884,7 @@ export default {
       this.orderViewVisible = false
       this.orderData = []
       this.list = {}
+      this.remark = ""
     },
     addInventoryCancel() {
       this.purchaseViewVisible = false
@@ -965,11 +993,11 @@ export default {
         this.customerList = res.data
       })
     },
-    CommodityDetail(value) {
+    CommodityDetail() {
       this.barCodeSelection = []
       this.$api.Commodity.getCommodityDetail({
         searchKey: '',
-        barcode: value
+        barcode: ''
       }).then(res => {
         this.inventoryList = res.data
         let data = []
@@ -1113,7 +1141,8 @@ export default {
 }
 .displayInput {
   display: flex;
-  justify-content: space-between;
+  line-height: 15px;
+  justify-content: center;
 }
 .displayEdit {
   position: absolute;
