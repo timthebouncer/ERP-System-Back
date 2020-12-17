@@ -850,7 +850,8 @@ export default {
       data.amount = value
       this.$api.Inventory.edit(data)
         .then(() => {
-          this.getInventoryList(this.search)
+          // this.getInventoryList(this.search)
+          this.$message.success('庫存量已變更!')
         })
         .catch(err => {
           console.log(err)
