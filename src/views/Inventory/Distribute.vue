@@ -46,17 +46,15 @@
         >
           <div :key="col">
             <template v-if="col === 'orderNo'">
-              <a-popover
-                placement="bottomLeft"
-                trigger="click"
-                @visibleChange="showDetail(record)"
-              >
+              <a-popover placement="bottomLeft" trigger="click" @visibleChange="showDetail(record)">
                 <template slot="content">
                   <div>
                     <template>
-                      <div class="detail-menu">
-                        <span> 銷貨日期: {{ record.date }} </span>
-                        <span> 銷貨單號: {{ record.orderNo }} </span>
+                      <div
+                        class="detail-menu"
+                      >
+                        <span> 出貨日期: {{ record.date }} </span>
+                        <span> 出貨單號: {{ record.orderNo }} </span>
                         <span> 客戶姓名: {{ record.clientName }} </span>
                       </div>
                     </template>
@@ -104,14 +102,18 @@
         </template>
         <template slot="operation" slot-scope="text, record">
           <template v-if="record.remark === '註銷'">
-            <a-button type="link" size="small" disabled>取消訂單</a-button>
+            <a-button type="link" size="small" disabled
+            >取消訂單</a-button
+            >
           </template>
           <template v-else>
             <a-popconfirm
-              title="取消訂單後將無法復原"
-              @confirm="() => cancelHandler(record)"
+                title="取消訂單後將無法復原"
+                @confirm="() => cancelHandler(record)"
             >
-              <a-button type="link" size="small">取消訂單</a-button>
+              <a-button type="link" size="small"
+              >取消訂單</a-button
+              >
             </a-popconfirm>
           </template>
         </template>
@@ -137,221 +139,212 @@
   </div>
 </template>
 <script>
-import axios from 'axios'
+import axios from "axios";
 import moment from 'moment'
 export default {
   data() {
     let differentDate = [
-      moment()
-        .date(1)
-        .startOf('day'),
+      moment().date(1).startOf('day'),
       moment().endOf('month')
-    ]
+    ];
     return {
       differentDate,
       tableData: [],
       orderList: [],
-      detailInfo: {},
+      detailInfo:{},
       Calculate: {},
       columns: [
         {
-          title: '日期',
-          dataIndex: 'date',
-          align: 'center',
-          scopedSlots: { customRender: 'date' }
+          title: "日期",
+          dataIndex: "date",
+          align: "center",
+          scopedSlots: { customRender: "date" }
         },
         {
-          title: '單號',
-          dataIndex: 'orderNo',
-          align: 'center',
-          scopedSlots: { customRender: 'orderNo' }
+          title: "單號",
+          dataIndex: "orderNo",
+          align: "center",
+          scopedSlots: { customRender: "orderNo" }
         },
         {
-          title: '客戶',
-          dataIndex: 'clientName',
-          align: 'center',
-          scopedSlots: { customRender: 'clientName' }
+          title: "客戶",
+          dataIndex: "clientName",
+          align: "center",
+          scopedSlots: { customRender: "clientName" }
         },
         {
-          title: '商品數量',
-          dataIndex: 'productAmount',
-          align: 'center',
-          scopedSlots: { customRender: 'productAmount' }
+          title: "商品數量",
+          dataIndex: "productAmount",
+          align: "center",
+          scopedSlots: { customRender: "productAmount" }
         },
         {
-          title: '金額',
-          dataIndex: 'totalPrice',
-          align: 'center',
-          scopedSlots: { customRender: 'totalPrice' }
+          title: "金額",
+          dataIndex: "totalPrice",
+          align: "center",
+          scopedSlots: { customRender: "totalPrice" }
         },
         {
-          title: '操作',
-          dataIndex: 'operation',
-          align: 'center',
-          scopedSlots: { customRender: 'operation' }
+          title: "操作",
+          dataIndex: "operation",
+          align: "center",
+          scopedSlots: { customRender: "operation" }
         },
         {
-          title: '備註',
-          dataIndex: 'remark',
-          align: 'center',
-          scopedSlots: { customRender: 'remark' }
+          title: "備註",
+          dataIndex: "remark",
+          align: "center",
+          scopedSlots: { customRender: "remark" }
         }
       ],
       columns2: [
         {
-          title: '#',
-          dataIndex: 'order',
-          align: 'center',
-          scopedSlots: { customRender: 'order' }
+          title: "#",
+          dataIndex: "order",
+          align: "center",
+          scopedSlots: { customRender: "order" }
         },
         {
-          title: '商品名稱',
-          dataIndex: 'productName',
-          align: 'center',
-          scopedSlots: { customRender: 'productName' }
+          title: "商品名稱",
+          dataIndex: "productName",
+          align: "center",
+          scopedSlots: { customRender: "productName" }
         },
         {
-          title: '單位量',
-          dataIndex: 'unit',
-          align: 'center',
-          scopedSlots: { customRender: 'unit' }
+          title: "單位量",
+          dataIndex: "unit",
+          align: "center",
+          scopedSlots: { customRender: "unit" }
         },
         {
-          title: '售價',
-          dataIndex: 'salesPrice',
-          align: 'center',
-          scopedSlots: { customRender: 'salesPrice' }
+          title: "售價",
+          dataIndex: "salesPrice",
+          align: "center",
+          scopedSlots: { customRender: "salesPrice" }
         },
         {
-          title: '數量',
-          dataIndex: 'amount',
-          align: 'center',
-          scopedSlots: { customRender: 'amount' }
+          title: "數量",
+          dataIndex: "amount",
+          align: "center",
+          scopedSlots: { customRender: "amount" }
         }
       ],
-      search: '',
-      pageSizeOptions: ['10', '30', '50', '100'],
+      search: "",
+      pageSizeOptions: ["10", "30", "50", "100"],
       pageNumber: 1,
       pageSize: 10,
       total: 30,
-      startDate: differentDate[0].format('YYYY-MM-DD'),
-      endDate: differentDate[1].format('YYYY-MM-DD')
-    }
+      startDate:differentDate[0].format("YYYY-MM-DD"),
+      endDate:differentDate[1].format("YYYY-MM-DD")
+    };
   },
-  created() {
+   created() {
     // const res = await this.$api.Login.loginIdentify()
     // console.log(res)
     // if(res.data === false){
     //   this.$router.push('/')
     // }else{
-    this.distributeList()
+      this.distributeList();
     // }
   },
   methods: {
-    changeDate(expression) {
+    changeDate(expression){
       switch (expression) {
-        case 0:
-          this.differentDate = [moment().startOf('day'), moment().endOf('day')]
-          this.startDate = this.differentDate[0].format('YYYY-MM-DD')
-          this.endDate = this.differentDate[1].format('YYYY-MM-DD')
+        case 0: this.differentDate=[
+          moment().startOf('day'),
+          moment().endOf('day')
+           ]
+          this.startDate = this.differentDate[0].format("YYYY-MM-DD")
+          this.endDate = this.differentDate[1].format("YYYY-MM-DD")
           this.distributeList()
-          break
-        case 1:
-          this.differentDate = [
-            moment()
-              .isoWeekday(1)
-              .startOf('day'),
-            moment()
-              .isoWeekday(7)
-              .startOf('day')
-          ]
-          this.startDate = this.differentDate[0].format('YYYY-MM-DD')
-          this.endDate = this.differentDate[1].format('YYYY-MM-DD')
+          break;
+        case 1: this.differentDate = [
+          moment().isoWeekday(1).startOf('day'),
+          moment().isoWeekday(7).startOf('day')
+        ]
+          this.startDate = this.differentDate[0].format("YYYY-MM-DD")
+          this.endDate = this.differentDate[1].format("YYYY-MM-DD")
           this.distributeList()
-          break
-        case 2:
-          this.differentDate = [
-            moment()
-              .date(1)
-              .startOf('day'),
-            moment().endOf('month')
-          ]
-          this.startDate = this.differentDate[0].format('YYYY-MM-DD')
-          this.endDate = this.differentDate[1].format('YYYY-MM-DD')
+          break;
+        case 2:this.differentDate = [
+          moment().date(1).startOf('day'),
+          moment().endOf('month')
+        ]
+          this.startDate = this.differentDate[0].format("YYYY-MM-DD")
+          this.endDate = this.differentDate[1].format("YYYY-MM-DD")
           this.distributeList()
-          break
-        case 3:
-          this.differentDate = [
-            moment()
+          break;
+        case 3:this.differentDate = [
+          moment()
               .month(moment().month() - 1)
               .date(1)
               .startOf('day'),
-            moment()
+          moment()
               .month(moment().month() - 1)
               .endOf('month')
-          ]
-          this.startDate = this.differentDate[0].format('YYYY-MM-DD')
-          this.endDate = this.differentDate[1].format('YYYY-MM-DD')
+        ]
+          this.startDate = this.differentDate[0].format("YYYY-MM-DD")
+          this.endDate = this.differentDate[1].format("YYYY-MM-DD")
           this.distributeList()
-          break
-        case 4:
-          this.differentDate = ['']
-          this.startDate = this.differentDate[0]
-          this.endDate = this.differentDate[0]
-          this.distributeList()
-          break
+          break;
+        case 4:this.differentDate = [""]
+            this.startDate = this.differentDate[0]
+            this.endDate = this.differentDate[0]
+            this.distributeList()
+          break;
       }
     },
     // formatToDate: string = 'YYYY-MM-DD'
     onChange(date, dateString) {
-      ;(this.startDate = dateString[0]), (this.endDate = dateString[1])
+      this.startDate = dateString[0],
+      this.endDate = dateString[1]
       this.distributeList()
     },
     distributeList() {
       this.$api.Distribute.getDistributeList({
         orderNo: this.search,
-        startDate:
-          this.startDate == '' ? this.startDate : this.startDate + ' 00:00:00',
-        endDate: this.endDate == '' ? this.endDate : this.endDate + ' 23:59:59',
+        startDate: this.startDate,
+        endDate: this.endDate,
         pageNumber: this.pageNumber,
-        pageSize: this.pageSize
-      }).then(res => {
-        this.total = res.data.totalElements
-        this.tableData = res.data.content
+        pageSize: this.pageSize,
       })
+          .then(res => {
+            this.total = res.data.totalElements;
+            this.tableData = res.data.content;
+          });
     },
-    onShowSizeChange(current, pageSize) {
-      this.pageNumber = 1
-      this.pageSize = pageSize
-      this.distributeList(this.search)
+    onShowSizeChange(current, pageSize){
+      this.pageNumber = 1;
+      this.pageSize = pageSize;
+      this.distributeList(this.search);
     },
-    onPageChange(current) {
-      this.distributeList(this.search)
+    onPageChange(current){
+      this.distributeList(this.search);
     },
-    showDetail(record) {
-      this.$api.Distribute.getDistributeDetail({
-        orderId: record.orderId
-      }).then(res => {
-        this.orderList = res.data.orderDetailItemResponseList
-        let count = 0
-        let total = 0
+    showDetail(record){
+      this.$api.Distribute.getDistributeDetail({orderId:record.orderId})
+      .then(res => {
+        this.orderList = res.data.orderDetailItemResponseList;
+        let count = 0;
+        let total = 0;
         this.orderList.forEach(item => {
-          count += item.amount
-          total += item.salesPrice
-        })
-        this.Calculate = { count, total }
-      })
+          count += item.amount;
+          total += item.salesPrice;
+        });
+        this.Calculate = { count, total };
+      });
     },
     cancelHandler(record) {
-      this.$api.Distribute.deleteOrderList(record).then(() => {
-        record.remark = '註銷'
-      })
+      this.$api.Distribute.deleteOrderList(record)
+     .then(() => {
+       record.remark = "註銷"
+      });
     },
-    searchHandler() {
-      this.distributeList()
+    searchHandler(){
+        this.distributeList()
     }
   }
-}
+};
 </script>
 <style scoped lang="scss">
 .container {

@@ -14,7 +14,6 @@
             enter-button
             autoFocus
             @search="handleSearch"
-            allowClear
           />
         </div>
       </div>
