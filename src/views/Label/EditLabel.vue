@@ -2,9 +2,10 @@
   <div>
     <a-layout style="padding:20px;">
       <a-space>
-        <span>*標籤名稱</span
+        <span style="color: red;">*</span><span>標籤名稱</span
         ><a-input v-model="tagName" placeholder="請輸入"></a-input>
-        <span>*標籤尺寸</span><span>寬</span
+        <span style="color: red; margin-left: 20px;">*</span
+        ><span>標籤尺寸</span><span>寬</span
         ><a-input-number
           v-model="tagDrawWidth"
           placeholder="請輸入"
