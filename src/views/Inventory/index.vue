@@ -331,7 +331,7 @@
             :text="text + ''"
             @change="onCellChange(record.id, 'amount', $event)"
           />
-          <span v-else>{{ record.inventoryList.length }}</span>
+          <span v-else>{{ text }}</span>
         </template>
         <template slot="action" slot-scope="record">
           <a-popconfirm
@@ -850,7 +850,7 @@ export default {
       data.amount = value
       this.$api.Inventory.edit(data)
         .then(() => {
-          // this.getInventoryList(this.search)
+          this.getInventoryList(this.search)
           this.$message.success('庫存量已變更!')
         })
         .catch(err => {
