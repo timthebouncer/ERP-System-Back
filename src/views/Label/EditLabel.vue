@@ -246,15 +246,15 @@ export default {
       labelMode: 'add',
       labelId: '',
       currentDrag: [
-        { name: 'productName', text: '商品名稱' },
-        { name: 'barcode', text: '商品條碼' },
-        { name: 'costPrice', text: '成本價' },
-        { name: 'listPrice', text: '建議售價' },
-        { name: 'salesPrice', text: '售價' },
-        { name: 'weight', text: '重量' },
-        { name: 'unit', text: '單位' },
-        { name: 'text', text: 'TEXT' },
-        { name: 'Logo', text: 'Logo' }
+        { name: 'productName', text: '商品名稱', width: 0 },
+        { name: 'barcode', text: '商品條碼', width: 0 },
+        { name: 'costPrice', text: '成本價', width: 0 },
+        { name: 'listPrice', text: '建議售價', width: 0 },
+        { name: 'salesPrice', text: '售價', width: 0 },
+        { name: 'weight', text: '重量', width: 0 },
+        { name: 'unit', text: '單位', width: 0 },
+        { name: 'text', text: 'TEXT', width: 0 },
+        { name: 'Logo', text: 'Logo', width: 0 }
       ],
       currentDragName: '',
       currentDragText: '',
@@ -364,17 +364,21 @@ export default {
       this.unitTag = '單位:' + computedWeight(undefined, item.unit)
       this.logoTag = 'Logo'
       this.previewed = true
-      this.currentDrag = [
-        { name: 'productName', text: this.productNameTag },
-        { name: 'barcode', text: this.barcodeTag },
-        { name: 'costPrice', text: this.costPriceTag },
-        { name: 'listPrice', text: this.listPriceTag },
-        { name: 'salesPrice', text: this.salesPriceTag },
-        { name: 'weight', text: this.weightTag },
-        { name: 'unit', text: this.unitTag },
-        { name: 'text', text: 'TEXT' },
-        { name: 'Logo', text: this.logoTag }
-      ]
+
+      this.currentDrag.find(
+        x => x.name == 'productName'
+      ).text = this.productNameTag
+      this.currentDrag.find(x => x.name == 'barcode').text = this.barcodeTag
+      this.currentDrag.find(x => x.name == 'costPrice').text = this.costPriceTag
+      this.currentDrag.find(x => x.name == 'listPrice').text = this.listPriceTag
+      this.currentDrag.find(
+        x => x.name == 'salesPrice'
+      ).text = this.salesPriceTag
+      this.currentDrag.find(x => x.name == 'weight').text = this.weightTag
+      this.currentDrag.find(x => x.name == 'unit').text = this.unitTag
+      this.currentDrag.find(x => x.name == 'text').text = 'TEXT'
+      this.currentDrag.find(x => x.name == 'Logo').text = this.logoTag
+
       function loadImage() {
         return new Promise(resolve => {
           this.barcodeImageUrl = 'data:image/png;base64,' + item.barcodeBase64
@@ -413,6 +417,7 @@ export default {
             this.canvas.renderAll()
           } else {
             o.text = this.currentDrag.find(x => x.name == o.name).text
+            this.currentDrag.find(x => x.name == o.name).width = o.width
           }
         }
       })
@@ -430,17 +435,20 @@ export default {
       this.weightTag = '重量'
       this.unitTag = '單位'
       this.logoTag = 'Logo'
-      this.currentDrag = [
-        { name: 'productName', text: '商品名稱' },
-        { name: 'barcode', text: '商品條碼' },
-        { name: 'costPrice', text: '成本價' },
-        { name: 'listPrice', text: '建議售價' },
-        { name: 'salesPrice', text: '售價' },
-        { name: 'weight', text: '重量' },
-        { name: 'unit', text: '單位' },
-        { name: 'text', text: 'TEXT' },
-        { name: 'Logo', text: 'Logo' }
-      ]
+
+      this.currentDrag.find(
+        x => x.name == 'productName'
+      ).text = this.productNameTag
+      this.currentDrag.find(x => x.name == 'barcode').text = this.barcodeTag
+      this.currentDrag.find(x => x.name == 'costPrice').text = this.costPriceTag
+      this.currentDrag.find(x => x.name == 'listPrice').text = this.listPriceTag
+      this.currentDrag.find(
+        x => x.name == 'salesPrice'
+      ).text = this.salesPriceTag
+      this.currentDrag.find(x => x.name == 'weight').text = this.weightTag
+      this.currentDrag.find(x => x.name == 'unit').text = this.unitTag
+      this.currentDrag.find(x => x.name == 'text').text = 'TEXT'
+      this.currentDrag.find(x => x.name == 'Logo').text = this.logoTag
       this.canvas.getObjects().map(o => {
         if (
           this.currentDrag.findIndex(x => x.name == o.name) != -1 &&
@@ -469,6 +477,7 @@ export default {
           } else {
             o.text =
               '{{' + this.currentDrag.find(x => x.name == o.name).text + '}}'
+            o.width = this.currentDrag.find(x => x.name == o.name).width
           }
         }
       })
@@ -611,19 +620,9 @@ export default {
         return
       }
 
-      // this.currentDrag = [
-      //   { name: 'productName', text: '商品名稱' },
-      //   { name: 'barcode', text: '商品條碼' },
-      //   { name: 'costPrice', text: '成本價' },
-      //   { name: 'listPrice', text: '建議售價' },
-      //   { name: 'salesPrice', text: '售價' },
-      //   { name: 'weight', text: '重量' },
-      //   { name: 'unit', text: '單位' },
-      //   { name: 'text', text: 'TEXT' },
-      //   { name: 'Logo', text: 'Logo' }
-      // ]
-
-      this.resetTag()
+      if (this.previewed) {
+        this.resetTag()
+      }
 
       this.canvas.getObjects().map(obj => {
         if (
@@ -708,6 +707,7 @@ export default {
             tl: false,
             tr: false
           })
+          this.currentDrag.find(x => x.name == o.name).width = o.width
         } else if (o.type == 'rect') {
           this.clipRectangle = o
           o.selectable = false
