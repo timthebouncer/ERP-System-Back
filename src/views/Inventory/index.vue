@@ -765,7 +765,7 @@ export default {
     },
     pushName(barCode, row) {
       console.log(row, 66)
-      if(row.barCode !== ""){
+      if (row.barCode !== '') {
         this.inventoryList.filter(item => {
           if (item.barcode === row.barCode) {
             row.productId = item.id
@@ -774,8 +774,8 @@ export default {
           }
           return item.barcode === row.barCode
         })
-      }else {
-       row.productId = ""
+      } else {
+        row.productId = ''
       }
     },
     // filterName(row) {
@@ -801,8 +801,8 @@ export default {
     //   })
     // },
     handleOk() {
-      if(this.list.id){
-        if(this.orderData.productId === undefined){
+      if (this.list.id) {
+        if (this.orderData.productId === undefined) {
           console.log(this.orderData)
           this.$api.Distribute.addOrder({
             clientId: this.list.id,
@@ -814,18 +814,20 @@ export default {
                 amount: item.stockAmount
               }
             })
-          }).then(res => {
-            alert(`出貨確認成功，已新增出貨單號:${res.data.orderNo}`)
-            this.orderViewVisible = false
-            this.handleCancel()
-          }).catch(()=>{
-            this.$message.error("出貨量大於庫存量")
           })
-        }else {
-          this.$message.error("請選擇商品")
+            .then(res => {
+              alert(`出貨確認成功，已新增出貨單號:${res.data.orderNo}`)
+              this.orderViewVisible = false
+              this.handleCancel()
+            })
+            .catch(() => {
+              this.$message.error('出貨量大於庫存量')
+            })
+        } else {
+          this.$message.error('請選擇商品')
         }
       } else {
-        this.$message.error("請選擇客戶")
+        this.$message.error('請選擇客戶')
       }
     },
     getInventoryList(productName) {
@@ -865,6 +867,7 @@ export default {
       this.CommodityDetail()
     },
     onSearch() {
+      this.current = 1
       this.getInventoryList(this.search)
     },
     onCellChange(id, dataIndex, value) {
@@ -901,7 +904,7 @@ export default {
       this.orderViewVisible = false
       this.orderData = []
       this.list = {}
-      this.remark = ""
+      this.remark = ''
     },
     addInventoryCancel() {
       this.purchaseViewVisible = false
