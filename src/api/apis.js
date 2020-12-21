@@ -90,7 +90,10 @@ const api = {
       return request.put('/product/updateProduct',data)
     },
     deleteCommodity(record) {
-      return Promise.resolve('/product/deleteProduct/'+ record.id);
+      return request.delete('/product/deleteProduct/'+ record.id);
+    },
+    getSalesProduct(params){
+      return request.get('/product/getSalesProduct/',{params})
     }
   },
   Distribute:{

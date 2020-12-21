@@ -8,6 +8,7 @@ import api from './api/apis'
 import './style/main.scss'
 import ConfigProvider from 'ant-design-vue'
 import loading from '@/plugins/Loading/index.js'
+import myutils from './utils/index.js';
 
 Vue.use(ConfigProvider)
 Vue.config.productionTip = false;
@@ -15,6 +16,7 @@ Vue.config.productionTip = false
 Vue.use(Antd)
 Vue.use(loading)
 Vue.prototype.$api = api
+Vue.prototype.$myutils=myutils;
 
 new Vue({
   router,

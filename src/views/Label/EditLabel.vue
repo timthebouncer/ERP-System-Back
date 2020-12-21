@@ -767,7 +767,7 @@ export default {
       element.name = 'text'
       // element.toObject = (function(toObject) {
       //   return function() {
-      //     return fabric.util.object.extend(toObject.call(this), {
+      //     return fabric.utils.object.extend(toObject.call(this), {
       //       name: 'text',
       //       editable: false
       //     })
