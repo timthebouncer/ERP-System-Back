@@ -566,10 +566,10 @@ export default {
                     show-search
                     filter-option={this.filterOption}
                   >
-                    {this.inventoryList.map(item => {
+                    {this.selectList.map(item => {
                       return (
-                        <a-select-option value={item.id}>
-                          {item.name}
+                        <a-select-option value={item.productId}>
+                          {item.productName}
                         </a-select-option>
                       )
                     })}
@@ -749,22 +749,17 @@ export default {
       }
     },
     pushValue(id, index) {
-      this.orderData[index].productId = id
-      this.$api.Commodity.getCommodityDetail({
-        searchKey: '',
-        barcode: ''
-      }).then(res => {
-        let content = res.data
-        let value = content.find(item => item.id === id)
         let rows = this.orderData[index]
-        rows.barCode = value.barcode
-        rows.productId = value.id
-        rows.unit = computedWeight(undefined, value.unit)
-        rows.salesPrice = value.salesPrice
-      })
+        this.selectList.map(item => {
+         if(item.productId === id){
+           rows.barCode = item.barcode
+           rows.productId = id
+           rows.unit = computedWeight(undefined, item.unit)
+           rows.salesPrice = item.price
+         }
+        })
     },
     pushName(barCode, row) {
-      console.log(row, 66)
       if(row.barCode !== ""){
         this.inventoryList.filter(item => {
           if (item.barcode === row.barCode) {
@@ -778,28 +773,6 @@ export default {
        row.productId = ""
       }
     },
-    // filterName(row) {
-    //   return this.inventoryList.filter(item => {
-    //     return item.barcode?.indexOf(row.barCode) > -1 && item.barcode !== ''
-    //   })
-    // },
-    // handleOk() {
-    //   this.$api.Distribute.addOrder({
-    //     clientId: this.list.id,
-    //     remark: this.remark,
-    //     orderItemRequestList: this.orderData.map(item => {
-    //       return {
-    //         barcode: item.barCode,
-    //         price: item.salesPrice,
-    //         amount: item.stockAmount
-    //       }
-    //     })
-    //   }).then(res => {
-    //     alert(`出貨確認成功，已新增銷貨單號:${res.data.orderNo}`)
-    //     this.orderViewVisible = false
-    //     console.log(res)
-    //   })
-    // },
     handleOk() {
       if(this.list.id){
         if(this.orderData.productId === undefined){
@@ -1026,6 +999,15 @@ export default {
         this.barCodeSelection = data
       })
     },
+    SalesProduct(){
+      this.$api.Commodity.getSalesProduct({
+        searchKey: '',
+        barcode: ''
+      }).then(res => {
+        this.selectList = [].concat.apply([], res.data)
+        console.log(this.selectList,333)
+      })
+    },
     resetPage() {
       this.getInventoryList(this.search)
     },
@@ -1036,18 +1018,12 @@ export default {
     moment
   },
   created() {
-    // const res = await this.$api.Login.loginIdentify()
-    // console.log(res)
-    // if(res.data === false){
-    //   this.$router.push('/')
-    // }else{
     this.getInventoryList(this.search)
     this.getCustomerList()
-
-    // }
   },
   mounted() {
     this.CommodityDetail(this.searchBarcode)
+    this.SalesProduct()
   }
 }
 </script>

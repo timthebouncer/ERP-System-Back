@@ -188,18 +188,22 @@
                     >
                       <a-icon type="plus" />
                     </a-button>
-                    <template v-if="changeTitle === '新增客戶'">
-                      <a-table
-                        class="discountTable"
-                        bordered
-                        :data-source="discountTable"
-                        :columns="columns2"
-                        :rowKey="record => record.id"
-                        :pagination="true"
-                      >
-                      </a-table>
-                    </template>
-                    <template v-else>
+<!--                    <template v-if="changeTitle === '新增客戶'">-->
+<!--                      <a-table-->
+<!--                        class="discountTable"-->
+<!--                        bordered-->
+<!--                        :data-source="discountTable"-->
+<!--                        :columns="columns2"-->
+<!--                        :rowKey="record => record.id"-->
+<!--                        :pagination="{-->
+<!--                          newCurrent,-->
+<!--                          newPageSizeOptions,-->
+<!--                          newPageSize-->
+<!--                        }"-->
+<!--                      >-->
+<!--                      </a-table>-->
+<!--                    </template>-->
+                    <template>
                       <a-table
                         class="discountTable"
                         bordered
@@ -207,9 +211,9 @@
                         :columns="columns2"
                         :rowKey="record => record.id"
                         :pagination="{
-                          current,
+                          newCurrent,
                           pageSizeOptions,
-                          pageSize
+                          newPageSize
                         }"
                         @change="discountTableChange"
                       >
@@ -361,10 +365,8 @@
 </template>
 
 <script>
-import axios from 'axios'
 import { computedWeight } from '@/unit/dictionary/computed'
 import Fragment from '@/components/Fragment'
-
 export default {
   name: 'Customer',
   data() {
@@ -372,6 +374,9 @@ export default {
       /^0((([2-8]|37|49|89|836|82)-?)|9)\d{8}$/
     )
     return {
+      newCurrent:1,
+      newPageSizeOptions: ['10', '30', '50', '100'],
+      newPageSize:10,
       loading: false,
       visible: false,
       changeTitle: '',
@@ -546,7 +551,7 @@ export default {
                       onChange={id =>
                         this.pushValue(
                           id,
-                          (index = (this.current - 1) * this.pageSize + index)
+                          (index = (this.newCurrent - 1) * this.newPageSize + index)
                         )
                       }
                       show-search
@@ -555,7 +560,7 @@ export default {
                       {this.discountClass.map(item => (
                         <a-select-option
                           value={item.id}
-                          disabled={this.pl[item.id]}
+                          disabled={this.productList[item.id]}
                         >
                           {item.name}
                         </a-select-option>
@@ -639,7 +644,7 @@ export default {
       total: 30,
       match: { id: '', name: '' },
       switches: true,
-      pl: {}
+      productList: {}
     }
   },
   created() {
@@ -715,13 +720,13 @@ export default {
     filterProductList() {
       return this.discountClass.filter(item => {
         /*
-         * pl
+         * productList
          * {
          *   [productId]: true,
          * }
          * { 1: true, 2: true... }
          * */
-        return !this.pl[item.id]
+        return !this.productList[item.id]
       })
     }
   },
@@ -755,25 +760,14 @@ export default {
         })
     },
     customerSelection() {
-      this.$api.Customer.getList({
-        searchKeyword: this.search,
-        className: this.match.name,
-        pageNumber: 1,
-        pageSize: this.pageSize
-      })
-        .then(res => {
-          this.current = 1
-          this.total = res.data.totalElements
-          this.tableData = res.data.content
-        })
-        .catch(err => {
-          console.log(err)
-        })
+      this.$myutils.gotoPageOne.call(this);
     },
     showModal() {
       this.visible = true
       this.changeTitle = '新增客戶'
-      this.pl = []
+      this.productList = []
+      this.newCurrent = 1
+      this.newPageSize = 10
     },
     clearInput() {
       this.list = {
@@ -928,6 +922,8 @@ export default {
       this.clearInput()
     },
     editHandler(record) {
+      this.newCurrent = 1
+      this.newPageSize = 10
       this.track = record.id
       this.changeTitle = '編輯客戶'
       this.$api.Customer.getSingleList(record)
@@ -992,11 +988,12 @@ export default {
       this.getCustomerList(this.search)
     },
     discountTableChange({ current, pageSize }) {
-      this.current = current
-      this.pageSize = pageSize
+      console.log(current, pageSize)
+      this.newCurrent = current
+      this.newPageSize = pageSize
     },
     searchHandler() {
-      this.getCustomerList()
+      this.$myutils.gotoPageOne.call(this);
     },
     async deleteDiscount(row, index) {
       if (this.changeTitle === '新增客戶') {
@@ -1023,11 +1020,14 @@ export default {
       }
     },
     keepSelection() {
-      this.pl = this.discountTable.reduce((p, v) => {
+      this.productList = this.discountTable.reduce((p, v) => {
         return v.productId ? { ...p, [v.productId]: true } : p
       }, {})
     },
     handleAdd() {
+      // if(this.discountTable.length%10 === 1){
+      //   this.newCurrent += 1
+      // }
       const { discountTable } = this
       const newData = {
         productId: undefined,
@@ -1043,16 +1043,10 @@ export default {
       // this.total++
     },
     pushValue(id, index) {
-      // const item = this.discountClass.find(item => item.id === id)
-      // console.log(id,item,3213)
       this.discountTable[index].productId = id
-      this.pl = this.discountTable.reduce((p, v) => {
+      this.productList = this.discountTable.reduce((p, v) => {
         return v.productId ? { ...p, [v.productId]: true } : p
       }, {})
-      // this.$api.Commodity.getCommodityList(
-      // productName: item.name,
-      // pageNumber: this.current,
-      // pageSize: this.pageSize)
       this.$api.Commodity.getCommodityDetail({
         searchKey: this.search,
         barcode: this.barcode
