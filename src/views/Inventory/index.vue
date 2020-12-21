@@ -835,7 +835,8 @@ export default {
     },
     showAddOrderView() {
       this.orderViewVisible = true
-      this.CommodityDetail()
+      // this.CommodityDetail()
+      this.SalesProduct()
     },
     onSearch() {
       this.getInventoryList(this.search)
@@ -1023,7 +1024,6 @@ export default {
   },
   mounted() {
     this.CommodityDetail(this.searchBarcode)
-    this.SalesProduct()
   }
 }
 </script>
