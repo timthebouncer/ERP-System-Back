@@ -749,18 +749,18 @@ export default {
       }
     },
     pushValue(id, index) {
-        let rows = this.orderData[index]
-        this.selectList.map(item => {
-         if(item.productId === id){
-           rows.barCode = item.barcode
-           rows.productId = id
-           rows.unit = computedWeight(undefined, item.unit)
-           rows.salesPrice = item.price
-         }
-        })
+      let rows = this.orderData[index]
+      this.selectList.map(item => {
+        if (item.productId === id) {
+          rows.barCode = item.barcode
+          rows.productId = id
+          rows.unit = computedWeight(undefined, item.unit)
+          rows.salesPrice = item.price
+        }
+      })
     },
     pushName(barCode, row) {
-      if(row.barCode !== ""){
+      if (row.barCode !== '') {
         this.inventoryList.filter(item => {
           if (item.barcode === row.barCode) {
             row.productId = item.id
@@ -769,13 +769,13 @@ export default {
           }
           return item.barcode === row.barCode
         })
-      }else {
-       row.productId = ""
+      } else {
+        row.productId = ''
       }
     },
     handleOk() {
-      if(this.list.id){
-        if(this.orderData.productId === undefined){
+      if (this.list.id) {
+        if (this.orderData.productId === undefined) {
           console.log(this.orderData)
           this.$api.Distribute.addOrder({
             clientId: this.list.id,
@@ -787,18 +787,20 @@ export default {
                 amount: item.stockAmount
               }
             })
-          }).then(res => {
-            alert(`出貨確認成功，已新增出貨單號:${res.data.orderNo}`)
-            this.orderViewVisible = false
-            this.handleCancel()
-          }).catch(()=>{
-            this.$message.error("出貨量大於庫存量")
           })
-        }else {
-          this.$message.error("請選擇商品")
+            .then(res => {
+              alert(`出貨確認成功，已新增出貨單號:${res.data.orderNo}`)
+              this.orderViewVisible = false
+              this.handleCancel()
+            })
+            .catch(() => {
+              this.$message.error('出貨量大於庫存量')
+            })
+        } else {
+          this.$message.error('請選擇商品')
         }
       } else {
-        this.$message.error("請選擇客戶")
+        this.$message.error('請選擇客戶')
       }
     },
     getInventoryList(productName) {
@@ -839,6 +841,7 @@ export default {
       this.SalesProduct()
     },
     onSearch() {
+      this.current = 1
       this.getInventoryList(this.search)
     },
     onCellChange(id, dataIndex, value) {
@@ -875,7 +878,7 @@ export default {
       this.orderViewVisible = false
       this.orderData = []
       this.list = {}
-      this.remark = ""
+      this.remark = ''
     },
     addInventoryCancel() {
       this.purchaseViewVisible = false
@@ -1000,13 +1003,13 @@ export default {
         this.barCodeSelection = data
       })
     },
-    SalesProduct(){
+    SalesProduct() {
       this.$api.Commodity.getSalesProduct({
         searchKey: '',
         barcode: ''
       }).then(res => {
         this.selectList = [].concat.apply([], res.data)
-        console.log(this.selectList,333)
+        console.log(this.selectList, 333)
       })
     },
     resetPage() {
