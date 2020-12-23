@@ -88,7 +88,7 @@ export default {
               this.$router.replace('/Inventory')
               console.log(res)
             }).catch(()=>{
-              this.$message.error("登入失敗,帳號或密碼錯")
+              this.$message.error("登入失敗，帳號或密碼錯誤")
             })
         }
       })

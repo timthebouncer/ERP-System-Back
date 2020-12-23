@@ -648,11 +648,6 @@ export default {
     }
   },
   created() {
-    // const res = await this.$api.Login.loginIdentify()
-    // console.log(res)
-    // if(res.data === false || res.code === "401"){
-    //   this.$router.push('/')
-    // }else{
     this.getCustomerList()
     this.$api.Customer.getClass()
       .then(res => {
@@ -684,33 +679,60 @@ export default {
           return {
             children: (
               <div class="displayInput">
-                {row[editKey] ? (
-                    <Fragment>
+                {this.changeTitle === "編輯客戶" ? row[editKey] ? (
+                      <Fragment>
                     <span onClick={() => this.inputORnot(row, editKey)}>
                       {val}
                     </span>
-                      <div class="displayEdit" />
-                      <a-icon
-                          class="editable-cell-icon"
-                          type="edit"
-                          onClick={() => this.inputORnot(row, editKey)}
-                      />
-                    </Fragment>
-                ) : (
-                    <div>
-                      <a-input
-                          autoFocus
-                          placeholder="請輸入"
-                          value={row[key]}
-                          vModel={row[key]}
-                          vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
-                          onKeyup={() =>
-                              key === 'discountPrice' &&
-                              (row[key] = row[key].replace(/[^\d]/g, ''))
-                          }
-                      />
-                    </div>
-                )}
+                        <div class="displayEdit" />
+                        <a-icon
+                            class="editable-cell-icon"
+                            type="edit"
+                            onClick={() => this.inputORnot(row, editKey)}
+                        />
+                      </Fragment>
+                  ) : (
+                      <div>
+                        <a-input
+                            autoFocus
+                            placeholder="請輸入"
+                            value={row[key]}
+                            vModel={row[key]}
+                            vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
+                            onKeyup={() =>
+                                key === 'discountPrice' &&
+                                (row[key] = row[key].replace(/[^\d]/g, ''))
+                            }
+                        />
+                      </div>
+                  ): row[editKey] ? (
+                          <div>
+                            <a-input
+                                autoFocus
+                                placeholder="請輸入"
+                                value={row[key]}
+                                vModel={row[key]}
+                                vOn:Keyup_enter={() => this.addNewItem2(row, editKey)}
+                                onKeyup={() =>
+                                    key === 'discountPrice' &&
+                                    (row[key] = row[key].replace(/[^\d]/g, ''))
+                                }
+                            />
+                          </div>
+                      )
+                      : (
+                          <Fragment>
+                    <span onClick={() => this.inputORnot2(row, editKey)}>
+                      {val}
+                    </span>
+                            <div class="displayEdit" />
+                            <a-icon
+                                class="editable-cell-icon"
+                                type="edit"
+                                onClick={() => this.inputORnot(row, editKey)}
+                            />
+                          </Fragment>
+                      ) }
               </div>
             )
           }
@@ -743,6 +765,12 @@ export default {
     },
     inputORnot(row, editKey) {
       row[editKey] = false
+    },
+    addNewItem2(row, editKey) {
+      row[editKey] = false
+    },
+    inputORnot2(row, editKey) {
+      row[editKey] = true
     },
     getCustomerList() {
       this.$api.Customer.getList({
@@ -884,6 +912,7 @@ export default {
               vatNumber: this.list.vatNumber,
               contactPerson: this.list.contactPerson,
               companyTel: this.list.companyTel,
+              postCode: this.list.postCode,
               address: this.list.address,
               companyFax: this.list.companyFax,
               email: this.list.email,

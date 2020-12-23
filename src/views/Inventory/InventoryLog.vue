@@ -33,7 +33,7 @@
           >
             <a-select-option value="all">全部</a-select-option>
             <a-select-option value="STOCK_IN">入庫</a-select-option>
-            <a-select-option value="STOCK_OUT">出庫</a-select-option>
+            <a-select-option value="STOCK_OUT">出貨</a-select-option>
             <a-select-option value="STOCK_EDIT">編輯庫存</a-select-option>
             <a-select-option value="STOCK_DELETE">刪除庫存</a-select-option>
             <a-select-option value="CANCEL_ORDER">取消訂單</a-select-option>

@@ -774,30 +774,42 @@ export default {
       }
     },
     handleOk() {
+      let productId = this.orderData.map(item=> item.productId)
       if (this.list.id) {
-        if (this.orderData.productId === undefined) {
-          console.log(this.orderData)
-          this.$api.Distribute.addOrder({
-            clientId: this.list.id,
-            remark: this.remark,
-            orderItemRequestList: this.orderData.map(item => {
-              return {
-                barcode: item.barCode,
-                price: item.salesPrice,
-                amount: item.stockAmount
-              }
+        if (this.orderData.length !== 0) {
+          if(productId[0] !== undefined){
+            this.$api.Distribute.addOrder({
+              clientId: this.list.id,
+              remark: this.remark,
+              orderItemRequestList: this.orderData.map(item => {
+                return {
+                  barcode: item.barCode,
+                  price: item.salesPrice,
+                  amount: item.stockAmount
+                }
+              })
             })
-          })
-            .then(res => {
-              alert(`出貨確認成功，已新增出貨單號:${res.data.orderNo}`)
-              this.orderViewVisible = false
-              this.handleCancel()
-            })
-            .catch(() => {
-              this.$message.error('出貨量大於庫存量')
-            })
+                .then(res => {
+                  alert(`出貨確認成功，已新增出貨單號:${res.data.orderNo}`)
+                  this.orderViewVisible = false
+                  this.handleCancel()
+                })
+                .catch(() => {
+                 const stock = this.orderData.map(item =>{
+                    return item.stockAmount
+                  })
+                 const quantity = this.selectList.some((item,i) => item.amount < stock[i])
+                  if(quantity){
+                    this.$message.error('出貨量大於庫存量')
+                  }else {
+                    this.$message.error("無此商品條碼")
+                  }
+                })
+          }else {
+            this.$message.error('請選擇商品')
+          }
         } else {
-          this.$message.error('請選擇商品')
+          this.$message.error('請先新增商品')
         }
       } else {
         this.$message.error('請選擇客戶')
@@ -918,33 +930,34 @@ export default {
       this.addInventoryProductName = item.name
       this.addInventoryProductUnit = item.unit
     },
-    addChange(value) {
-      this.CommodityDetail(value)
+    addChange() {
+      this.CommodityDetail(this.searchBarcode)
     },
     submitNonStop() {
+      if (!/^\d+$/.test(this.addInventoryAmount)) return
       const data = {}
       data.productId = this.addInventoryProductId
       data.amount = this.addInventoryAmount
-      data.barcode = this.addSearchValue
+      data.barcode = this.searchBarcode
       data.unit = this.addInventoryProductUnit
       data.weight = 0
       this.$api.Inventory.addInventory(data)
-        .then(res => {
-          console.log(res)
-          this.purchaseViewVisible = true
-          this.addSearchValue = ''
-          this.searchBarcode = ''
-          this.addInventoryData = []
-          this.addInventoryProductId = ''
-          this.addInventoryProductName = ''
-          this.addInventoryProductUnit = ''
-          this.addInventoryAmount = 1
-          this.getInventoryList(this.search)
-          this.$message.success('入庫成功')
-        })
-        .catch(err => {
-          console.log(err)
-        })
+      .then(res => {
+        console.log(res)
+      this.purchaseViewVisible = true
+      this.searchBarcode = ''
+      this.addInventoryData = []
+      this.addInventoryProductId = ''
+      this.addInventoryProductName = ''
+      this.addInventoryProductUnit = ''
+      this.addInventoryAmount = 1
+      this.getInventoryList(this.search)
+      this.$message.success('入庫成功')
+      })
+      .catch(err => {
+        console.log(err)
+      })
+
     },
     addInventory() {
       if (!/^\d+$/.test(this.addInventoryAmount)) return
@@ -972,14 +985,11 @@ export default {
         })
     },
     onShowSizeChange(current, pageSize) {
-      // console.log(current);
       this.current = 1
       this.pageSize = pageSize
       this.getInventoryList(this.search)
     },
     onPageChange(current) {
-      // console.log(pageSize);
-      // console.log(this.total);
       this.getInventoryList(this.search)
     },
     getCustomerList() {
@@ -991,7 +1001,7 @@ export default {
       this.barCodeSelection = []
       this.$api.Commodity.getCommodityDetail({
         searchKey: '',
-        barcode: ''
+        barcode: this.searchBarcode
       }).then(res => {
         this.inventoryList = res.data
         let data = []
@@ -1024,6 +1034,7 @@ export default {
   created() {
     this.getInventoryList(this.search)
     this.getCustomerList()
+    console.log(this.orderData,3);
   },
   mounted() {
     this.CommodityDetail(this.searchBarcode)

@@ -2,8 +2,6 @@
 
 
 export function gotoPageOne(){
-  // console.log(this,32323)
-  // console.log(this.$api.Customer)
   this.current = 1
   this.$api.Customer.getList({
     searchKeyword: this.search,

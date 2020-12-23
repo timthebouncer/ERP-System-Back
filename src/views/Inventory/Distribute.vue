@@ -342,6 +342,7 @@ export default {
       })
     },
     searchHandler() {
+      this.pageNumber = 1
       this.distributeList()
     }
   }
