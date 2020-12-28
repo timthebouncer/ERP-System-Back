@@ -377,7 +377,6 @@
 <script>
 import moment from 'moment'
 import EditableCell from '@/components/EditableCell'
-// import axios from 'axios'
 import Fragment from '@/components/Fragment'
 import { computedWeight } from '@/unit/dictionary/computed'
 
@@ -399,6 +398,8 @@ export default {
   },
   data() {
     return {
+      selectList:[],
+      specificId:'',
       barcodeTdWidth: '',
       customerList: [],
       goodsTable: [],
@@ -532,7 +533,6 @@ export default {
         {
           title: '商品條碼',
           dataIndex: 'barCode',
-          width: '27%',
           align: 'center',
           customRender: (value, row) => {
             return {
@@ -552,28 +552,28 @@ export default {
         {
           title: '商品名稱',
           dataIndex: 'name',
-          width: '27%',
           align: 'center',
           customRender: (value, row, index) => {
             console.log(row)
             return {
               children: (
                 <div>
-                  <a-select
-                    value={row.productId}
-                    placeholder="請選擇"
-                    onChange={id => this.pushValue(id, index)}
-                    show-search
-                    filter-option={this.filterOption}
+                  <a-auto-complete
+                      value={row.productId}
+                      onSelect={(id)=>this.pushValue(id,index)}
+                      // onSearch={()=>this.nameSearch(row)}
+                      placeholder="請選擇"
                   >
-                    {this.selectList.map(item => {
-                      return (
-                        <a-select-option value={item.productId}>
-                          {item.productName}
-                        </a-select-option>
-                      )
-                    })}
-                  </a-select>
+                    <template slot="dataSource">
+                      {this.selectList.map(item => {
+                        return (
+                            <a-select-option value={item.productId}>
+                              {item.productName}
+                            </a-select-option>
+                        )
+                      })}
+                    </template>
+                  </a-auto-complete>
                 </div>
               )
             }
@@ -584,6 +584,7 @@ export default {
           title: '計價單位',
           dataIndex: 'unit',
           align: 'center',
+          width: '200',
           scopedSlots: { customRender: 'unit' }
         },
         {
@@ -595,8 +596,8 @@ export default {
         {
           title: '數量',
           dataIndex: 'stockAmount',
-          width: 100,
           align: 'center',
+          width: "10%",
           customRender: (val, row) => {
             return this.Quantity(val, row, 'stockAmount')
           },
@@ -715,6 +716,8 @@ export default {
       this.list = this.customerList.find(item => {
         return item.id === id
       })
+      this.specificId = id
+      this.SalesProduct()
     },
     addNewItem(row, editKey) {
       row[editKey] = false
@@ -774,10 +777,10 @@ export default {
       }
     },
     handleOk() {
-      let productId = this.orderData.map(item => item.productId)
+      let productId = this.orderData.map(item=> item.productId)
       if (this.list.id) {
         if (this.orderData.length !== 0) {
-          if (productId[0] !== undefined) {
+          if(productId[0] !== undefined){
             this.$api.Distribute.addOrder({
               clientId: this.list.id,
               remark: this.remark,
@@ -789,25 +792,24 @@ export default {
                 }
               })
             })
-              .then(res => {
-                alert(`出貨確認成功，已新增出貨單號:${res.data.orderNo}`)
-                this.orderViewVisible = false
-                this.handleCancel()
-              })
-              .catch(() => {
-                const stock = this.orderData.map(item => {
-                  return item.stockAmount
+                .then(res => {
+                  alert(`出貨確認成功，已新增出貨單號:${res.data.orderNo}`)
+                  this.orderViewVisible = false
+                  this.handleCancel()
+                  this.resetPage()
                 })
-                const quantity = this.selectList.some(
-                  (item, i) => item.amount < stock[i]
-                )
-                if (quantity) {
-                  this.$message.error('出貨量大於庫存量')
-                } else {
-                  this.$message.error('無此商品條碼')
-                }
-              })
-          } else {
+                .catch(() => {
+                 const stock = this.orderData.map(item =>{
+                    return item.stockAmount
+                  })
+                 const quantity = this.selectList.some((item,i) => item.amount < stock[i])
+                  if(quantity){
+                    this.$message.error('出貨量大於庫存量')
+                  }else {
+                    this.$message.error("無此商品條碼")
+                  }
+                })
+          }else {
             this.$message.error('請選擇商品')
           }
         } else {
@@ -1035,7 +1037,6 @@ export default {
   created() {
     this.getInventoryList(this.search)
     this.getCustomerList()
-    console.log(this.orderData, 3)
   },
   mounted() {
     this.CommodityDetail(this.searchBarcode)
@@ -1193,7 +1194,7 @@ export default {
   width: 5%;
 }
 /deep/ .action-td {
-  width: 5%;
+  width: 2%;
 }
 /deep/ .inner-expand-td {
   width: 3%;
@@ -1214,7 +1215,7 @@ export default {
   width: 5%;
 }
 /deep/ .inner-action-td {
-  width: 5%;
+  width: 2%;
 }
 .expandAction {
   position: relative;
