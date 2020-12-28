@@ -455,7 +455,6 @@ export default {
           class: 'list-price-td',
           title: '建議售價',
           dataIndex: 'totalListPrice',
-          width: '10%',
           align: 'center',
           scopedSlots: { customRender: 'totalListPrice' }
         },
@@ -1211,7 +1210,7 @@ export default {
   width: 5%;
 }
 /deep/ .action-td {
-  width: 2%;
+  width: 4%;
 }
 /deep/ .inner-expand-td {
   width: 3%;
