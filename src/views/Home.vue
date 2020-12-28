@@ -18,9 +18,9 @@
             <span v-if="routes.indexOf(route) === routes.length - 1">
               {{ labelMode == 'add' ? route.name : '編輯標籤' }}
             </span>
-            <router-link v-else :to="paths.join('/')">
+            <span v-else>
               {{ route.name }}
-            </router-link>
+            </span>
           </template>
         </a-breadcrumb>
         <a-layout-content
