@@ -236,7 +236,7 @@ export default {
         {
           title: "計價單位",
           dataIndex: "unit",
-          width: "5%",
+          width: "6%",
           align: "center",
           scopedSlots: { customRender: "unit" }
         },
