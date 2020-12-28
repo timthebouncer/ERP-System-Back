@@ -579,23 +579,6 @@ export default {
             }
           },
           scopedSlots: { customRender: 'name' }
-
-          // <a-select
-          //   value={row.productId}
-          //   placeholder="請選擇"
-          //   onChange={id => this.pushValue(id, index)}
-          //   show-search
-          //   filter-option={this.filterOption}
-          // >
-          //   {this.selectList.map(item => {
-          //     return (
-          //       <a-select-option value={item.productId}>
-          //         {item.productName}
-          //       </a-select-option>
-          //     )
-          //   })}
-          // </a-select>
-
         },
         {
           title: '計價單位',
@@ -870,7 +853,6 @@ export default {
     },
     showAddOrderView() {
       this.orderViewVisible = true
-      // this.CommodityDetail()
     },
     onSearch() {
       this.current = 1
@@ -963,22 +945,21 @@ export default {
       data.unit = this.addInventoryProductUnit
       data.weight = 0
       this.$api.Inventory.addInventory(data)
-      .then(res => {
-        console.log(res)
-      this.purchaseViewVisible = true
-      this.searchBarcode = ''
-      this.addInventoryData = []
-      this.addInventoryProductId = ''
-      this.addInventoryProductName = ''
-      this.addInventoryProductUnit = ''
-      this.addInventoryAmount = 1
-      this.getInventoryList(this.search)
-      this.$message.success('入庫成功')
-      })
-      .catch(err => {
-        console.log(err)
-      })
-
+        .then(res => {
+          console.log(res)
+          this.purchaseViewVisible = true
+          this.searchBarcode = ''
+          this.addInventoryData = []
+          this.addInventoryProductId = ''
+          this.addInventoryProductName = ''
+          this.addInventoryProductUnit = ''
+          this.addInventoryAmount = 1
+          this.getInventoryList(this.search)
+          this.$message.success('入庫成功')
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     addInventory() {
       if (!/^\d+$/.test(this.addInventoryAmount)) return
