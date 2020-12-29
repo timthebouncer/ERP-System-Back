@@ -553,48 +553,22 @@ export default {
           dataIndex: 'name',
           align: 'center',
           customRender: (value, row, index) => {
-            console.log(row)
             return {
               children: (
                 <div>
                   <a-auto-complete
                       value={row.productId}
                       onSelect={(id)=>this.pushValue(id,index)}
-                      // onSearch={()=>this.nameSearch(row)}
+                      dataSource={this.filterName}
                       placeholder="請選擇"
+                      filter-option={this.filterOption}
                   >
-                    <template slot="dataSource">
-                      {this.selectList.map(item => {
-                        return (
-                            <a-select-option value={item.productId}>
-                              {item.productName}
-                            </a-select-option>
-                        )
-                      })}
-                    </template>
                   </a-auto-complete>
                 </div>
               )
             }
           },
           scopedSlots: { customRender: 'name' }
-
-          // <a-select
-          //   value={row.productId}
-          //   placeholder="請選擇"
-          //   onChange={id => this.pushValue(id, index)}
-          //   show-search
-          //   filter-option={this.filterOption}
-          // >
-          //   {this.selectList.map(item => {
-          //     return (
-          //       <a-select-option value={item.productId}>
-          //         {item.productName}
-          //       </a-select-option>
-          //     )
-          //   })}
-          // </a-select>
-
         },
         {
           title: '計價單位',
@@ -673,7 +647,14 @@ export default {
       form: this.$form.createForm(this, { name: 'dynamic_rule' })
     }
   },
+
+  // return this.selectList.filter(item=>{return item.productName.includes(this.listSearch)})
   computed: {
+      filterName(){
+        return this.selectList.map(item=>{
+          return {value:item.productId,text:item.productName}
+        })
+      },
     Quantity() {
       return (val, row, key) => {
         let editKey =
@@ -769,7 +750,7 @@ export default {
     },
     pushValue(id, index) {
       let rows = this.orderData[index]
-      this.selectList.map(item => {
+      this.selectList.forEach(item => {
         if (item.productId === id) {
           rows.barCode = item.barcode
           rows.productId = id
@@ -909,7 +890,7 @@ export default {
       this.orderData = []
       this.list = {}
       this.remark = ''
-      this.selectList = []
+      this.filterName = []
     },
     addInventoryCancel() {
       this.purchaseViewVisible = false
@@ -1034,7 +1015,7 @@ export default {
     },
     SalesProduct() {
       this.$api.Commodity.getSalesProduct({
-        searchKey: '',
+        searchKey: this.listSearch,
         barcode: '',
         clientId: this.specificId
       }).then(res => {
