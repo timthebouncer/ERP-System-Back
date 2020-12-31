@@ -711,6 +711,7 @@ export default {
       this.list = this.customerList.find(item => {
         return item.id === id
       })
+      this.orderData = []
       this.specificId = id
       this.SalesProduct()
     },
@@ -722,9 +723,9 @@ export default {
     },
     filterOption(input, option) {
       return (
-        option.componentOptions.children[0].text
-          .toLowerCase()
-          .indexOf(input.toLowerCase()) >= 0
+          option.componentOptions.children[0].text
+              .toLowerCase()
+              .indexOf(input.toLowerCase()) >= 0
       )
     },
     openNotificationWithIcon(type) {
@@ -888,7 +889,7 @@ export default {
       this.orderData = []
       this.list = {}
       this.remark = ''
-      this.filterName = []
+      this.selectList = []
     },
     addInventoryCancel() {
       this.purchaseViewVisible = false
@@ -992,6 +993,7 @@ export default {
     },
     getCustomerList() {
       this.$api.Inventory.onlyCustomerList().then(res => {
+        console.log(res,333)
         this.customerList = res.data
       })
     },
