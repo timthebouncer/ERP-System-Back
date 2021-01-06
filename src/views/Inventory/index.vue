@@ -559,6 +559,7 @@ export default {
                   <a-auto-complete
                       value={row.productId}
                       onSelect={(id)=>this.pushValue(id,index)}
+                      onChange={()=>this.clearData(row,index)}
                       dataSource={this.filterName}
                       placeholder="請選擇"
                       filter-option={this.filterOption}
@@ -747,6 +748,12 @@ export default {
         this.expandIndex.push(index)
       }
     },
+    clearData(row,index){
+      let rows = this.orderData[index]
+      rows.barCode = ""
+      rows.unit = '-'
+      rows.salesPrice = 0
+    },
     pushValue(id, index) {
       let rows = this.orderData[index]
       this.selectList.forEach(item => {
@@ -770,6 +777,9 @@ export default {
         })
       } else {
         row.productId = ''
+        row.unit = '-'
+        row.salesPrice = 0
+        row.amount = 1
       }
     },
     handleOk() {
@@ -993,7 +1003,6 @@ export default {
     },
     getCustomerList() {
       this.$api.Inventory.onlyCustomerList().then(res => {
-        console.log(res,333)
         this.customerList = res.data
       })
     },
