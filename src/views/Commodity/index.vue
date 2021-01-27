@@ -440,7 +440,7 @@ export default {
       this.getCommodity();
     },
     onChange(checked, record) {
-      if(record.stockAmount > 0){
+      if(record.stockAmount === 0){
         axios
             .put(
                 `/erp/product/changeStatus?productId=${record.id}&status=${checked}`
@@ -451,7 +451,7 @@ export default {
               this.$message.success("修改狀態成功");
             });
       }else{
-        this.$message.error("庫存量小於1");
+        this.$message.error("庫存量大於0");
       }
     }
   }
