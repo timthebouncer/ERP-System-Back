@@ -127,6 +127,20 @@ const api = {
       return request.delete("/tag/deleteTag/"+id)
     }
   },
+  Depot:{
+    getDepotList(params){
+      return request.get('/depot/getSearchList',{params})
+    },
+    addDepot(data){
+      return request.post('/depot/addDepot',data)
+    },
+    deleteDepot(id){
+      return request.delete('/depot/delDepot/'+id)
+    },
+    updateDepot(data){
+      return request.put('/depot/updateDepot',data)
+    }
+  }
 };
 
 export default api;

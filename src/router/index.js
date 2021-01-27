@@ -63,6 +63,21 @@ const routes = [
         }
       },
       {
+        path: "/Warehouse",
+        name: "Warehouse",
+        component: () => import("../views/Inventory/Warehouse/index"),
+        meta: {
+          breadcrumb: [
+            {
+              name: "庫存管理"
+            },
+            {
+              name: "倉庫類別"
+            }
+          ]
+        }
+      },
+      {
         path: "/Distribute",
         name: "Distribute",
         component: () => import( "../views/Inventory/Distribute"),

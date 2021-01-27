@@ -112,13 +112,6 @@ export default {
       changeTitle: '',
       list: { id: '', className: '' },
       columns: [
-        // {
-        //   title: ' ',
-        //   dataIndex: 'order',
-        //   width: '2%',
-        //   align: 'center',
-        //   scopedSlots: { customRender: 'order' },
-        // },
         {
           title: '類別名稱',
           dataIndex: 'className',

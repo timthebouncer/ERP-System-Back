@@ -23,7 +23,12 @@
                   >
                     <a-input v-model="list.name" placeholder="請輸入" />
                   </a-form-model-item>
-
+                  <a-form-model-item
+                    class="custom-form-item"
+                    label="出貨名稱"
+                  >
+                    <a-input placeholder="請輸入" />
+                  </a-form-model-item>
                   <a-form-model-item class="custom-form-item" label="商品條碼" prop="barcode">
                     <a-input v-model="list.barcode" placeholder="請輸入" />
                   </a-form-model-item>
@@ -35,20 +40,24 @@
                   >
                     <translate v-model="list.unit" style="width: 175px" />
                   </a-form-model-item>
-                  <a-form-model-item
-                    class="custom-form-item"
-                    label="售價"
-                    prop="salesPrice"
-                  >
-                    <a-input v-model="list.salesPrice" placeholder="請輸入" />
+
+                  <a-form-model-item class="custom-form-item" label="定重重量">
+                    <div class="weight-wrapper">
+                      <a-input style="width: 115px" placeholder="請輸入" />
+                      <a-select style="width: 60px">
+                        <option></option>
+                      </a-select>
+                    </div>
                   </a-form-model-item>
 
-                  <a-form-model-item class="custom-form-item" label="建議售價" prop="listPrice">
+                  <a-form-model-item class="custom-form-item" label="單價" prop="listPrice">
                     <a-input v-model="list.listPrice" placeholder="請輸入" />
                   </a-form-model-item>
 
-                  <a-form-model-item class="custom-form-item" label="成本價" prop="costPrice">
-                    <a-input v-model="list.costPrice" placeholder="請輸入" />
+                  <a-form-model-item class="custom-form-item" label="預設標籤">
+                    <a-select style="width: 175px">
+                      <option></option>
+                    </a-select>
                   </a-form-model-item>
 
                   <a-form-model-item
@@ -66,6 +75,7 @@
               </div>
             </a-form-model>
           </div>
+          <CustomPrice />
           <template slot="footer">
             <div v-if="list.updateTime">
               <span>上次更新時間: {{list.updateTime.split(" ")[0]}}<span style="display: inline-block; width: 10px;" />
@@ -118,9 +128,7 @@
             'barcode',
             'name',
             'unit',
-            'salesPrice',
             'listPrice',
-            'costPrice',
             'stockAmount',
             'description'
           ]"
@@ -180,10 +188,11 @@
 import axios from "axios";
 import translate from "@/components/translate";
 import { computedWeight } from "@/unit/dictionary/computed";
+import CustomPrice from './SalesPriceSetting'
 // import AAA from "@/components/AAA";
 export default {
   name: "Merchant",
-  components: { translate },
+  components: { translate,CustomPrice },
   data() {
     return {
       loading: false,
@@ -195,8 +204,6 @@ export default {
         unit: "KG",
         unitType: "",
         barcode: "",
-        salesPrice: undefined,
-        costPrice: undefined,
         listPrice: undefined,
         description: "",
         using: undefined,
@@ -241,25 +248,11 @@ export default {
           scopedSlots: { customRender: "unit" }
         },
         {
-          title: "售價",
-          dataIndex: "salesPrice",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "salesPrice" }
-        },
-        {
-          title: "建議售價",
+          title: "單價",
           dataIndex: "listPrice",
           width: "10%",
           align: "center",
           scopedSlots: { customRender: "listPrice" }
-        },
-        {
-          title: "成本價",
-          dataIndex: "costPrice",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "costPrice" }
         },
         {
           title: "庫存量",
@@ -294,9 +287,8 @@ export default {
         barcode: [{pattern:/^\d+$/,message: "請輸入數字", trigger: "blur"}],
         unit: [{ required: true, message: "請選擇", trigger: "blur" }],
         name: [{ required: true, message: "請輸入商品名稱", trigger: "blur" }],
-        salesPrice: [{ required: true, pattern:/^\d+$/,message: "請輸入售價(數字)", trigger: "blur" }],
+        // salesPrice: [{ required: true, pattern:/^\d+$/,message: "請輸入售價(數字)", trigger: "blur" }],
         listPrice:[{ pattern:/^\d+$/,message: "請輸入數字", trigger: "blur"}],
-        costPrice:[{pattern:/^\d+$/,message: "請輸入數字", trigger: "blur"}]
       },
       pageSizeOptions: ["10", "30", "50", "100"],
       current: 1,
@@ -310,13 +302,7 @@ export default {
     }
   },
    created() {
-    // const res = await this.$api.Login.loginIdentify()
-    // console.log(res)
-    // if(res.data === false){
-    //   this.$router.push('/')
-    // }else{
       this.getCommodity();
-    // }
   },
   methods: {
     showModal() {
@@ -343,8 +329,6 @@ export default {
         name: "",
         unit: "KG",
         barcode: "",
-        salesPrice: "",
-        costPrice: "",
         listPrice: "",
         description: ""
       };
@@ -359,9 +343,7 @@ export default {
               unit: this.list.unit,
               unitType: this.list.unitType,
               barcode: this.list.barcode,
-              salesPrice: this.list.salesPrice,
               listPrice: this.list.listPrice,
-              costPrice: this.list.costPrice,
               description: this.list.description,
               using: true
             }).then((res) => {
@@ -386,9 +368,7 @@ export default {
               unit: this.list.unit,
               unitType: this.list.unitType,
               barcode: this.list.barcode,
-              salesPrice: this.list.salesPrice,
               listPrice: this.list.listPrice,
-              costPrice: this.list.costPrice,
               description: this.list.description,
               using: true
             }).then((res) => {
@@ -408,9 +388,7 @@ export default {
               unit: this.list.unit,
               unitType: this.list.unitType,
               barcode: this.list.barcode,
-              salesPrice: this.list.salesPrice,
               listPrice: this.list.listPrice,
-              costPrice: this.list.costPrice,
               description: this.list.description,
               use: true
             }).then(() => {
@@ -440,9 +418,7 @@ export default {
           (this.list.name = record.name),
             (this.list.barcode = record.barcode),
             (this.list.unit = record.unit),
-            (this.list.salesPrice = record.salesPrice),
             (this.list.listPrice = record.listPrice),
-            (this.list.costPrice = record.costPrice),
             (this.list.description = record.description);
             (this.list.updateTime = record.updateTime)
           this.visible = true;
@@ -464,17 +440,19 @@ export default {
       this.getCommodity();
     },
     onChange(checked, record) {
-      console.log(record)
-      if(record.stockAmount === 0)
-      axios
-        .put(
-          `/erp/product/changeStatus?productId=${record.id}&status=${checked}`
-        )
-        .then(res => {
-          console.log(res);
-          record.using = checked;
-          this.$message.success("修改狀態成功");
-        });
+      if(record.stockAmount > 0){
+        axios
+            .put(
+                `/erp/product/changeStatus?productId=${record.id}&status=${checked}`
+            )
+            .then(res => {
+              console.log(res);
+              record.using = checked;
+              this.$message.success("修改狀態成功");
+            });
+      }else{
+        this.$message.error("庫存量小於1");
+      }
     }
   }
 };
@@ -501,5 +479,8 @@ export default {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
+}
+.weight-wrapper{
+  display: flex;
 }
 </style>

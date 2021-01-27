@@ -14,6 +14,9 @@
       >
         <a-sub-menu key="sub1">
           <span slot="title"><a-icon type="database" /><span>庫存管理</span></span>
+          <a-menu-item key="Warehouse" @click="()=>{$router.push('Warehouse').catch(()=>{})}">
+            倉庫類別
+          </a-menu-item>
           <a-menu-item key="Inventory" @click="()=>{$router.push('Inventory').catch(()=>{})}">
             庫存清單
           </a-menu-item>

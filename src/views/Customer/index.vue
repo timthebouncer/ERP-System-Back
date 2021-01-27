@@ -37,7 +37,7 @@
                   </a-form-model-item>
                   <a-form-model-item
                     class="custom-form-item"
-                    label="客戶姓名"
+                    label="客戶名稱"
                     prop="name"
                   >
                     <a-input v-model="list.name" placeholder="請輸入" />
@@ -46,7 +46,7 @@
                 <div class="firstPart-item">
                   <a-form-model-item
                     class="custom-form-item"
-                    label="電話"
+                    label="客戶電話"
                     prop="tel"
                   >
                     <a-input v-model="list.tel" placeholder="請輸入" />
@@ -61,7 +61,7 @@
                 </div>
                 <a-form-model-item
                   class="custom-form-item address"
-                  label="地址"
+                  label="聯絡地址"
                   prop="postCode"
                 >
                   <a-input
@@ -111,16 +111,6 @@
                           style="width: 200px"
                         />
                       </a-form-model-item>
-                      <a-form-model-item
-                        class="custom-form-item"
-                        label="聯絡人"
-                      >
-                        <a-input
-                          v-model="list.contactPerson"
-                          placeholder="請輸入"
-                          style="width: 200px"
-                        />
-                      </a-form-model-item>
 
                       <a-form-model-item
                         class="custom-form-item"
@@ -136,7 +126,7 @@
 
                       <a-form-model-item
                         class="custom-form-item"
-                        label="傳真"
+                        label="公司傳真"
                         prop="companyFax"
                       >
                         <a-input
@@ -154,7 +144,7 @@
                         <a-input
                           v-model="list.companyEmail"
                           placeholder="請輸入"
-                          style="width: 200px"
+                          style="width: 200px; margin-right: 312px"
                         />
                       </a-form-model-item>
                     </div>
@@ -173,11 +163,84 @@
                         placeholder="請輸入"
                       />
                     </a-form-model-item>
+                    <a-form-model-item
+                        class="custom-form-item"
+                        label="聯絡人"
+                    >
+                      <div class="contact-form">
+                        <a-input
+                            v-model="list.contactPerson"
+                            placeholder="請輸入"
+                            style="width: 200px"
+                        />
+                        連絡電話:
+                        <a-input
+                            v-model="list.contactPerson"
+                            placeholder="請輸入"
+                            style="width: 200px"
+                        />
+                        分機:
+                        <a-input
+                            v-model="list.contactPerson"
+                            placeholder="請輸入"
+                            style="width: 200px"
+                        />
+                      </div>
+                    </a-form-model-item>
+                    <a-form-model-item
+                        class="custom-form-item"
+                        label="對帳聯絡人"
+                    >
+                      <div class="contact-form">
+                        <a-input
+                            v-model="list.contactPerson"
+                            placeholder="請輸入"
+                            style="width: 200px"
+                        />
+                        連絡電話:
+                        <a-input
+                            v-model="list.contactPerson"
+                            placeholder="請輸入"
+                            style="width: 200px"
+                        />
+                        分機:
+                        <a-input
+                            v-model="list.contactPerson"
+                            placeholder="請輸入"
+                            style="width: 200px"
+                        />
+                      </div>
+                    </a-form-model-item>
+                    <a-form-model-item
+                        class="custom-form-item"
+                        label="採購聯絡人"
+                    >
+                      <div class="contact-form">
+                        <a-input
+                            v-model="list.contactPerson"
+                            placeholder="請輸入"
+                            style="width: 200px"
+                        />
+                        連絡電話:
+                        <a-input
+                            v-model="list.contactPerson"
+                            placeholder="請輸入"
+                            style="width: 200px"
+                        />
+                        分機:
+                        <a-input
+                            v-model="list.contactPerson"
+                            placeholder="請輸入"
+                            style="width: 200px"
+                        />
+                      </div>
+                    </a-form-model-item>
                   </div>
                 </a-collapse-panel>
               </a-collapse>
               <div class="third-part">
                 <div class="third-part-item">
+                  <ReceiveModal />
                   <div>
                     商品折扣
                     <a-button
@@ -188,21 +251,6 @@
                     >
                       <a-icon type="plus" />
                     </a-button>
-<!--                    <template v-if="changeTitle === '新增客戶'">-->
-<!--                      <a-table-->
-<!--                        class="discountTable"-->
-<!--                        bordered-->
-<!--                        :data-source="discountTable"-->
-<!--                        :columns="columns2"-->
-<!--                        :rowKey="record => record.id"-->
-<!--                        :pagination="{-->
-<!--                          newCurrent,-->
-<!--                          newPageSizeOptions,-->
-<!--                          newPageSize-->
-<!--                        }"-->
-<!--                      >-->
-<!--                      </a-table>-->
-<!--                    </template>-->
                     <template>
                       <a-table
                         class="discountTable"
@@ -365,10 +413,12 @@
 </template>
 
 <script>
+import ReceiveModal from './Receiver'
 import { computedWeight } from '@/unit/dictionary/computed'
 import Fragment from '@/components/Fragment'
 export default {
   name: 'Customer',
+  components:{ReceiveModal},
   data() {
     const validatorTelReg = new RegExp(
       /^0((([2-8]|37|49|89|836|82)-?)|9)\d{8}$/
@@ -525,17 +575,6 @@ export default {
       },
       discountTable: [],
       columns2: [
-        // {
-        //   title: '序',
-        //   dataIndex: 'order',
-        //   align: 'center',
-        //   customRender: (_, __, i) => {
-        //     return {
-        //       children: <div>{i + 1}</div>
-        //     }
-        //   },
-        //   scopedSlots: { customRender: 'order' }
-        // },
         {
           title: '商品名稱',
           dataIndex: 'productName',
@@ -582,13 +621,13 @@ export default {
           scopedSlots: { customRender: 'unit' }
         },
         {
-          title: '售價',
+          title: '單價',
           dataIndex: 'salesPrice',
           align: 'center',
           scopedSlots: { customRender: 'salesPrice' }
         },
         {
-          title: '價格',
+          title: '出貨單價',
           dataIndex: 'discountPrice',
           align: 'center',
           width: 100,
@@ -1054,9 +1093,6 @@ export default {
       }, {})
     },
     handleAdd() {
-      // if(this.discountTable.length%10 === 1){
-      //   this.newCurrent += 1
-      // }
       const { discountTable } = this
       const newData = {
         productId: undefined,
@@ -1069,7 +1105,6 @@ export default {
         isEditRemark: true
       }
       this.discountTable = [...discountTable, newData]
-      // this.total++
     },
     pushValue(id, index) {
       this.discountTable[index].productId = id
@@ -1128,6 +1163,7 @@ export default {
 }
 
 .third-part {
+  margin-top:10px;
   padding: 20px 20px 20px 20px;
   /*background-color: #f5e9e9;*/
   .editable-add-btn {
@@ -1204,5 +1240,8 @@ export default {
   cursor: pointer;
   top: 3.5px;
 }
-
+.contact-form{
+  display: flex;
+  justify-content: space-between;
+}
 </style>
