@@ -57,7 +57,12 @@
                 </div>
               </a-upload>
             </a-row>
-            <a-row class="label-wrap" type="flex" style="margin-left: 80px;">
+            <a-row
+              class="label-wrap"
+              type="flex"
+              style="margin-left: 0px;"
+              justify="center"
+            >
               <a-col>
                 <a-row type="flex">
                   <p>請選擇商品</p>
@@ -97,7 +102,6 @@
                   class="tags"
                   @drag="handleDrag(todayTag, 'today')"
                   draggable
-                  style="margin-right: 40px;"
                   >當天時間</a-col
                 >
                 <a-col
@@ -105,6 +109,7 @@
                   class="tags"
                   @drag="handleDrag(pSolarDayTag, 'pSolarDay')"
                   draggable
+                  style="margin-left: 20px; margin-right: 20px;"
                   >正向太陽日</a-col
                 >
                 <a-col
@@ -112,95 +117,94 @@
                   class="tags"
                   @drag="handleDrag(rSolarDayTag, 'rSolarDay')"
                   draggable
-                  style="margin-left: 40px;"
                   >反向太陽日</a-col
                 >
               </a-row>
               <a-divider style="background-color: black; height: 1px;" />
             </a-row>
-            <a-row
-              class="label-wrap"
-              type="flex"
-              justify="space-between"
-              style="margin-top: -30px;"
-            >
-              <a-col
-                :span="3"
-                class="tags"
-                @drag="handleDrag(productNameTag, 'productName')"
-                draggable
-                style="margin-left: 40px;"
-                >{{ productNameTag }}</a-col
+            <a-row>
+              <a-row
+                class="label-wrap"
+                type="flex"
+                justify="space-between"
+                style="margin-top: -30px;"
               >
-              <a-col
-                :span="3"
-                class="tags"
-                @drag="handleDrag(weightTag, 'weight')"
-                draggable
-                >{{ weightTag }}</a-col
-              >
-              <a-col
-                :span="3"
-                class="tags"
-                @drag="handleDrag(unitTag, 'unit')"
-                draggable
-                style="margin-right: 40px;"
-                >{{ unitTag }}</a-col
-              >
-            </a-row>
-            <a-row class="label-wrap" type="flex" justify="space-between">
-              <a-col
-                :span="3"
-                class="tags"
-                @drag="handleDrag(barcodeTag, 'barcode')"
-                draggable
-                style="margin-left: 40px;"
-              >
-                <img
-                  v-if="barcodeImageUrl"
-                  class="barcodeImg"
-                  :src="barcodeImageUrl"
-                  alt="avatar"
-                  style="width: 190px; height: 45px;"
-                />
-                <span v-else>{{ barcodeTag }}</span>
-              </a-col>
-              <a-col
-                :span="3"
-                class="tags"
-                @drag="handleDrag(productNameTag, 'productName')"
-                draggable
-                >商品序號</a-col
-              >
-              <a-col
-                :span="3"
-                class="tags"
-                @drag="handleDrag('text', 'text')"
-                draggable
-                style="margin-right: 40px;"
-                >TEXT</a-col
-              >
-            </a-row>
-            <a-row class="label-wrap" type="flex" justify="space-between">
-              <a-col
-                :span="3"
-                class="tags"
-                @drag="handleDrag(listPriceTag, 'listPrice')"
-                draggable
-                style="margin-left: 40px;"
-                >{{ listPriceTag }}</a-col
-              >
-              <a-col
-                :span="3"
-                class="tags"
-                @drag="handleDrag(salesPriceTag, 'salesPrice')"
-                draggable
-                >{{ salesPriceTag }}</a-col
-              >
-              <a-col
-                :span="3"
-                style="width: 200px; display: flex; justify-content: center; align-items: center; margin-right: 40px;"
-              ></a-col>
+                <a-col
+                  :span="3"
+                  class="tags"
+                  @drag="handleDrag(productNameTag, 'productName')"
+                  draggable
+                  >{{ productNameTag }}</a-col
+                >
+                <a-col
+                  :span="3"
+                  class="tags"
+                  @drag="handleDrag(weightTag, 'weight')"
+                  draggable
+                  style="margin-left: 20px; margin-right: 20px;"
+                  >{{ weightTag }}</a-col
+                >
+                <a-col
+                  :span="3"
+                  class="tags"
+                  @drag="handleDrag(unitTag, 'unit')"
+                  draggable
+                  >{{ unitTag }}</a-col
+                >
+              </a-row>
+              <a-row class="label-wrap" type="flex" justify="space-between">
+                <a-col
+                  :span="3"
+                  class="tags"
+                  @drag="handleDrag(barcodeTag, 'barcode')"
+                  draggable
+                >
+                  <img
+                    v-if="barcodeImageUrl"
+                    class="barcodeImg"
+                    :src="barcodeImageUrl"
+                    alt="avatar"
+                    style="width: 190px; height: 45px;"
+                  />
+                  <span v-else>{{ barcodeTag }}</span>
+                </a-col>
+                <a-col
+                  :span="3"
+                  class="tags"
+                  @drag="handleDrag(productNameTag, 'productName')"
+                  draggable
+                  style="margin-left: 20px; margin-right: 20px;"
+                  >商品序號</a-col
+                >
+                <a-col
+                  :span="3"
+                  class="tags"
+                  @drag="handleDrag('text', 'text')"
+                  draggable
+                  >TEXT</a-col
+                >
+              </a-row>
+              <a-row class="label-wrap" type="flex" justify="space-between">
+                <a-col
+                  :span="3"
+                  class="tags"
+                  @drag="handleDrag(listPriceTag, 'listPrice')"
+                  draggable
+                  >{{ listPriceTag }}</a-col
+                >
+                <a-col
+                  :span="3"
+                  class="tags"
+                  @drag="handleDrag(salesPriceTag, 'salesPrice')"
+                  draggable
+                  style="margin-left: 20px; margin-right: 20px;"
+                  >{{ salesPriceTag }}</a-col
+                >
+                <a-col
+                  :span="3"
+                  style="width: 200px; display: flex; justify-content: center; align-items: center;"
+                ></a-col>
+              </a-row>
             </a-row>
           </a-row>
         </a-col>
@@ -951,7 +955,7 @@ export default {
     align-items: center;
     justify-content: space-around;
     flex-direction: column;
-    padding: 0 20px;
+    padding: 0 0px;
   }
   &-wrap {
     width: 100%;
