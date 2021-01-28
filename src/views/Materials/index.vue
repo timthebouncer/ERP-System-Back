@@ -107,19 +107,19 @@ export default {
         {
           title: '物料倉庫',
           dataIndex: 'depotName',
-          width: '10%',
+          width: '20%',
           align: 'center'
         },
         {
           title: '物料名稱',
           dataIndex: 'name',
-          width: '10%',
+          width: '40%',
           align: 'center'
         },
         {
           title: '數量',
           dataIndex: 'count',
-          width: '20%',
+          width: '10%',
           align: 'center'
         },
         {

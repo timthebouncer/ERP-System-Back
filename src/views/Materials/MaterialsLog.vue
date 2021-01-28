@@ -32,11 +32,11 @@
             @change="onSelectActionChange"
           >
             <a-select-option value="all">全部</a-select-option>
-            <a-select-option value="STOCK_IN">入庫</a-select-option>
-            <a-select-option value="STOCK_OUT">出貨</a-select-option>
-            <a-select-option value="STOCK_EDIT">編輯庫存</a-select-option>
-            <a-select-option value="STOCK_DELETE">刪除庫存</a-select-option>
-            <a-select-option value="CANCEL_ORDER">取消訂單</a-select-option>
+            <a-select-option value="STOCK_IN">新增物料</a-select-option>
+            <a-select-option value="STOCK_OUT">編輯倉庫</a-select-option>
+            <a-select-option value="STOCK_EDIT">刪除物料</a-select-option>
+            <a-select-option value="STOCK_DELETE">入料</a-select-option>
+            <a-select-option value="CANCEL_ORDER">出料</a-select-option>
           </a-select>
           <div class="searchInput">
             <a-input-search
@@ -107,9 +107,15 @@ export default {
           align: 'center'
         },
         {
-          title: '商品名稱',
-          dataIndex: 'productName',
+          title: '物料倉庫',
+          dataIndex: 'depot',
           width: '20%',
+          align: 'center'
+        },
+        {
+          title: '物料名稱',
+          dataIndex: 'productName',
+          width: '30%',
           align: 'center'
         },
         {
