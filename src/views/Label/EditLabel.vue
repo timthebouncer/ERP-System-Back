@@ -26,83 +26,135 @@
     <a-divider />
     <a-layout style="width: 100%; height: 700px;">
       <a-row type="flex" style="height: 100%;" align="middle">
-        <a-col :span="10" style="height: 100%;">
+        <a-col :span="12" style="height: 100%;">
           <a-row class="label-control" align="middle" style="height: 100%;">
+            <a-row>
+              <a-upload
+                name="avatar"
+                list-type="picture-card"
+                class="avatar-uploader"
+                :show-upload-list="false"
+                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                :before-upload="beforeUpload"
+                @change="uploadChange"
+              >
+                <img
+                  v-if="logoImageUrl"
+                  class="logoImg"
+                  :src="logoImageUrl"
+                  alt="avatar"
+                  style="width: 300px; height: 55px;"
+                  @drag="handleDrag(logoTag, 'Logo')"
+                />
+                <div v-else>
+                  <a-icon :type="loading ? 'loading' : 'plus'" />
+                  <div class="ant-upload-text" style="width: 300px;">
+                    <p>上傳圖片</p>
+                    <p style="color: red;">
+                      (*請使用JPEG、PNG格式且大小不超過2MB)
+                    </p>
+                  </div>
+                </div>
+              </a-upload>
+            </a-row>
+            <a-row class="label-wrap" type="flex" style="margin-left: 80px;">
+              <a-col>
+                <a-row type="flex">
+                  <p>請選擇商品</p>
+                </a-row>
+                <a-row type="flex" style="margin-top: -10px;">
+                  <a-auto-complete
+                    v-model="searchProductName"
+                    @search="searchProduct"
+                    @select="selectProduct"
+                    placeholder="請輸入商品名稱"
+                    style="width: 300px;"
+                  >
+                    <template slot="dataSource">
+                      <a-select-option
+                        v-for="item in productData"
+                        :key="item.id"
+                        :title="item.name"
+                      >
+                        {{ item.name }}
+                      </a-select-option>
+                    </template>
+                  </a-auto-complete>
+                  <a-button type="primary" @click="resetTag">重置</a-button>
+                </a-row>
+              </a-col>
+            </a-row>
+            <a-row>
+              <a-row>
+                入庫時間
+                <span style="color: red;">
+                  ＊注意 : 預覽時顯示當天時間
+                </span>
+              </a-row>
+              <a-row class="label-wrap" type="flex" justify="space-between">
+                <a-col
+                  :span="3"
+                  class="tags"
+                  @drag="handleDrag(todayTag, 'today')"
+                  draggable
+                  style="margin-right: 40px;"
+                  >當天時間</a-col
+                >
+                <a-col
+                  :span="3"
+                  class="tags"
+                  @drag="handleDrag(pSolarDayTag, 'pSolarDay')"
+                  draggable
+                  >正向太陽日</a-col
+                >
+                <a-col
+                  :span="3"
+                  class="tags"
+                  @drag="handleDrag(rSolarDayTag, 'rSolarDay')"
+                  draggable
+                  style="margin-left: 40px;"
+                  >反向太陽日</a-col
+                >
+              </a-row>
+              <a-divider style="background-color: black; height: 1px;" />
+            </a-row>
             <a-row
               class="label-wrap"
               type="flex"
               justify="space-between"
-              align="middle"
+              style="margin-top: -30px;"
             >
-              <a-col :span="10">
-                <a-auto-complete
-                  v-model="searchProductName"
-                  @search="searchProduct"
-                  @select="selectProduct"
-                  placeholder="請輸入商品名稱"
-                >
-                  <template slot="dataSource">
-                    <a-select-option
-                      v-for="item in productData"
-                      :key="item.id"
-                      :title="item.name"
-                    >
-                      {{ item.name }}
-                    </a-select-option>
-                  </template>
-                </a-auto-complete>
-                <a-button type="primary" @click="resetTag">重置</a-button>
-              </a-col>
-              <a-col :span="14">
-                <a-row>
-                  <span style="color: red;"
-                    >*請上傳JPEG、PNG檔案格式圖片，圖片大小不超過2MB</span
-                  >
-                </a-row>
-                <a-row style="">
-                  <a-upload
-                    name="avatar"
-                    list-type="picture-card"
-                    class="avatar-uploader"
-                    :show-upload-list="false"
-                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                    :before-upload="beforeUpload"
-                    @change="uploadChange"
-                  >
-                    <!--                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"-->
-                    <!--                :customRequest="uploadImage"-->
-                    <img
-                      v-if="logoImageUrl"
-                      class="logoImg"
-                      :src="logoImageUrl"
-                      alt="avatar"
-                      style="width: 200px; height: 55px;"
-                      @drag="handleDrag(logoTag, 'Logo')"
-                    />
-                    <div v-else>
-                      <a-icon :type="loading ? 'loading' : 'plus'" />
-                      <div class="ant-upload-text">
-                        上傳圖片
-                      </div>
-                    </div>
-                  </a-upload>
-                </a-row>
-              </a-col>
-            </a-row>
-            <a-row class="label-wrap" type="flex" justify="space-between">
               <a-col
-                :span="6"
+                :span="3"
                 class="tags"
                 @drag="handleDrag(productNameTag, 'productName')"
                 draggable
-                style="margin-left: 50px;"
+                style="margin-left: 40px;"
                 >{{ productNameTag }}</a-col
-              ><a-col
-                :span="6"
+              >
+              <a-col
+                :span="3"
+                class="tags"
+                @drag="handleDrag(weightTag, 'weight')"
+                draggable
+                >{{ weightTag }}</a-col
+              >
+              <a-col
+                :span="3"
+                class="tags"
+                @drag="handleDrag(unitTag, 'unit')"
+                draggable
+                style="margin-right: 40px;"
+                >{{ unitTag }}</a-col
+              >
+            </a-row>
+            <a-row class="label-wrap" type="flex" justify="space-between">
+              <a-col
+                :span="3"
                 class="tags"
                 @drag="handleDrag(barcodeTag, 'barcode')"
                 draggable
-                style="margin-right: 50px;"
+                style="margin-left: 40px;"
               >
                 <img
                   v-if="barcodeImageUrl"
@@ -113,64 +165,46 @@
                 />
                 <span v-else>{{ barcodeTag }}</span>
               </a-col>
-            </a-row>
-            <a-row class="label-wrap" type="flex" justify="space-between">
               <a-col
-                :span="6"
+                :span="3"
                 class="tags"
-                @drag="handleDrag(costPriceTag, 'costPrice')"
+                @drag="handleDrag(productNameTag, 'productName')"
                 draggable
-                style="margin-left: 50px;"
-                >{{ costPriceTag }}</a-col
+                >商品序號</a-col
               >
               <a-col
-                :span="6"
-                class="tags"
-                @drag="handleDrag(listPriceTag, 'listPrice')"
-                draggable
-                style="margin-right: 50px;"
-                >{{ listPriceTag }}</a-col
-              >
-            </a-row>
-            <a-row class="label-wrap" type="flex" justify="space-between">
-              <a-col
-                :span="6"
-                class="tags"
-                @drag="handleDrag(weightTag, 'weight')"
-                draggable
-                style="margin-left: 50px;"
-                >{{ weightTag }}</a-col
-              >
-              <a-col
-                :span="6"
-                class="tags"
-                @drag="handleDrag(unitTag, 'unit')"
-                draggable
-                style="margin-right: 50px;"
-                >{{ unitTag }}</a-col
-              >
-            </a-row>
-            <a-row class="label-wrap" type="flex" justify="space-between">
-              <a-col
-                :span="6"
-                class="tags"
-                @drag="handleDrag(salesPriceTag, 'salesPrice')"
-                draggable
-                style="margin-left: 50px;"
-                >{{ salesPriceTag }}</a-col
-              >
-              <a-col
-                :span="6"
+                :span="3"
                 class="tags"
                 @drag="handleDrag('text', 'text')"
                 draggable
-                style="margin-right: 50px;"
+                style="margin-right: 40px;"
                 >TEXT</a-col
               >
             </a-row>
+            <a-row class="label-wrap" type="flex" justify="space-between">
+              <a-col
+                :span="3"
+                class="tags"
+                @drag="handleDrag(listPriceTag, 'listPrice')"
+                draggable
+                style="margin-left: 40px;"
+                >{{ listPriceTag }}</a-col
+              >
+              <a-col
+                :span="3"
+                class="tags"
+                @drag="handleDrag(salesPriceTag, 'salesPrice')"
+                draggable
+                >{{ salesPriceTag }}</a-col
+              >
+              <a-col
+                :span="3"
+                style="width: 200px; display: flex; justify-content: center; align-items: center; margin-right: 40px;"
+              ></a-col>
+            </a-row>
           </a-row>
         </a-col>
-        <a-col :span="14" style="height: 100%;">
+        <a-col :span="10" style="height: 100%;">
           <!--          <a-row style="height: 10%;">-->
 
           <!--          </a-row>-->
@@ -246,13 +280,16 @@ export default {
       labelMode: 'add',
       labelId: '',
       currentDrag: [
+        { name: 'today', text: '當天時間', width: 0 },
+        { name: 'pSolarDay', text: '正向太陽日', width: 0 },
+        { name: 'rSolarDay', text: '反向太陽日', width: 0 },
         { name: 'productName', text: '商品名稱', width: 0 },
         { name: 'barcode', text: '商品條碼', width: 0 },
-        { name: 'costPrice', text: '成本價', width: 0 },
+        // { name: 'costPrice', text: '成本價', width: 0 },
         { name: 'listPrice', text: '建議售價', width: 0 },
-        { name: 'salesPrice', text: '售價', width: 0 },
+        { name: 'salesPrice', text: '出貨售價', width: 0 },
         { name: 'weight', text: '重量', width: 0 },
-        { name: 'unit', text: '單位', width: 0 },
+        { name: 'unit', text: '計價單位', width: 0 },
         { name: 'text', text: 'TEXT', width: 0 },
         { name: 'Logo', text: 'Logo', width: 0 }
       ],
@@ -275,14 +312,17 @@ export default {
       productData: [],
       productNameList: [],
       searchProductName: '',
+      todayTag: '當天時間',
+      pSolarDayTag: '正向太陽日',
+      rSolarDayTag: '反向太陽日',
       productNameTag: '商品名稱',
       barcodeTag: '商品條碼',
       barcodeImageUrl: '',
-      costPriceTag: '成本價',
+      // costPriceTag: '成本價',
       listPriceTag: '建議售價',
-      salesPriceTag: '售價',
+      salesPriceTag: '出貨售價',
       weightTag: '重量',
-      unitTag: '單位',
+      unitTag: '計價單位',
       logoTag: 'Logo',
       previewed: false,
       showModalVisible: false,
@@ -317,10 +357,12 @@ export default {
       const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
       if (!isJpgOrPng) {
         this.$message.error('請上傳JPEG、PNG檔案格式圖片!')
+        return isJpgOrPng && isLt2M
       }
       const isLt2M = file.size / 1024 / 1024 < 2
       if (!isLt2M) {
         this.$message.error('圖片大小超過2MB!')
+        return isJpgOrPng && isLt2M
       }
       return isJpgOrPng && isLt2M
     },
@@ -357,11 +399,11 @@ export default {
       this.searchProductName = item.name
       this.productNameTag = '商品名稱:' + item.name
       this.barcodeTag = '商品條碼' + item.barcode
-      this.costPriceTag = '成本價:' + item.costPrice + '元'
+      // this.costPriceTag = '成本價:' + item.costPrice + '元'
       this.listPriceTag = '建議售價:' + item.listPrice + '元'
-      this.salesPriceTag = '售價:' + item.salesPrice + '元'
+      this.salesPriceTag = '出貨售價:' + item.salesPrice + '元'
       this.weightTag = '重量:100'
-      this.unitTag = '單位:' + computedWeight(undefined, item.unit)
+      this.unitTag = '計價單位:' + computedWeight(undefined, item.unit)
       this.logoTag = 'Logo'
       this.previewed = true
 
@@ -369,7 +411,7 @@ export default {
         x => x.name == 'productName'
       ).text = this.productNameTag
       this.currentDrag.find(x => x.name == 'barcode').text = this.barcodeTag
-      this.currentDrag.find(x => x.name == 'costPrice').text = this.costPriceTag
+      // this.currentDrag.find(x => x.name == 'costPrice').text = this.costPriceTag
       this.currentDrag.find(x => x.name == 'listPrice').text = this.listPriceTag
       this.currentDrag.find(
         x => x.name == 'salesPrice'
@@ -429,18 +471,18 @@ export default {
       this.searchProductName = ''
       this.productNameTag = '商品名稱'
       this.barcodeTag = '商品條碼'
-      this.costPriceTag = '成本價'
+      // this.costPriceTag = '成本價'
       this.listPriceTag = '建議售價'
-      this.salesPriceTag = '售價'
+      this.salesPriceTag = '出貨售價'
       this.weightTag = '重量'
-      this.unitTag = '單位'
+      this.unitTag = '計價單位'
       this.logoTag = 'Logo'
 
       this.currentDrag.find(
         x => x.name == 'productName'
       ).text = this.productNameTag
       this.currentDrag.find(x => x.name == 'barcode').text = this.barcodeTag
-      this.currentDrag.find(x => x.name == 'costPrice').text = this.costPriceTag
+      // this.currentDrag.find(x => x.name == 'costPrice').text = this.costPriceTag
       this.currentDrag.find(x => x.name == 'listPrice').text = this.listPriceTag
       this.currentDrag.find(
         x => x.name == 'salesPrice'
