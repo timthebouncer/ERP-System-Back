@@ -45,6 +45,39 @@
             商品資料
           </a-menu-item>
         </a-sub-menu>
+        <a-sub-menu key="sub6">
+          <span slot="title"><a-icon type="shop" /><span>物料管理</span></span>
+          <a-menu-item
+            key="MaterialsDepot"
+            @click="
+              () => {
+                $router.push('MaterialsDepot').catch(() => {})
+              }
+            "
+          >
+            物料倉庫
+          </a-menu-item>
+          <a-menu-item
+            key="Materials"
+            @click="
+              () => {
+                $router.push('Materials').catch(() => {})
+              }
+            "
+          >
+            物料清單
+          </a-menu-item>
+          <a-menu-item
+            key="MaterialsLog"
+            @click="
+              () => {
+                $router.push('MaterialsLog').catch(() => {})
+              }
+            "
+          >
+            物料異動紀錄
+          </a-menu-item>
+        </a-sub-menu>
         <a-sub-menu key="sub5">
           <span slot="title"><a-icon type="setting" /><span>標籤管理</span></span>
           <a-menu-item key="Label" @click="()=>{$router.push('Label').catch(()=>{})}">
@@ -80,7 +113,11 @@ export default {
       case 'Commodity':
         return this.openKeys = ['sub4']
       case 'Label':
-        return this.openKeys = ['sub5']
+        return (this.openKeys = ['sub5'])
+      case 'Materials':
+      case 'MaterialsDepot':
+      case 'MaterialsLog':
+        return (this.openKeys = ['sub6'])
     }
   },
   methods: {

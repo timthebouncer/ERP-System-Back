@@ -138,6 +138,51 @@ const routes = [
         }
       },
       {
+        path: '/Materials',
+        name: 'Materials',
+        component: () => import('../views/Materials'),
+        meta: {
+          breadcrumb: [
+            {
+              name: '物料管理'
+            },
+            {
+              name: '物料清單'
+            }
+          ]
+        }
+      },
+      {
+        path: '/MaterialsDepot',
+        name: 'MaterialsDepot',
+        component: () => import('../views/Materials/MaterialsDepot'),
+        meta: {
+          breadcrumb: [
+            {
+              name: '物料管理'
+            },
+            {
+              name: '物料倉庫類別'
+            }
+          ]
+        }
+      },
+      {
+        path: '/MaterialsLog',
+        name: 'MaterialsLog',
+        component: () => import('../views/Materials/MaterialsLog'),
+        meta: {
+          breadcrumb: [
+            {
+              name: '物料管理'
+            },
+            {
+              name: '物料異動紀錄'
+            }
+          ]
+        }
+      },
+      {
         path: "/Label",
         name: "Label",
         component: () => import("../views/Label"),
