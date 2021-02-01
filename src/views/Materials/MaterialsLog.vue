@@ -203,7 +203,6 @@ export default {
       this.onSearch()
     },
     onShowSizeChange(current, pageSize) {
-      console.log('showSizeChange')
       this.pageSizeChanged = true
       this.pageSize = pageSize
       this.current = 1

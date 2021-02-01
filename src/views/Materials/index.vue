@@ -171,7 +171,6 @@ export default {
             return obj
           })
           this.total = res.data.totalElements
-          // this.current = data.pageNumber
         })
         .catch(err => {
           console.log(err)
@@ -193,8 +192,13 @@ export default {
         })
     },
     handleOk() {
+      this.list.name = this.list.name.replace(/\s*/g, '')
+      if (this.list.name.length == 0) {
+        this.$message.warning(`請輸入物料名稱`)
+        return
+      }
       if (this.edited) {
-        let data = { id: this.materialsId, depotId: this.depotId }
+        let data = { id: this.materialsId, depotId: this.list.depotId }
         this.$api.Materials.updateMaterial(data)
           .then(() => {
             this.$message.success(`修改成功`)
@@ -223,11 +227,21 @@ export default {
     },
     clearInput() {},
     editHandler(item) {
-      console.log(item)
       this.edited = true
       this.changeTitle = '編輯倉庫'
       this.materialsId = item.id
       this.list.name = item.name
+      this.list.depotId = item.depotId
+      this.depotList = []
+      this.$api.Materials.getList()
+        .then(res => {
+          this.depotList = res.data
+          this.depotId = item.depotId ? item.depotId : '請選擇'
+        })
+        .catch(err => {
+          console.log(err)
+        })
+
       this.visible = true
     },
     onDelete(item) {
@@ -241,7 +255,6 @@ export default {
         })
     },
     onSelect(value) {
-      console.log(value)
       this.list.depotId = value
       this.depotId = value
     },

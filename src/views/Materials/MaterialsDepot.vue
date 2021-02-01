@@ -177,7 +177,6 @@ export default {
     },
     clearInput() {},
     editHandler(item) {
-      console.log(item)
       this.changeTitle = '編輯物料倉庫'
       this.edited = true
       this.depotId = item.id
