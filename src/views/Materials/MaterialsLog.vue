@@ -32,11 +32,11 @@
             @change="onSelectActionChange"
           >
             <a-select-option value="all">全部</a-select-option>
-            <a-select-option value="STOCK_IN">新增物料</a-select-option>
-            <a-select-option value="STOCK_OUT">編輯倉庫</a-select-option>
-            <a-select-option value="STOCK_EDIT">刪除物料</a-select-option>
-            <a-select-option value="STOCK_DELETE">入料</a-select-option>
-            <a-select-option value="CANCEL_ORDER">出料</a-select-option>
+            <a-select-option value="MATERIALS_CREAT">新增物料</a-select-option>
+            <a-select-option value="DEPOT_UPDATE">編輯倉庫</a-select-option>
+            <a-select-option value="MATERIALS_DELETE">刪除物料</a-select-option>
+            <a-select-option value="MATERIALS_IN">入料</a-select-option>
+            <a-select-option value="MATERIALS_OUT">出料</a-select-option>
           </a-select>
           <div class="searchInput">
             <a-input-search
@@ -58,9 +58,12 @@
         :data-source="tableData"
         rowKey="id"
       >
-        <template slot="amount" slot-scope="text">
-          <span v-if="~text.indexOf('-')" class="amount--red">{{ text }}</span>
-          <span v-else>{{ text }}</span>
+        <template slot="action" slot-scope="text">
+          <span v-if="text == 'MATERIALS_CREAT'">新增物料</span>
+          <span v-else-if="text == 'DEPOT_UPDATE'">編輯倉庫</span>
+          <span v-else-if="text == 'MATERIALS_DELETE'">刪除物料</span>
+          <span v-else-if="text == 'MATERIALS_IN'">入料</span>
+          <span v-else-if="text == 'MATERIALS_OUT'">出料</span>
         </template>
       </a-table>
     </div>
@@ -96,7 +99,7 @@ export default {
       columns: [
         {
           title: '日期',
-          dataIndex: 'updateDate',
+          dataIndex: 'time',
           width: '10%',
           align: 'center'
         },
@@ -104,32 +107,33 @@ export default {
           title: '異動方式',
           dataIndex: 'action',
           width: '10%',
-          align: 'center'
+          align: 'center',
+          scopedSlots: { customRender: 'action' }
         },
         {
           title: '物料倉庫',
-          dataIndex: 'depot',
+          dataIndex: 'depotName',
           width: '20%',
           align: 'center'
         },
         {
           title: '物料名稱',
-          dataIndex: 'productName',
+          dataIndex: 'name',
           width: '30%',
           align: 'center'
         },
         {
           title: '數量',
-          dataIndex: 'amount',
+          dataIndex: 'count',
           width: '10%',
-          align: 'center',
-          scopedSlots: { customRender: 'amount' }
+          align: 'center'
         }
       ],
       pageSizeOptions: ['10', '30', '50', '100'],
       current: 1,
       pageSize: 10,
       total: 10,
+      pageSizeChanged: false,
       dateFormat: 'YYYY-MM-DD',
       today: '',
       startDate: '',
@@ -147,7 +151,7 @@ export default {
   methods: {
     onSearch() {
       this.current = 1
-      this.getInventoryLogList()
+      this.getMaterialsLogList()
     },
     onDateChange(value) {
       this.startDate = moment(value[0]._d).format(this.dateFormat)
@@ -199,51 +203,50 @@ export default {
       this.onSearch()
     },
     onShowSizeChange(current, pageSize) {
+      console.log('showSizeChange')
+      this.pageSizeChanged = true
       this.pageSize = pageSize
       this.current = 1
-      this.getInventoryLogList()
+      this.getMaterialsLogList()
     },
     onPageChange(current, pageSize) {
-      console.log(pageSize)
-      // console.log(this.total);
       this.current = current
-      this.getInventoryLogList()
+      this.getMaterialsLogList()
     },
-    getInventoryLogList() {
+    getMaterialsLogList() {
       this.tableData = []
       const data = {}
-      data.searchKey = this.searchValue
+      data.key = this.searchValue
       data.action = this.action
       data.startDate =
         this.startDate === '' ? this.startDate : this.startDate + ' 00:00:00'
       data.endDate =
         this.endDate === '' ? this.endDate : this.endDate + ' 23:59:59'
-      data.pageNumber = this.current
-      data.pageSize = this.pageSize
-      // this.$api.Inventory.getInventoryLogList(data)
-      //     .then(res => {
-      //         this.tableData = res.data.content.map((item, index) => {
-      //             let obj = {
-      //                 id: index,
-      //                 ...item
-      //             }
-      //             return obj
-      //         })
-      //         this.total = res.data.totalElements
-      //         this.current = data.pageNumber
-      //     })
-      //     .catch(err => {
-      //         console.log(err)
-      //     })
+      data.number = this.current - 1
+      data.size = this.pageSize
+      this.$api.Materials.getMaterialsLogList(data)
+        .then(res => {
+          this.tableData = res.data.content.map((item, index) => {
+            let obj = {
+              id: index,
+              ...item
+            }
+            obj.time = moment(item.time).format('YYYY-MM-DD')
+            return obj
+          })
+          this.total = res.data.totalElements
+          if (this.pageSizeChanged) {
+            this.current = 1
+            this.pageSizeChanged = false
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     moment
   },
   created() {
-    // const res = await this.$api.Login.loginIdentify()
-    // console.log(res)
-    // if(res.data === false){
-    //   this.$router.push('/')
-    // }else{
     this.today = moment(new Date()).format(this.dateFormat)
     this.firstThisWeekDay = moment(moment(new Date()).startOf('week'))
       .add(1, 'd')
@@ -271,7 +274,6 @@ export default {
     this.endDate = this.endThisMonthDay
     this.dateRange = [this.startDate, this.endDate]
     this.onSearch()
-    // }
   }
 }
 </script>

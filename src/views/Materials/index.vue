@@ -13,7 +13,7 @@
             placeholder="搜尋物料名稱"
             enter-button
             autoFocus
-            @search="handleSearch"
+            @search="onSearch"
           />
         </div>
       </div>
@@ -24,13 +24,21 @@
       :title="changeTitle"
       @cancel="clearInput"
     >
-      <div class="class-input">
-        <label>物料名稱:</label>
-        <a-input v-model="list.materialsName" autoFocus placeholder="請輸入" />
+      <div class="class-input" v-if="!edited">
+        <label>*物料名稱:</label>
+        <a-input v-model="list.name" autoFocus placeholder="請輸入" />
       </div>
-      <div class="class-input">
-        <label>物料倉庫:</label>
-        <a-select></a-select>
+      <div class="class-input" v-else>
+        <label style="margin-left: 5px;">物料名稱:</label>
+        <span style="width: 220px;">{{ list.name }}</span>
+      </div>
+      <div class="class-input" style="margin-top: 20px;">
+        <label style="margin-left: 5px;">物料倉庫:</label>
+        <a-select v-model="depotId" @change="onSelect" placeholder="請選擇">
+          <a-select-option v-for="u in depotList" :value="u.id" :key="u.id">
+            {{ u.name }}
+          </a-select-option>
+        </a-select>
       </div>
       <template slot="footer">
         <a-button key="submit" type="primary" @click="handleOk">
@@ -48,12 +56,8 @@
         :data-source="tableData"
         rowKey="id"
       >
-        <!--        <template slot="amount" slot-scope="text">-->
-        <!--          <span v-if="~text.indexOf('-')" class="amount&#45;&#45;red">{{ text }}</span>-->
-        <!--          <span v-else>{{ text }}</span>-->
-        <!--        </template>-->
         <template slot="action" slot-scope="text, record">
-          <template v-if="record.clientCount === 0">
+          <template v-if="record.count === 0">
             <a-space>
               <a-button type="link" size="small" @click="editHandler(record)"
                 >編輯</a-button
@@ -94,15 +98,20 @@
 </template>
 
 <script>
+import moment from 'moment'
 export default {
   name: 'Materials',
   data() {
     return {
       searchValue: '',
       tableData: [],
+      depotList: [],
+      materialsId: '',
+      depotId: '請選擇',
       changeTitle: '',
       visible: false,
-      list: { id: '', materialsName: '' },
+      edited: false,
+      list: { name: '', depotId: '' },
       columns: [
         {
           title: '物料倉庫',
@@ -135,7 +144,11 @@ export default {
           align: 'center',
           scopedSlots: { customRender: 'action' }
         }
-      ]
+      ],
+      pageSizeOptions: ['10', '30', '50', '100'],
+      current: 1,
+      pageSize: 10,
+      total: 10
     }
   },
   methods: {
@@ -143,22 +156,107 @@ export default {
       this.current = 1
       this.getMaterialsList()
     },
-    getMaterialsList() {},
+    getMaterialsList() {
+      this.$api.Materials.getMaterialsList(
+        this.searchValue,
+        this.current - 1,
+        this.pageSize
+      )
+        .then(res => {
+          this.tableData = res.data.content.map(item => {
+            let obj = item
+            obj.lastRecordTime = moment(item.lastRecordTime).format(
+              'YYYY-MM-DD'
+            )
+            return obj
+          })
+          this.total = res.data.totalElements
+          // this.current = data.pageNumber
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     showModal() {
       this.changeTitle = '新增物料'
+      this.edited = false
       this.visible = true
-      this.list = { id: '', materialsName: '' }
+      this.list = { name: '', depotId: '' }
+      this.depotList = []
+      this.depotId = '請選擇'
+      this.$api.Materials.getList()
+        .then(res => {
+          this.depotList = res.data
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
-    handleSearch() {},
-    handleOk() {},
-    handleCancel() {},
+    handleOk() {
+      if (this.edited) {
+        let data = { id: this.materialsId, depotId: this.depotId }
+        this.$api.Materials.updateMaterial(data)
+          .then(() => {
+            this.$message.success(`修改成功`)
+            this.visible = false
+            this.onSearch()
+          })
+          .catch(err => {
+            this.$message.error(err.response.data.message)
+          })
+      } else {
+        this.$api.Materials.addMaterial(this.list)
+          .then(() => {
+            this.$message.success(`新增成功`)
+            this.visible = false
+            this.onSearch()
+          })
+          .catch(err => {
+            console.log(err.response.data)
+            this.$message.error(err.response.data.message)
+          })
+      }
+    },
+    handleCancel() {
+      this.visible = false
+      this.list = { name: '', depotId: '' }
+    },
     clearInput() {},
-    editHandler() {
-      this.changeTitle = '編輯物料'
+    editHandler(item) {
+      console.log(item)
+      this.edited = true
+      this.changeTitle = '編輯倉庫'
+      this.materialsId = item.id
+      this.list.name = item.name
+      this.visible = true
     },
     onDelete(item) {
-      this.$message.success(item.name + '倉庫刪除成功')
+      this.$api.Materials.delMaterial(item.id)
+        .then(() => {
+          this.$message.success(`刪除成功`)
+          this.onSearch()
+        })
+        .catch(err => {
+          this.$message.error(err.response.data.message)
+        })
+    },
+    onSelect(value) {
+      console.log(value)
+      this.list.depotId = value
+      this.depotId = value
+    },
+    onShowSizeChange(current, pageSize) {
+      this.pageSize = pageSize
+      this.current = 1
+      this.getMaterialsList()
+    },
+    onPageChange(current, pageSize) {
+      this.current = current
+      this.getMaterialsList()
     }
+  },
+  mounted() {
+    this.onSearch()
   }
 }
 </script>
@@ -172,13 +270,13 @@ export default {
   width: 300px;
 }
 .class-input > label {
-  width: 80px;
+  width: 90px;
 }
 .class-input > input {
   margin-left: 5px;
 }
 .class-input > .ant-select {
-  width: 280px;
+  width: 300px;
 }
 .pagination {
   display: flex;
