@@ -13,7 +13,7 @@
             placeholder="搜尋物料倉庫名稱"
             enter-button
             autoFocus
-            @search="handleSearch"
+            @search="onSearch"
           />
         </div>
       </div>
@@ -26,7 +26,7 @@
     >
       <div class="class-input">
         <label>物料倉庫名稱:</label>
-        <a-input v-model="list.materialsName" autoFocus placeholder="請輸入" />
+        <a-input v-model="depotName" autoFocus placeholder="請輸入" />
       </div>
       <template slot="footer">
         <a-button key="submit" type="primary" @click="handleOk">
@@ -44,12 +44,8 @@
         :data-source="tableData"
         rowKey="id"
       >
-        <!--        <template slot="amount" slot-scope="text">-->
-        <!--          <span v-if="~text.indexOf('-')" class="amount&#45;&#45;red">{{ text }}</span>-->
-        <!--          <span v-else>{{ text }}</span>-->
-        <!--        </template>-->
         <template slot="action" slot-scope="text, record">
-          <template v-if="record.clientCount === 0">
+          <template v-if="record.count === 0">
             <a-space>
               <a-button type="link" size="small" @click="editHandler(record)"
                 >編輯</a-button
@@ -74,6 +70,8 @@
 </template>
 
 <script>
+import moment from 'moment'
+
 export default {
   name: 'MaterialsDepot',
   data() {
@@ -82,24 +80,26 @@ export default {
       tableData: [],
       changeTitle: '',
       visible: false,
-      list: { id: '', materialsName: '' },
+      edited: false,
+      depotId: '',
+      depotName: '',
       columns: [
         {
-          title: '類別名稱',
-          dataIndex: 'updateDate',
+          title: '物料倉庫名稱',
+          dataIndex: 'name',
           width: '10%',
           align: 'center'
         },
         {
-          title: '客戶數量',
-          dataIndex: 'num',
+          title: '物料數量',
+          dataIndex: 'count',
           width: '10%',
           align: 'center'
         },
         {
           title: '最後更新時間',
-          dataIndex: 'productName',
-          width: '20%',
+          dataIndex: 'lastRecordTime',
+          width: '10%',
           align: 'center'
         },
         {
@@ -113,21 +113,89 @@ export default {
     }
   },
   methods: {
+    onSearch() {
+      this.getDepotList()
+    },
+    getDepotList() {
+      this.$api.Materials.getDepotList(this.searchValue)
+        .then(res => {
+          this.tableData = res.data.map(item => {
+            let obj = item
+            obj.lastRecordTime = moment(item.lastRecordTime).format(
+              'YYYY-MM-DD'
+            )
+            return obj
+          })
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     showModal() {
       this.changeTitle = '新增物料倉庫'
+      this.edited = false
       this.visible = true
-      this.list = { id: '', materialsName: '' }
+      this.depotName = ''
     },
     handleSearch() {},
-    handleOk() {},
-    handleCancel() {},
+    handleOk() {
+      // if(this.depotName == '')
+      this.depotName = this.depotName.replace(/\s*/g, '')
+      if (this.depotName.length == 0) {
+        this.$message.warning(`請輸入物料倉庫名稱`)
+        return
+      }
+
+      if (this.edited) {
+        let data = { depotId: this.depotId, name: this.depotName }
+        this.$api.Materials.updateDepot(data)
+          .then(() => {
+            this.$message.success(`修改成功`)
+            this.visible = false
+            this.onSearch()
+          })
+          .catch(err => {
+            this.$message.error(err.response.data.message)
+          })
+      } else {
+        let data = { name: this.depotName }
+        this.$api.Materials.addDepot(data)
+          .then(() => {
+            this.$message.success(`新增成功`)
+            this.visible = false
+            this.onSearch()
+          })
+          .catch(err => {
+            console.log(err.response.data)
+            this.$message.error(err.response.data.message)
+          })
+      }
+    },
+    handleCancel() {
+      this.visible = false
+      this.depotName = ''
+    },
     clearInput() {},
-    editHandler() {
+    editHandler(item) {
       this.changeTitle = '編輯物料倉庫'
+      this.edited = true
+      this.depotId = item.id
+      this.depotName = item.name
+      this.visible = true
     },
     onDelete(item) {
-      this.$message.success(item.name + '倉庫刪除成功')
+      this.$api.Materials.deleteDepot(item.id)
+        .then(() => {
+          this.$message.success(`刪除成功`)
+          this.onSearch()
+        })
+        .catch(err => {
+          this.$message.error(err.response.data.message)
+        })
     }
+  },
+  mounted() {
+    this.onSearch()
   }
 }
 </script>

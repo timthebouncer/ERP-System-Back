@@ -140,6 +140,58 @@ const api = {
     updateDepot(data){
       return request.put('/depot/updateDepot',data)
     }
+  },
+  Materials: {
+    getMaterialsList(name, pageNumber, pageSize) {
+      return request.get(
+          '/material/GetMaterialPage?name=' +
+          name +
+          '&size=' +
+          pageSize +
+          '&number=' +
+          pageNumber
+      )
+    },
+    addMaterial(data) {
+      return request.post('/material/addMaterial', data)
+    },
+    delMaterial(id) {
+      return request.delete('/material/delMaterial/' + id)
+    },
+    updateMaterial(data) {
+      return request.put('/material/updateMaterial', data)
+    },
+    getDepotList(name) {
+      return request.get('/depot/getSearchList?name=' + name)
+    },
+    addDepot(data) {
+      return request.post('/depot/addDepot', data)
+    },
+    deleteDepot(id) {
+      return request.delete('/depot/delDepot/' + id)
+    },
+    updateDepot(data) {
+      return request.put('/depot/updateDepot', data)
+    },
+    getList() {
+      return request.get('/depot/getList')
+    },
+    getMaterialsLogList(data) {
+      return request.get(
+          '/materialLog/getPage?key=' +
+          data.key +
+          '&startDate=' +
+          data.startDate +
+          '&endDate=' +
+          data.endDate +
+          '&action=' +
+          data.action +
+          '&size=' +
+          data.size +
+          '&number=' +
+          data.number
+      )
+    }
   }
 };
 
