@@ -12,13 +12,16 @@
         @cancel="clearInput"
     >
       <div class="class-input">
-        <label>倉庫名稱:</label>
-        <a-input
-            v-model="warehouse"
-            autoFocus
-            label="倉庫名稱"
-            placeholder="請輸入"
-        />
+        <a-form-model-item
+                class="custom-form-item"
+                label="倉庫名稱"
+        >
+          <a-input
+                  v-model="warehouse"
+                  autoFocus
+                  placeholder="請輸入"
+          />
+        </a-form-model-item>
       </div>
       <template slot="footer">
         <a-button
@@ -56,7 +59,9 @@ export default {
         this.updateId = record.id
       }
     },
-    clearInput(){},
+    clearInput(){
+      this.warehouse = ''
+    },
     handleOk(){
       if(this.changeTitle === "新增倉庫"){
         this.$api.Depot.addDepot({
@@ -72,7 +77,7 @@ export default {
         })
       }else {
         this.$api.Depot.updateDepot({
-          'depotId':this.updateId,
+          'id':this.updateId,
           'name':this.warehouse
         })
         .then(()=>{

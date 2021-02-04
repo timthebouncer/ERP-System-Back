@@ -120,6 +120,9 @@ const api = {
     getTagList(tagName, pageNumber, pageSize){
       return request.get("/tag/tagList?tagName="+tagName+"&pageNumber="+pageNumber+"&pageSize="+pageSize)
     },
+    getAllTag(){
+      return request.get('/tag/tags')
+    },
     editTag(data){
       return request.put("/tag/editTag",data)
     },
@@ -129,16 +132,16 @@ const api = {
   },
   Depot:{
     getDepotList(params){
-      return request.get('/depot/getSearchList',{params})
+      return request.get('/productDepot/productDepotList',{params})
     },
     addDepot(data){
-      return request.post('/depot/addDepot',data)
+      return request.post('/productDepot/addProductDepot',data)
     },
     deleteDepot(id){
-      return request.delete('/depot/delDepot/'+id)
+      return request.delete('/productDepot/deleteProductDepot/'+id)
     },
     updateDepot(data){
-      return request.put('/depot/updateDepot',data)
+      return request.put('/productDepot/updateProductDepot',data)
     }
   },
   Materials: {

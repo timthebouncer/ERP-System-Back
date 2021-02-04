@@ -129,7 +129,7 @@ export default {
     },
     getDepotList(){
       this.$api.Depot.getDepotList({
-        'name':this.search
+        'depotName':this.search
       })
       .then(res=>{
         this.filterData = res.data

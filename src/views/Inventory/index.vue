@@ -625,6 +625,7 @@ export default {
           }
         })
         this.barCodeSelection = data
+        console.log(this.barCodeSelection)
       })
     },
     SalesProduct() {

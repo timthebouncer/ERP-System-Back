@@ -163,84 +163,183 @@
                         placeholder="請輸入"
                       />
                     </a-form-model-item>
-                    <a-form-model-item
+                    <div class="contact-form">
+                      <a-form-model-item
                         class="custom-form-item"
                         label="聯絡人"
-                    >
-                      <div class="contact-form">
+                      >
                         <a-input
-                            v-model="list.contactPerson"
-                            placeholder="請輸入"
-                            style="width: 200px"
+                          v-model="list.contactPerson"
+                          placeholder="請輸入"
+                          style="width: 200px"
                         />
-                        連絡電話:
+                      </a-form-model-item>
+                      <a-form-model-item
+                        class="custom-form-item"
+                        label="連絡電話"
+                      >
                         <a-input
-                            v-model="list.contactPerson"
-                            placeholder="請輸入"
-                            style="width: 200px"
+                          v-model="list.contactPersonTel"
+                          placeholder="請輸入"
+                          style="width: 200px"
                         />
-                        分機:
+                      </a-form-model-item>
+                      <a-form-model-item class="custom-form-item" label="分機">
                         <a-input
-                            v-model="list.contactPerson"
-                            placeholder="請輸入"
-                            style="width: 200px"
+                          v-model="list.contactPersonTelExt"
+                          placeholder="請輸入"
+                          style="width: 200px"
                         />
-                      </div>
-                    </a-form-model-item>
-                    <a-form-model-item
+                      </a-form-model-item>
+                      <a-form-model-item
                         class="custom-form-item"
                         label="對帳聯絡人"
-                    >
-                      <div class="contact-form">
+                      >
                         <a-input
-                            v-model="list.contactPerson"
-                            placeholder="請輸入"
-                            style="width: 200px"
+                          v-model="list.reconciliationContactPerson"
+                          placeholder="請輸入"
+                          style="width: 200px"
                         />
-                        連絡電話:
+                      </a-form-model-item>
+                      <a-form-model-item
+                        class="custom-form-item"
+                        label="連絡電話"
+                      >
                         <a-input
-                            v-model="list.contactPerson"
-                            placeholder="請輸入"
-                            style="width: 200px"
+                          v-model="list.reconciliationContactPersonTel"
+                          placeholder="請輸入"
+                          style="width: 200px"
                         />
-                        分機:
+                      </a-form-model-item>
+                      <a-form-model-item class="custom-form-item" label="分機">
                         <a-input
-                            v-model="list.contactPerson"
-                            placeholder="請輸入"
-                            style="width: 200px"
+                          v-model="list.reconciliationContactPersonTelExt"
+                          placeholder="請輸入"
+                          style="width: 200px"
                         />
-                      </div>
-                    </a-form-model-item>
-                    <a-form-model-item
+                      </a-form-model-item>
+                      <a-form-model-item
                         class="custom-form-item"
                         label="採購聯絡人"
-                    >
-                      <div class="contact-form">
+                      >
                         <a-input
-                            v-model="list.contactPerson"
-                            placeholder="請輸入"
-                            style="width: 200px"
+                          v-model="list.procurementContactPerson"
+                          placeholder="請輸入"
+                          style="width: 200px"
                         />
-                        連絡電話:
+                      </a-form-model-item>
+                      <a-form-model-item
+                        class="custom-form-item"
+                        label="連絡電話"
+                      >
                         <a-input
-                            v-model="list.contactPerson"
-                            placeholder="請輸入"
-                            style="width: 200px"
+                          v-model="list.procurementContactPersonTel"
+                          placeholder="請輸入"
+                          style="width: 200px"
                         />
-                        分機:
+                      </a-form-model-item>
+                      <a-form-model-item class="custom-form-item" label="分機">
                         <a-input
-                            v-model="list.contactPerson"
-                            placeholder="請輸入"
-                            style="width: 200px"
+                          v-model="list.procurementContactPersonTelExt"
+                          placeholder="請輸入"
+                          style="width: 200px"
                         />
-                      </div>
-                    </a-form-model-item>
+                      </a-form-model-item>
+                    </div>
                   </div>
                 </a-collapse-panel>
               </a-collapse>
               <div class="third-part">
                 <div class="third-part-item">
-                  <ReceiveModal />
+                  <div>
+                    <div>
+                      收件資料
+                      <a-button
+                        type="primary"
+                        size="small"
+                        class="editable-add-btn"
+                        @click="handleAddReceiver"
+                      >
+                        <a-icon type="plus" />
+                      </a-button>
+                    </div>
+                    <div>
+                      <a-form-model class="option-wrapper">
+                        <a-form-model-item>
+                          <a-radio-group
+                            v-model="receiveInfo"
+                            @change="receiveChange"
+                          >
+                            <a-form-model-item
+                              label="同客戶資料"
+                              class="option-content"
+                            >
+                              <a-radio :value="0">
+                                設為預設收件地址
+                              </a-radio>
+                            </a-form-model-item>
+                            <a-form-model-item
+                              label="同公司資料"
+                              class="option-content"
+                            >
+                              <a-radio :value="1">
+                                設為預設收件地址
+                              </a-radio>
+                            </a-form-model-item>
+                            <a-form-model-item
+                              v-for="(item,index) in recipientList"
+                              :key="item.id"
+                            >
+                              <a-radio :value="index += 2">
+                                設為預設收件地址
+                                <div class="custom-address">
+                                  <a-form-model-item
+                                    class="custom-form-item"
+                                    label="收件人"
+                                    prop=""
+                                  >
+                                    <a-input
+                                      v-model="item.receiver"
+                                      placeholder="請輸入"
+                                    />
+                                  </a-form-model-item>
+                                  <a-form-model-item
+                                    class="custom-form-item"
+                                    label="收件電話"
+                                    prop=""
+                                  >
+                                    <a-input
+                                      v-model="item.tel"
+                                      placeholder="請輸入"
+                                    />
+                                  </a-form-model-item>
+                                </div>
+                              </a-radio>
+
+                              <a-form-model-item
+                                class="custom-form-item"
+                                label="收件地址"
+                                prop=""
+                              >
+                                <div style="display: flex">
+                                  <a-input
+                                    style="width: 82px; margin-right: 5px"
+                                    v-model="item.postCode"
+                                    placeholder="郵遞區號"
+                                  />
+                                  <a-input
+                                    v-model="item.address"
+                                    placeholder="請輸入"
+                                  />
+                                </div>
+                              </a-form-model-item>
+                            </a-form-model-item>
+                          </a-radio-group>
+                        </a-form-model-item>
+                      </a-form-model>
+                    </div>
+                  </div>
+
                   <div>
                     商品折扣
                     <a-button
@@ -413,20 +512,20 @@
 </template>
 
 <script>
-import ReceiveModal from './Receiver'
 import { computedWeight } from '@/unit/dictionary/computed'
 import Fragment from '@/components/Fragment'
 export default {
   name: 'Customer',
-  components:{ReceiveModal},
   data() {
     const validatorTelReg = new RegExp(
       /^0((([2-8]|37|49|89|836|82)-?)|9)\d{8}$/
     )
     return {
-      newCurrent:1,
+      receiveInfo: 0,
+      recipientList: [],
+      newCurrent: 1,
       newPageSizeOptions: ['10', '30', '50', '100'],
-      newPageSize:10,
+      newPageSize: 10,
       loading: false,
       visible: false,
       changeTitle: '',
@@ -445,29 +544,23 @@ export default {
         companyName: null,
         vatNumber: '',
         contactPerson: '',
+        contactPersonTel: '',
+        contactPersonTelExt: '',
         companyTel: null,
         companyFax: null,
         companyEmail: null,
         companyPostCode: '',
         companyAddress: '',
-        updateTime: ''
+        updateTime: '',
+        procurementContactPerson: '',
+        procurementContactPersonTel: '',
+        procurementContactPersonTelExt: '',
+        reconciliationContactPerson: '',
+        reconciliationContactPersonTel: '',
+        reconciliationContactPersonTelExt: ''
       },
       discountClass: [],
       columns: [
-        // {
-        //   title: '序',
-        //   dataIndex: 'order',
-        //   width: '2%',
-        //   align: 'center',
-        //   scopedSlots: { customRender: 'order' }
-        // },
-        // {
-        //   title: '客戶編號',
-        //   dataIndex: 'id',
-        //   width: '10%',
-        //   align: 'center',
-        //   scopedSlots: { customRender: 'id' }
-        // },
         {
           title: '客戶類別',
           dataIndex: 'classes.name',
@@ -590,7 +683,8 @@ export default {
                       onChange={id =>
                         this.pushValue(
                           id,
-                          (index = (this.newCurrent - 1) * this.newPageSize + index)
+                          (index =
+                            (this.newCurrent - 1) * this.newPageSize + index)
                         )
                       }
                       show-search
@@ -718,60 +812,61 @@ export default {
           return {
             children: (
               <div class="displayInput">
-                {this.changeTitle === "編輯客戶" ? row[editKey] ? (
-                      <Fragment>
-                    <span onClick={() => this.inputORnot(row, editKey)}>
-                      {val}
-                    </span>
-                        <div class="displayEdit" />
-                        <a-icon
-                            class="editable-cell-icon"
-                            type="edit"
-                            onClick={() => this.inputORnot(row, editKey)}
-                        />
-                      </Fragment>
+                {this.changeTitle === '編輯客戶' ? (
+                  row[editKey] ? (
+                    <Fragment>
+                      <span onClick={() => this.inputORnot(row, editKey)}>
+                        {val}
+                      </span>
+                      <div class="displayEdit" />
+                      <a-icon
+                        class="editable-cell-icon"
+                        type="edit"
+                        onClick={() => this.inputORnot(row, editKey)}
+                      />
+                    </Fragment>
                   ) : (
-                      <div>
-                        <a-input
-                            autoFocus
-                            placeholder="請輸入"
-                            value={row[key]}
-                            vModel={row[key]}
-                            vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
-                            onKeyup={() =>
-                                key === 'discountPrice' &&
-                                (row[key] = row[key].replace(/[^\d]/g, ''))
-                            }
-                        />
-                      </div>
-                  ): row[editKey] ? (
-                          <div>
-                            <a-input
-                                autoFocus
-                                placeholder="請輸入"
-                                value={row[key]}
-                                vModel={row[key]}
-                                vOn:Keyup_enter={() => this.addNewItem2(row, editKey)}
-                                onKeyup={() =>
-                                    key === 'discountPrice' &&
-                                    (row[key] = row[key].replace(/[^\d]/g, ''))
-                                }
-                            />
-                          </div>
-                      )
-                      : (
-                          <Fragment>
+                    <div>
+                      <a-input
+                        autoFocus
+                        placeholder="請輸入"
+                        value={row[key]}
+                        vModel={row[key]}
+                        vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
+                        onKeyup={() =>
+                          key === 'discountPrice' &&
+                          (row[key] = row[key].replace(/[^\d]/g, ''))
+                        }
+                      />
+                    </div>
+                  )
+                ) : row[editKey] ? (
+                  <div>
+                    <a-input
+                      autoFocus
+                      placeholder="請輸入"
+                      value={row[key]}
+                      vModel={row[key]}
+                      vOn:Keyup_enter={() => this.addNewItem2(row, editKey)}
+                      onKeyup={() =>
+                        key === 'discountPrice' &&
+                        (row[key] = row[key].replace(/[^\d]/g, ''))
+                      }
+                    />
+                  </div>
+                ) : (
+                  <Fragment>
                     <span onClick={() => this.inputORnot2(row, editKey)}>
                       {val}
                     </span>
-                            <div class="displayEdit" />
-                            <a-icon
-                                class="editable-cell-icon"
-                                type="edit"
-                                onClick={() => this.inputORnot(row, editKey)}
-                            />
-                          </Fragment>
-                      ) }
+                    <div class="displayEdit" />
+                    <a-icon
+                      class="editable-cell-icon"
+                      type="edit"
+                      onClick={() => this.inputORnot(row, editKey)}
+                    />
+                  </Fragment>
+                )}
               </div>
             )
           }
@@ -827,7 +922,7 @@ export default {
         })
     },
     customerSelection() {
-      this.$myutils.gotoPageOne.call(this);
+      this.$myutils.gotoPageOne.call(this)
     },
     showModal() {
       this.visible = true
@@ -835,6 +930,13 @@ export default {
       this.productList = []
       this.newCurrent = 1
       this.newPageSize = 10
+      this.recipientList = [{
+        address: "",
+        id: "",
+        postCode: "",
+        receiver: "",
+        tel: "",
+      }]
     },
     clearInput() {
       this.list = {
@@ -851,9 +953,18 @@ export default {
         reference: '',
         companyEmail: '',
         companyPostCode: '',
-        companyAddress: ''
+        companyAddress: '',
+        contactPersonTel: '',
+        contactPersonTelExt: '',
+        procurementContactPerson: '',
+        procurementContactPersonTel: '',
+        procurementContactPersonTelExt: '',
+        reconciliationContactPerson: '',
+        reconciliationContactPersonTel: '',
+        reconciliationContactPersonTelExt: ''
       }
       this.discountTable = []
+      this.receiveInfo = ''
       this.resetForm()
     },
     submitNonstop() {
@@ -861,21 +972,9 @@ export default {
         if (valid) {
           if (this.changeTitle === '新增客戶') {
             this.$api.Customer.add({
-              name: this.list.name,
+              ...this.list,
               classesId: this.list.classes.id,
-              vatNumber: this.list.vatNumber,
-              companyName: this.list.companyName,
-              contactPerson: this.list.contactPerson,
-              companyTel: this.list.companyTel,
-              postCode: this.list.postCode,
-              address: this.list.address,
-              email: this.list.email,
-              remark: this.list.remark,
-              tel: this.list.tel,
-              companyFax: this.list.companyFax,
-              companyEmail: this.list.companyEmail,
-              companyPostCode: this.list.companyPostCode,
-              companyAddress: this.list.companyAddress,
+              defaultReceiveInfo: this.receiveInfo,
               discountList: this.discountTable.map(item => {
                 return {
                   discountId: '',
@@ -906,21 +1005,10 @@ export default {
         if (valid) {
           if (this.changeTitle === '新增客戶') {
             this.$api.Customer.add({
-              name: this.list.name,
+              ...this.list,
               classesId: this.list.classes.id,
-              vatNumber: this.list.vatNumber,
-              companyName: this.list.companyName,
-              contactPerson: this.list.contactPerson,
-              companyTel: this.list.companyTel,
-              postCode: this.list.postCode,
-              address: this.list.address,
-              email: this.list.email,
-              remark: this.list.remark,
-              tel: this.list.tel,
-              companyFax: this.list.companyFax,
-              companyEmail: this.list.companyEmail,
-              companyPostCode: this.list.companyPostCode,
-              companyAddress: this.list.companyAddress,
+              defaultReceiveInfo: this.receiveInfo,
+              recipientList: this.recipientList.filter(item => item.receiver !== ""),
               discountList: this.discountTable.map(item => {
                 return {
                   discountId: '',
@@ -943,22 +1031,11 @@ export default {
             this.clearInput()
           } else {
             this.$api.Customer.update({
-              clientId: this.track,
+              ...this.list,
               classesId: this.list.classes.id,
-              name: this.list.name,
-              tel: this.list.tel,
-              companyName: this.list.companyName,
-              vatNumber: this.list.vatNumber,
-              contactPerson: this.list.contactPerson,
-              companyTel: this.list.companyTel,
-              postCode: this.list.postCode,
-              address: this.list.address,
-              companyFax: this.list.companyFax,
-              email: this.list.email,
-              remark: this.list.remark,
-              companyEmail: this.list.companyEmail,
-              companyPostCode: this.list.companyPostCode,
-              companyAddress: this.list.companyAddress,
+              clientId: this.track,
+              defaultReceiveInfo: this.receiveInfo,
+              recipientList:this.recipientList,
               discountList: this.discountTable.map(item => {
                 return {
                   discountId: item.id,
@@ -998,13 +1075,23 @@ export default {
         .then(res => {
           this.discountTable = []
           if (res.data !== '') {
+            // if(record.defaultReceiveInfo > 1){
+            //   this.recipientList = res.data.recipientList
+            // }else {
+            //   this.recipientList = [{
+            //     address: "",
+            //     id: "",
+            //     postCode: "",
+            //     receiver: "",
+            //     tel: "",
+            //   }]
+            // }
             this.list = res.data
+            this.receiveInfo = res.data.defaultReceiveInfo
             this.$api.Customer.discountNoPages({
               clientId: this.track
             })
               .then(res => {
-                console.log(res, 321)
-                // this.total = res.data.length
                 this.discountTable = res.data.map(d => ({
                   id: d.discountId,
                   name: d.productName,
@@ -1024,8 +1111,6 @@ export default {
                 this.keepSelection()
               })
             this.visible = true
-          } else {
-            alert('123')
           }
         })
         .catch(err => {
@@ -1050,9 +1135,6 @@ export default {
       this.getCustomerList(this.search)
     },
     onPageChange(current) {
-      console.log(current)
-      // console.log(pageSize);
-      // console.log(this.total);
       this.getCustomerList(this.search)
     },
     discountTableChange({ current, pageSize }) {
@@ -1061,7 +1143,7 @@ export default {
       this.newPageSize = pageSize
     },
     searchHandler() {
-      this.$myutils.gotoPageOne.call(this);
+      this.$myutils.gotoPageOne.call(this)
     },
     async deleteDiscount(row, index) {
       if (this.changeTitle === '新增客戶') {
@@ -1092,6 +1174,18 @@ export default {
         return v.productId ? { ...p, [v.productId]: true } : p
       }, {})
     },
+    handleAddReceiver() {
+      let receiveList = this.recipientList.every(item => item.receiver !== "")
+      if(receiveList){
+        this.recipientList.push({
+          address: "",
+          id: "",
+          postCode: "",
+          receiver: "",
+          tel: "",
+        })
+      }
+    },
     handleAdd() {
       const { discountTable } = this
       const newData = {
@@ -1119,12 +1213,22 @@ export default {
         let content = res.data
         let result = content.find(item => item.id === id)
         let rows = this.discountTable[index]
-        // rows.using = result.using
         rows.productId = result.id
         rows.unit = computedWeight(undefined, result.unit)
         rows.salesPrice = result.salesPrice
         rows.using = result.using
       })
+    },
+    receiveChange() {
+      // if (this.receiveInfo <= 1) {
+      //   this.recipientList = [{
+      //     address: "",
+      //     id: "",
+      //     postCode: "",
+      //     receiver: "",
+      //     tel: "",
+      //   }]
+      // }
     }
   }
 }
@@ -1163,7 +1267,7 @@ export default {
 }
 
 .third-part {
-  margin-top:10px;
+  margin-top: 10px;
   padding: 20px 20px 20px 20px;
   /*background-color: #f5e9e9;*/
   .editable-add-btn {
@@ -1240,8 +1344,20 @@ export default {
   cursor: pointer;
   top: 3.5px;
 }
-.contact-form{
+.contact-form {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
+}
+.option-wrapper {
+  background-color: #f5f5f5;
+  padding: 10px 0px 0px 60px;
+  line-height: 2;
+}
+.option-content {
+  display: flex;
+}
+.custom-address {
+  display: flex;
 }
 </style>
