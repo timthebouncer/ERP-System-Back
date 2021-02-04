@@ -47,10 +47,10 @@
         >
           <div :key="col">
             <template v-if="col === 'orderNo'">
-              <a-popover
+              <!--原訂單詳情-->
+              <!-- <a-popover
                 placement="bottomLeft"
                 trigger="click"
-                @visibleChange="showDetail(record)"
               >
                 <template slot="content">
                   <div>
@@ -89,14 +89,11 @@
                         </div>
                       </template>
                     </a-table>
-                    <template>
-                      <span> 總數:{{ Calculate.count }} </span>
-                      <span> 總金額:{{ Calculate.total }} </span>
-                    </template>
                   </div>
                 </template>
-                <a-button type="link">{{ text }}</a-button>
-              </a-popover>
+              </a-popover> <-->
+
+              <a-button @click="showDetail(record)" type="link">{{ text }}</a-button>
             </template>
             <template v-else>
               {{ text }}
@@ -105,9 +102,11 @@
         </template>
         <template slot="operation" slot-scope="text, record">
           <template v-if="record.remark === '註銷'">
+            <a-button type="link" size="small" disabled="">編輯</a-button>
             <a-button type="link" size="small" disabled>取消訂單</a-button>
           </template>
           <template v-else>
+            <a-button type="link" size="small" @click="editHandler(record)">編輯</a-button>
             <a-popconfirm
               title="取消訂單後將無法復原"
               @confirm="() => cancelHandler(record)"
@@ -151,7 +150,10 @@
             <div class="firstPart">
               <div class="firstPart-item">
                 <a-form-model-item class="custom-form-item" label="出貨日期">
-                  <div>{{ list.date }}</div>
+                  <div v-if="orderModalTitle !== '訂單詳情'">
+                    <a-date-picker @change="salesDate" />
+                  </div>
+                  <div v-else>{{666}}</div>
                 </a-form-model-item>
                 <a-form-model-item
                   class="custom-form-item"
@@ -165,47 +167,54 @@
               </div>
               <div class="firstPart-item">
                 <a-form-model-item class="custom-form-item" label="客戶類別">
-                  <a-select
-                  show-search
-                  placeholder="請選擇"
-                  style="width: 200px"
-                  >
-                    <a-select-option>
-
-                    </a-select-option>
-                  </a-select>
+                  <div v-if="orderModalTitle !== '訂單詳情'">
+                    <a-select
+                            show-search
+                            placeholder="請選擇"
+                            style="width: 200px"
+                    >
+                      <a-select-option v-for="item in classesList" :value="item.id" :key="item.id">
+                        {{item.className}}
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                  <div v-else>888</div>
                 </a-form-model-item>
                 <a-form-model-item class="custom-form-item" label="客戶名稱">
-                  <a-select
-                    show-search
-                    placeholder="請選擇"
-                    style="width: 200px"
-                    :filter-option="filterOption"
-                    @change="handleChange"
-                  >
-                    <a-select-option
-                      v-for="item in customerList"
-                      :key="item.id"
-                      :value="item.id"
+                  <div v-if="orderModalTitle !== '訂單詳情'">
+                    <a-select
+                            show-search
+                            placeholder="請選擇"
+                            style="width: 200px"
+                            :filter-option="filterOption"
+                            @change="handleChange"
+                            v-model="optionId"
                     >
-                      {{ item.name }}
-                    </a-select-option>
-                  </a-select>
+                      <a-select-option
+                              v-for="item in customerList"
+                              :key="item.id"
+                              :value="item.id"
+                      >
+                        {{ item.name }}
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                  <div v-else>{{"哈哈"}}</div>
                 </a-form-model-item>
-                <a-form-model-item class="custom-form-item" label="客戶電話">
+                <a-form-model-item class="custom-form-item" label="客戶電話" v-model="list.tel">
                   {{ list.tel }}
                 </a-form-model-item>
               </div>
               <div class="firstPart-item">
                 <a-form-model-item class="custom-form-item" label="收件人">
-                  <a-select
-                  show-search
-                  placeholder="請選擇"
-                  style="width: 200px"
-                  >
-                    <a-select-option>
-                    </a-select-option>
-                  </a-select>
+<!--                  <a-select-->
+<!--                  show-search-->
+<!--                  placeholder="請選擇"-->
+<!--                  style="width: 200px"-->
+<!--                  >-->
+<!--                    <a-select-option>-->
+<!--                    </a-select-option>-->
+<!--                  </a-select>-->
                 </a-form-model-item>
                 <a-form-model-item class="custom-form-item" label="收件電話">
                 </a-form-model-item>
@@ -322,8 +331,10 @@
                           :auto-size="{ minRows: 3, maxRows: 5 }"
                       />
                     </div>
-                    <span>總數量</span>
-                    <span>總金額</span>
+                    <template>
+                      <span> 總數量:{{ Calculate.count }} </span>
+                      <span> 總金額:{{ Calculate.total }} </span>
+                    </template>
                   </a-form-model-item>
                 </div>
               </div>
@@ -331,17 +342,14 @@
             <div class="print-wrapper">
               <h3>列印資料</h3>
               <div class="button-wrapper">
-                <button class="print-btn">商用格式-有價格</button>
-                <button class="print-btn">商用格式-無價格</button>
-                <button class="print-btn">零售格式-有價格</button>
-                <button class="print-btn">貼箱標籤</button>
+                <ModalExample />
             </div>
             </div>
           </a-form-model>
         </div>
         <template slot="footer">
           <a-button key="submit" type="primary" @click="handleOk">
-            出貨確認
+            儲存
           </a-button>
           <a-button key="back" @click="handleCancel">
             取消
@@ -352,11 +360,13 @@
   </div>
 </template>
 <script>
-import axios from 'axios'
+import ModalExample from './Execel/index'
+// import axios from 'axios'
 import moment from 'moment'
 import { computedWeight } from '@/unit/dictionary/computed'
 import Fragment from '@/components/Fragment'
 export default {
+  components:{ModalExample},
   data() {
     let differentDate = [
       moment()
@@ -366,7 +376,7 @@ export default {
     ]
     return {
       orderViewVisible: false,
-      orderModalTitle: '出貨',
+      orderModalTitle: '',
       customerList: [],
       remark: '',
       orderColumns: [
@@ -420,13 +430,13 @@ export default {
         },
         {
           title: '數量',
-          dataIndex: 'stockAmount',
+          dataIndex: 'amount',
           align: 'center',
           width: '10%',
           customRender: (val, row) => {
-            return this.Quantity(val, row, 'stockAmount')
+            return this.Quantity(val, row, 'amount')
           },
-          scopedSlots: { customRender: 'stockAmount' }
+          scopedSlots: { customRender: 'amount' }
         },
         {
           title: '建議售價',
@@ -455,7 +465,7 @@ export default {
           align: 'center',
           customRender: (_, row) => {
             return {
-              children: row.salesPrice * row.stockAmount
+              children: row.salesPrice * row.amount
             }
           },
           scopedSlots: { customRender: 'orderPrice' }
@@ -501,6 +511,7 @@ export default {
       pageSizes: 10,
       totalPages: 10,
       selectList: [],
+      classesList:[],
       differentDate,
       tableData: [],
       orderList: [],
@@ -583,6 +594,7 @@ export default {
         }
       ],
       search: '',
+      optionId:'',
       pageSizeOptions: ['10', '30', '50', '100'],
       pageNumber: 1,
       pageSize: 10,
@@ -594,13 +606,24 @@ export default {
   created() {
     this.distributeList()
     this.getCustomerList()
+    this.getClass()
   },
   mounted() {
     this.CommodityDetail(this.searchBarcode)
   },
   methods: {
     showAddOrderView() {
+      this.orderModalTitle = '出貨'
       this.orderViewVisible = true
+    },
+    editHandler(record){
+      this.orderViewVisible = true
+      this.orderModalTitle = "編輯出貨"
+
+      this.optionId = record.clientId
+      this.handleChange(record.clientId)
+
+      this.getOrderDetail(record);
     },
     handleCancel() {
       this.purchaseViewVisible = false
@@ -609,6 +632,7 @@ export default {
       this.list = {}
       this.remark = ''
       this.selectList = []
+      this.optionId = ''
     },
     addNewItem(row, editKey) {
       row[editKey] = false
@@ -627,9 +651,15 @@ export default {
       this.list = this.customerList.find(item => {
         return item.id === id
       })
+      // this.list = JSON.parse(JSON.stringify(this.customerList.find(item => {
+      //   return item.id === id
+      // })))
       this.orderData = []
       this.specificId = id
       this.SalesProduct()
+    },
+    salesDate(date, dateString){
+      console.log(date, dateString);
     },
     handleAdd() {
       const { orderData } = this
@@ -641,7 +671,7 @@ export default {
         productId: undefined,
         Price:0,
         salesPrice: 0,
-        stockAmount: 1,
+        amount: 1,
         discount:0,
         reference:'',
         orderPrice: 0,
@@ -695,19 +725,19 @@ export default {
                 return {
                   barcode: item.barCode,
                   price: item.salesPrice,
-                  amount: item.stockAmount
+                  amount: item.amount
                 }
               })
             })
-              .then(res => {
-                alert(`出貨確認成功，已新增出貨單號:${res.data.orderNo}`)
+              .then(() => {
+                alert('出貨確認成功')
                 this.orderViewVisible = false
                 this.handleCancel()
                 this.resetPage()
               })
               .catch(() => {
                 const stock = this.orderData.map(item => {
-                  return item.stockAmount
+                  return item.amount
                 })
                 const quantity = this.selectList.some(
                   (item, i) => item.amount < stock[i]
@@ -734,6 +764,15 @@ export default {
     getCustomerList() {
       this.$api.Inventory.onlyCustomerList().then(res => {
         this.customerList = res.data
+      })
+    },
+    getClass(){
+      this.$api.Customer.getClass()
+      .then(res=>{
+        this.classesList = res.data.map(item=>{
+          return item
+        })
+        console.log(this.classesList)
       })
     },
     SalesProduct() {
@@ -842,19 +881,31 @@ export default {
     onPageChange(current) {
       this.distributeList(this.search)
     },
-    showDetail(record) {
+    getOrderDetail(record){
       this.$api.Distribute.getDistributeDetail({
         orderId: record.orderId
-      }).then(res => {
-        this.orderList = res.data.orderDetailItemResponseList
-        let count = 0
-        let total = 0
-        this.orderList.forEach(item => {
-          count += item.amount
-          total += item.salesPrice
-        })
-        this.Calculate = { count, total }
+      }).then(res=>{
+        this.orderData = res.data.orderDetailItemResponseList
+        console.log(this.orderData)
       })
+    },
+    showDetail(record) {
+      this.orderViewVisible = true
+      this.orderModalTitle = "訂單詳情"
+        this.$api.Distribute.getDistributeDetail({
+          orderId: record.orderId
+        }).then(res => {
+          this.orderList = res.data.orderDetailItemResponseList
+          this.orderData = res.data.orderDetailItemResponseList
+          let count = 0
+          let total = 0
+          this.orderList.forEach(item => {
+            count += item.amount
+            total += item.salesPrice
+          })
+          this.Calculate = { count, total }
+        })
+
     },
     cancelHandler(record) {
       this.$api.Distribute.deleteOrderList(record).then(() => {
@@ -1005,8 +1056,6 @@ export default {
   margin-top: 10px;
   background-color: #f5f5f5;
   .button-wrapper{
-    display: flex;
-    justify-content: space-evenly;
     .print-btn{
       background-color: #fba129;
       color: #fcfcfc;
