@@ -72,7 +72,7 @@ const routes = [
               name: "庫存管理"
             },
             {
-              name: "倉庫類別"
+              name: "庫存倉庫"
             }
           ]
         }

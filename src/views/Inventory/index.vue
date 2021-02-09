@@ -581,6 +581,7 @@ export default {
       data.barcode = this.searchBarcode
       data.unit = this.addInventoryProductUnit
       data.weight = 0
+      data.depotId = '2c95808d7780b136017780dc7a630014'
       this.$api.Inventory.addInventory(data)
         .then(res => {
           console.log(res)
