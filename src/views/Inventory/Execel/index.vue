@@ -30,24 +30,24 @@
         </div>
         <div class="detail-wrapper">
           <div class="detail-list">
-            <span>客戶名稱</span>
-            <span>客戶類別</span>
-            <span>收件地址</span>
-            <span>客戶電話</span>
-            <span>統一編號</span>
-            <span>出貨方式</span>
-            <span>備註</span>
+            <span>客戶名稱:{{orderDetail.clientName}}</span>
+            <span>客戶類別:{{orderDetail.className}}</span>
+            <span>收件地址:{{orderDetail.receivePostCode}}{{orderDetail.receiveAddress}}</span>
+            <span>客戶電話:{{orderDetail.phoneNumber}}</span>
+            <span>統一編號:{{orderDetail.vatNumber}}</span>
+            <span>出貨方式:{{orderDetail.shipment}}</span>
+            <span>備註:{{orderDetail.remark}}</span>
           </div>
           <div class="barcode-wrapper">
-            <span>出貨日期</span>
-            <span>出貨單號</span>
-            <span>物流編號</span>
+            <span>出貨日期:{{orderDetail.salesDay}}</span>
+            <span>出貨單號:{{orderDetail.orderNo}}</span>
+            <span>物流編號:{{orderDetail.trackingNo}}</span>
           </div>
         </div>
         <div class="content-wrapper">
           <a-table
             :columns="columnList"
-            :data-source="tableData"
+            :data-source="orderData"
             :pagination="false"
           >
           </a-table>
@@ -123,6 +123,7 @@ import * as htmlToImage from 'html-to-image'
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image'
 export default {
   name: 'ModalExample',
+  props:['distirbuteHandler','orderData', 'orderDetail'],
   data() {
     return {
       show: false,
@@ -134,6 +135,9 @@ export default {
           dataIndex: 'name',
           scopedSlots: {
             customRender: 'name'
+          },
+          customRender:(val, row)=>{
+            return <div>{row.productName}</div>
           }
         },
         type2: {
@@ -148,12 +152,17 @@ export default {
         },
         type4: {
           title: '建議售價',
-          dataIndex: 'salesPrice'
+          dataIndex: 'salesPrice',
+          customRender:(val, row)=>{
+            return <div>{row.price}</div>
+          }
         },
         type5: {
           title: '出貨售價',
           dataIndex: 'sellsPrice',
-          scopedSlots: { customRender: 'sellsPrice' }
+          customRender:(val, row)=>{
+            return <div>{row.clientPrice}</div>
+          }
         },
         type6: {
           title: '折讓',
@@ -168,7 +177,9 @@ export default {
         type8: {
           title: '備註',
           dataIndex: 'reference',
-          scopedSlots: { customRender: 'reference' }
+          customRender:(val, row)=>{
+            return <div>{row.remark}</div>
+          }
         }
       },
       tableData: [],
@@ -195,6 +206,7 @@ export default {
       this.tableData = [...tableData, newData]
     },
     showModal1() {
+      this.distirbuteHandler();
       this.templateType = '商用-有價格'
       this.visible = true
       this.columnList = this.getColumn([
@@ -207,9 +219,11 @@ export default {
         'type7',
         'type8'
       ])
-      // if(this.columns.length < 5){
-      //   this.addColumns()
-      // }
+      let _this = this;
+      setTimeout(function() {
+        _this.handleOk();
+      },200)
+
     },
     showModal2() {
       this.templateType = '商用-無價格'
@@ -224,21 +238,29 @@ export default {
         'type7',
         'type8'
       ])
-      // if(this.columns.length < 5){
-      //   this.addColumns()
-      // }
+      let _this = this;
+      setTimeout(function() {
+        _this.handleOk();
+      },200)
     },
     showModal3() {
       this.templateType = '零售-有價格'
       this.visible = true
       this.columnList = this.getColumn(['type', 'type2', 'type3', 'type8'])
-      // if(this.columns.length > 5){
-      //   this.columns.splice(3,4)
-      // }
+
+      let _this = this;
+      setTimeout(function() {
+        _this.handleOk();
+      },200)
     },
     showModal4() {
       this.templateType = '貼箱標籤'
       this.show = true
+
+      let _this = this;
+      setTimeout(function() {
+        _this.handleOk();
+      },200)
     },
     handleOk() {
       this.handleCancel()
@@ -250,11 +272,14 @@ export default {
             let img = new Image()
             img.src = dataUrl
 
-            let printPage = document.querySelector('.print-modal')
-            printPage.appendChild(img)
+            // let printPage = document.querySelector('.print-modal')
+            // printPage.appendChild(img)
 
-            let myWindow = window.open('', '', 'width=500,height=700')
-            myWindow.document.write(printPage.innerHTML)
+            // let body = window.document.appendChild(img)
+
+
+            let myWindow = window.open('', '', 'width=2000,height=1000')
+            myWindow.document.write(img.outerHTML)
 
             setTimeout(function() {
               myWindow.document.close()
@@ -289,7 +314,6 @@ export default {
       this.visible = false
       this.show = false
       let printPage = document.querySelector('.print-modal')
-      console.log(printPage)
       printPage.innerHTML = ''
     },
     getColumn(columns) {

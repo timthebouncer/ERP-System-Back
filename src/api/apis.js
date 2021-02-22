@@ -74,7 +74,10 @@ const api = {
     },
     onlyCustomerList() {
       return request.get('/client/clientList?searchKey=')
-    }
+    },
+    getStockDetail(params){
+      return request.get('inventory/getStock?', {params})
+    },
   },
   Commodity:{
     getCommodityList(params){
@@ -94,6 +97,12 @@ const api = {
     },
     getSalesProduct(params){
       return request.get('/product/getSalesProduct/',{params})
+    },
+    getCommodityDiscount(params) {
+      return request.get('/discount/getProductDiscountList?', {params})
+      },
+    editStatus(params){
+      return request.put('/product/changeStatus?',{params})
     }
   },
   Distribute:{
