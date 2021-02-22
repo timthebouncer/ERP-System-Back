@@ -3,7 +3,7 @@
   <div class="container">
     <div class="action">
       <CustomPrice ref="Modal" :getCommodity="getCommodity" />
-       <!--<div class="addM">
+      <!--<div class="addM">
 
 
         <a-button class="button1" @click="showModal"
@@ -153,14 +153,18 @@
           <a-switch :checked="using" @change="onChange($event, record)" />
         </template>
         <template slot="operation" slot-scope="text, record">
-            <template v-if="record.using === true">
-              <a-button type="link" size="small" @click="editHandler(record)"
+          <template v-if="record.using === true">
+            <a-button type="link" size="small" @click="editHandler(record)"
               >編輯</a-button
-              >
-            </template>
+            >
+          </template>
           <template v-else>
-            <a-button type="link" size="small" disabled @click="editHandler(record)"
-            >編輯</a-button
+            <a-button
+              type="link"
+              size="small"
+              disabled
+              @click="editHandler(record)"
+              >編輯</a-button
             >
           </template>
         </template>
@@ -179,7 +183,7 @@
     >
       <template slot="buildOptionText" slot-scope="props">
         <span>{{ props.value }}筆/頁</span>
-<!--        <span v-if="props.value === '50'">全部</span>-->
+        <!--        <span v-if="props.value === '50'">全部</span>-->
       </template>
     </a-pagination>
     <!--    <AAA v-model="list.unit" />-->
@@ -187,108 +191,109 @@
 </template>
 
 <script>
-import axios from "axios";
-import { computedWeight } from "@/unit/dictionary/computed";
+import { computedWeight } from '@/unit/dictionary/computed'
 import CustomPrice from './SalesPriceSetting'
 export default {
-  name: "Merchant",
+  name: 'Merchant',
   components: { CustomPrice },
   data() {
     return {
       loading: false,
       visible: false,
-      track: "",
-      search: "",
+      track: '',
+      search: '',
       list: {
-        name: "",
-        unit: "KG",
-        unitType: "",
-        barcode: "",
+        name: '',
+        unit: 'KG',
+        unitType: '',
+        barcode: '',
         listPrice: undefined,
-        description: "",
-        using: undefined,
-        updateTime: "",
+        description: '',
+        using: true,
+        updateTime: ''
       },
       tableData: [],
-      changeTitle: "",
+      changeTitle: '',
       columns: [
         {
-          title: "商品條碼",
-          dataIndex: "barcode",
-          width: "15%",
-          align: "center",
-          scopedSlots: { customRender: "barcode" }
+          title: '商品條碼',
+          dataIndex: 'barcode',
+          width: '15%',
+          align: 'center',
+          scopedSlots: { customRender: 'barcode' }
         },
         {
-          title: "商品名稱",
-          dataIndex: "name",
-          width: "15%",
-          align: "center",
-          scopedSlots: { customRender: "name" }
+          title: '商品名稱',
+          dataIndex: 'name',
+          width: '15%',
+          align: 'center',
+          scopedSlots: { customRender: 'name' }
         },
         {
-          title: "計價單位",
-          dataIndex: "unit",
-          width: "6%",
-          align: "center",
-          scopedSlots: { customRender: "unit" }
+          title: '計價單位',
+          dataIndex: 'unit',
+          width: '6%',
+          align: 'center',
+          scopedSlots: { customRender: 'unit' }
         },
         {
-          title: "單價",
-          dataIndex: "listPrice",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "listPrice" }
+          title: '單價',
+          dataIndex: 'price',
+          width: '10%',
+          align: 'center',
+          scopedSlots: { customRender: 'price' }
         },
         {
-          title: "庫存量",
-          dataIndex: "stockAmount",
-          width: "5%",
-          align: "center",
-          scopedSlots: { customRender: "stockAmount" }
+          title: '庫存量',
+          dataIndex: 'stockAmount',
+          width: '5%',
+          align: 'center',
+          scopedSlots: { customRender: 'stockAmount' }
         },
         {
-          title: "建立時間",
-          dataIndex: "createDate",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "createDate" }
+          title: '建立時間',
+          dataIndex: 'createDate',
+          width: '10%',
+          align: 'center',
+          scopedSlots: { customRender: 'createDate' }
         },
         {
-          title: "狀態",
-          dataIndex: "using",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "using" }
+          title: '狀態',
+          dataIndex: 'using',
+          width: '10%',
+          align: 'center',
+          scopedSlots: { customRender: 'using' }
         },
         {
-          title: "操作",
-          dataIndex: "operation",
-          width: "10%",
-          align: "center",
-          scopedSlots: { customRender: "operation" }
+          title: '操作',
+          dataIndex: 'operation',
+          width: '10%',
+          align: 'center',
+          scopedSlots: { customRender: 'operation' }
         }
       ],
       rules: {
-        barcode: [{pattern:/^\d+$/,message: "請輸入數字", trigger: "blur"}],
-        unit: [{ required: true, message: "請選擇", trigger: "blur" }],
-        name: [{ required: true, message: "請輸入商品名稱", trigger: "blur" }],
+        barcode: [{ pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }],
+        unit: [{ required: true, message: '請選擇', trigger: 'blur' }],
+        name: [{ required: true, message: '請輸入商品名稱', trigger: 'blur' }],
         // salesPrice: [{ required: true, pattern:/^\d+$/,message: "請輸入售價(數字)", trigger: "blur" }],
-        listPrice:[{ pattern:/^\d+$/,message: "請輸入數字", trigger: "blur"}],
+        listPrice: [
+          { pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }
+        ]
       },
-      pageSizeOptions: ["10", "30", "50", "100"],
+      pageSizeOptions: ['10', '30', '50', '100'],
       current: 1,
       pageSize: 10,
       total: 30
-    };
+    }
   },
   computed: {
     computedWeight() {
       return computedWeight
     }
   },
-   created() {
-      this.getCommodity();
+  created() {
+    this.getCommodity()
   },
   methods: {
     getCommodity() {
@@ -299,47 +304,45 @@ export default {
       })
         .then(res => {
           console.log(res)
-          this.total = res.data.totalElements;
-          this.tableData = res.data.content;
+          this.total = res.data.totalElements
+          this.tableData = res.data.content
         })
         .catch(err => {
-          console.log(err);
-        });
+          console.log(err)
+        })
     },
     editHandler(record) {
       this.$refs.Modal.showModal(record)
     },
     onSearch() {
-        this.getCommodity(this.current = 1);
+      this.getCommodity((this.current = 1))
     },
-    onShowSizeChange(current, pageSize){
-      this.current = 1;
-      this.pageSize = pageSize;
-      this.getCommodity();
+    onShowSizeChange(current, pageSize) {
+      this.current = 1
+      this.pageSize = pageSize
+      this.getCommodity()
     },
-    onPageChange(current){
-      console.log(current);
+    onPageChange(current) {
+      console.log(current)
       // console.log(pageSize);
       // console.log(this.total);
-      this.getCommodity();
+      this.getCommodity()
     },
     onChange(checked, record) {
-      if(record.stockAmount === 0){
-        axios
-            .put(
-                `/erp/product/changeStatus?productId=${record.id}&status=${checked}`
-            )
-            .then(res => {
-              console.log(res);
-              record.using = checked;
-              this.$message.success("修改狀態成功");
-            });
-      }else{
-        this.$message.error("庫存量大於0");
+      if (record.stockAmount === 0) {
+        this.$api.Commodity.editStatus({
+          productId:record.id,
+          status:checked
+        }).then(()=>{
+          record.using = checked
+          this.$message.success('修改狀態成功')
+        })
+      } else {
+        this.$message.error('庫存量大於0')
       }
     }
   }
-};
+}
 </script>
 <style scoped lang="scss">
 .search {

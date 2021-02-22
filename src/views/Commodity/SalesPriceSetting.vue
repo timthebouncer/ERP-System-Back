@@ -20,9 +20,8 @@
               >
                 <a-input v-model="list.name" placeholder="請輸入" />
               </a-form-model-item>
-              <a-form-model-item class="custom-form-item"
-               label="出貨名稱">
-                <a-input placeholder="請輸入" />
+              <a-form-model-item class="custom-form-item" label="出貨名稱">
+                <a-input v-model="list.alias" placeholder="請輸入" />
               </a-form-model-item>
               <a-form-model-item
                 class="custom-form-item"
@@ -43,7 +42,11 @@
 
               <a-form-model-item class="custom-form-item" label="定重重量">
                 <div class="weight-wrapper">
-                  <a-input style="width: 115px" placeholder="請輸入" />
+                  <a-input
+                    v-model="list.weight"
+                    style="width: 115px"
+                    placeholder="請輸入"
+                  />
                   <a-select style="width: 60px">
                     <option></option>
                   </a-select>
@@ -59,24 +62,24 @@
               </a-form-model-item>
 
               <a-form-model-item class="custom-form-item" label="預設標籤">
-                <a-select style="width: 175px">
+                <a-select style="width: 175px" v-model="list.tagId" @change="passTagId">
                   <a-select-option v-for="item in tagList" :key="item.id">
-                    {{item.tagName}}
+                    {{ item.tagName }}
                   </a-select-option>
                 </a-select>
               </a-form-model-item>
-              </div>
-              <a-form-model-item
-                class="custom-form-item"
-                label="商品描述"
-                style="width: 100%"
-              >
-                <a-textarea
-                  v-model="list.description"
-                  placeholder="請輸入"
-                  style="height: 100px"
-                />
-              </a-form-model-item>
+            </div>
+            <a-form-model-item
+              class="custom-form-item"
+              label="商品描述"
+              style="width: 100%"
+            >
+              <a-textarea
+                v-model="list.description"
+                placeholder="請輸入"
+                style="height: 100px"
+              />
+            </a-form-model-item>
           </div>
         </a-form-model>
       </div>
@@ -136,20 +139,26 @@
   </div>
 </template>
 <script>
-  import translate from "@/components/translate";
-  // import { computedWeight } from "@/unit/dictionary/computed";
+import translate from '@/components/translate'
+import Fragment from '@/components/Fragment.vue'
+// import { computedWeight } from "@/unit/dictionary/computed";
 export default {
   name: 'CustomPrice',
   components: { translate },
-  props:['getCommodity'],
+  props: ['getCommodity'],
   data() {
     return {
-      tagList:[],
+      selectedId:[],
+      cusList: [],
+      tagId: '',
+      customerId: '',
+      customerList: [],
+      tagList: [],
       salesTable: [],
       loading: false,
       visible: false,
       changeTitle: '',
-      classesList:[],
+      classesList: [],
       list: {
         name: '',
         unit: 'KG',
@@ -158,7 +167,9 @@ export default {
         listPrice: undefined,
         description: '',
         using: undefined,
-        updateTime: ''
+        updateTime: '',
+        tagId:'',
+        alias:''
       },
       rules: {
         barcode: [{ pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }],
@@ -174,43 +185,57 @@ export default {
           title: '客戶類別',
           dataIndex: 'classes',
           align: 'center',
-          customRender:(val, row)=>{
+          customRender: (val, row) => {
             return {
-              children:(
-                      <div>
-                        <a-select
-                        style="width:200px"
-                        placeholder="請選擇"
-                        >
-                          {this.classesList.map(item => (
-                                  <a-select-option
-                                          value={item.id}
-                                  >
-                                    {item.className}
-                                  </a-select-option>
-                          ))}
-                        </a-select>
-                      </div>
-
+              children: (
+                <div>
+                  <a-select
+                    style="width:200px"
+                    placeholder="請選擇"
+                    onChange={id => this.handleChange(id, row)}
+                    vModel={row.classes}
+                  >
+                    {this.classesList.map(item => (
+                      <a-select-option value={item.id}>
+                        {item.className}
+                      </a-select-option>
+                    ))}
+                  </a-select>
+                </div>
               )
             }
-          } ,
+          },
           scopedSlots: { customRender: 'classes' }
         },
         {
           title: '客戶名稱',
-          dataIndex: '',
+          dataIndex: 'clientName',
           align: 'center',
-          scopedSlots: { customRender: 'unit' }
+          customRender: (val, row) => {
+            return {
+              children: (
+                <div>
+                  <a-select style="width:200px" vModel={row.clientName} placeholder="請選擇" onChange={id => this.clientOption(id,row)} >
+                    {row.storeClient.map(item => (
+                      <a-select-option value={item.id} disabled={item.disabled}>
+                        {item.name}
+                      </a-select-option>
+                    ))}
+                  </a-select>
+                </div>
+              )
+            }
+          },
+          scopedSlots: { customRender: 'clientName' }
         },
         {
           title: '出貨單價',
           dataIndex: 'discountPrice',
           align: 'center',
           width: 100,
-          // customRender: (val, row) => {
-          //   return this.priceAndRemarkEditor(val, row, 'discountPrice')
-          // },
+          customRender: (val, row) => {
+            return this.priceAndRemarkEditor(val, row, 'discountPrice')
+          },
           scopedSlots: { customRender: 'discountPrice' }
         },
         {
@@ -218,9 +243,9 @@ export default {
           dataIndex: 'remark',
           align: 'center',
           width: 200,
-          // customRender: (val, row) => {
-          //   return this.priceAndRemarkEditor(val, row, 'remark')
-          // },
+          customRender: (val, row) => {
+            return this.priceAndRemarkEditor(val, row, 'remark')
+          },
           scopedSlots: { customRender: 'remark' }
         },
         {
@@ -237,7 +262,7 @@ export default {
                       title="確定要刪除嗎?"
                       onConfirm={() =>
                         this.deleteSalesTable(
-                          row
+                          row,index
                           // (index = (this.current - 1) * this.pageSize + index)
                         )
                       }
@@ -257,95 +282,154 @@ export default {
     }
   },
   created() {
-
-    this.getAllTagList();
+    this.getAllTagList()
   },
   methods: {
+    getCustomerList() {
+      this.$api.Inventory.onlyCustomerList().then(res => {
+        this.customerList = res.data
+      })
+    },
+    handleChange(id) {
+      this.customerId = id
+
+    },
+    clientOption(id){
+      this.selectedId = id
+      // console.log(this.selectedId,6666)
+    },
     handleAdd() {
       const { salesTable } = this
+      const self = this
       const newData = {
-        classes:''
-        // productId: undefined,
-        // name: '',
-        // unit: '',
-        // salesPrice: null,
-        // discountPrice: undefined,
-        // remark: '',
-        // isEditDiscountPrice: true,
-        // isEditRemark: true
+        classes: '',
+        discountId: undefined,
+        clientName: '',
+        discountPrice: undefined,
+        remark: '',
+        isEditDiscountPrice: true,
+        isEditRemark: true,
+        get storeClient() {
+          //找到已選過的選項
+          let selected = self.salesTable.map(stItem=>stItem.clientName)
+          return self.customerList.filter(item => {
+            //把找到的選項加上禁用
+            item.disabled = selected.includes(item.id)
+           return item.classes.id === newData.classes
+          })
+        }
       }
       this.salesTable = [...salesTable, newData]
     },
     salesTableChange() {},
     showModal(record) {
-      this.getClassesList();
+      this.getClassesList()
+      this.getCustomerList()
       this.visible = true
-      if(!record){
+      if (!record) {
         this.changeTitle = '新增商品'
-      }else {
-        this.changeTitle = "編輯商品"
-        this.track = record.id;
+      } else {
+        this.track = record.id
+        this.changeTitle = '編輯商品'
         if (record.using === true) {
-          if (record !== "") {
-            (this.list.name = record.name),
-            (this.list.barcode = record.barcode),
-            (this.list.unit = record.unit),
-            (this.list.listPrice = record.listPrice),
-            (this.list.description = record.description);
-            (this.list.updateTime = record.updateTime)
-            this.visible = true;
+          if (record !== '') {
+            ;(this.list.name = record.name),
+              (this.list.barcode = record.barcode),
+              (this.list.unit = record.unit),
+              (this.list.listPrice = record.price),
+              (this.list.description = record.description)
+            this.list.updateTime = record.updateTime
+            this.list.alias = record.alias
+            this.list.weight = record.fixedWeight
+            this.list.tagId = record.tagId
+            this.visible = true
+           this.$api.Commodity.getCommodityDiscount({
+              productId: this.track
+            }).then(res=>{
+
+             this.salesTable = res.data.map(item=>({
+                classes: item.classId,
+                clientName: item.clientId,
+                discountPrice: item.clientPrice,
+                remark: item.remark,
+                isEditDiscountPrice: true,
+                isEditRemark: true,
+                storeClient: this.customerList.filter(list => list.classes.id === item.classId)
+              }))
+           })
           }
         }
       }
-
     },
     submitNonstop() {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
-          if (this.changeTitle === "新增商品") {
+          if (this.changeTitle === '新增商品') {
             this.$api.Commodity.addCommodity({
               name: this.list.name,
               unit: this.list.unit,
               unitType: this.list.unitType,
               barcode: this.list.barcode,
-              listPrice: this.list.listPrice,
+              price: this.list.listPrice,
               description: this.list.description,
-              using: true
-            }).then((res) => {
-              this.getCommodity();
-              this.$message.success(`新增${res.data.name}成功`);
-            }).catch(()=>{
-              this.visible = true
-              this.$message.error('此商品已存在')
-            });
-            this.visible = true;
-            this.clearInput();
+              fixedWeight: this.list.weight,
+              tagId: this.tagId,
+              alias:this.list.alias,
+              using: true,
+              discountRequestList: this.salesTable.map(item=>{
+                return {
+                  clientId: "",
+                  price: item.discountPrice,
+                  remark: item.remark
+                }
+              })
+            })
+              .then(res => {
+                this.getCommodity()
+                this.$message.success(`新增${res.data.name}成功`)
+              })
+              .catch(() => {
+                this.visible = true
+                this.$message.error('此商品已存在')
+              })
+            this.visible = true
+            this.clearInput()
           }
         }
-      });
+      })
     },
     handleOk() {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
-          if (this.changeTitle === "新增商品") {
+          if (this.changeTitle === '新增商品') {
             this.$api.Commodity.addCommodity({
               name: this.list.name,
               unit: this.list.unit,
               unitType: this.list.unitType,
               barcode: this.list.barcode,
-              listPrice: this.list.listPrice,
+              price: this.list.listPrice,
               description: this.list.description,
-              using: true
-            }).then((res) => {
-              this.getCommodity();
-              this.$message.success(`新增${res.data.name}成功`);
-              this.visible = false;
-              this.clearInput();
-            }).catch(()=>{
-              this.visible = true
-              this.$message.error('此商品已存在')
-            });
-
+              fixedWeight: this.list.weight,
+              tagId: this.tagId,
+              alias:this.list.alias,
+              using: true,
+              discountRequestList: this.salesTable.map(item=>{
+                return {
+                  price: item.discountPrice,
+                  remark: item.remark
+                }
+              })
+            })
+              .then(res => {
+                this.getCommodity()
+                this.$message.success(`新增${res.data.name}成功`)
+                this.visible = false
+                this.clearInput()
+              })
+              .catch(() => {
+                this.visible = true
+                this.$message.error('此商品已存在')
+              })
           } else {
             this.$api.Commodity.updateCommodity({
               id: this.track,
@@ -353,54 +437,118 @@ export default {
               unit: this.list.unit,
               unitType: this.list.unitType,
               barcode: this.list.barcode,
-              listPrice: this.list.listPrice,
+              price: this.list.listPrice,
               description: this.list.description,
-              use: true
-            }).then(() => {
-              this.getCommodity();
-              this.$message.success("修改商品成功");
-              this.visible = false;
-            }).catch(()=>{
-              this.$message.error('此商品條碼已存在')
-              this.visible = true;
-            });
+              fixedWeight: this.list.weight,
+              tagId: this.tagId,
+              alias: this.list.alias,
+              use: true,
+              discountRequestList: this.salesTable.map(item=>{
+                console.log(item,665556);
+                return {
+                  clientId: item.clientName,
+                  price: item.discountPrice,
+                  remark: item.remark
+                }
+              })
+            })
+              .then(() => {
+                this.getCommodity()
+                this.$message.success('修改商品成功')
+                this.visible = false
+              })
+              .catch(() => {
+                this.$message.error('此商品條碼已存在')
+                this.visible = true
+              })
           }
         }
-      });
+      })
     },
-    deleteSalesTable(){
-
+    deleteSalesTable(index) {
+      this.salesTable.splice(index, 1)
+    },
+    keepSelection() {
+      this.salesTable.reduce((p, v) => {
+        console.log(p,v)
+        return v.classes ? { ...p, [v.classes]: true } : p
+      }, {})
     },
     handleCancel() {
-      this.visible = false;
-      this.clearInput();
+      this.visible = false
+      this.clearInput()
     },
     clearInput() {
       this.list = {
-        name: "",
-        unit: "KG",
-        barcode: "",
-        listPrice: "",
-        description: ""
-      };
+        name: '',
+        unit: 'KG',
+        barcode: '',
+        listPrice: '',
+        description: ''
+      }
       this.salesTable = []
-      this.resetForm();
+      this.resetForm()
+    },
+    addNewItem(row, editKey) {
+      row[editKey] = false
+    },
+    inputORnot(row, editKey) {
+      row[editKey] = true
     },
     resetForm() {
-      this.$refs.ruleForm.resetFields();
+      this.$refs.ruleForm.resetFields()
     },
-    getClassesList(){
-      this.$api.Customer.getClass()
-              .then(res=>{
-                this.classesList = res.data
-              })
-    },
-    getAllTagList(){
-      this.$api.Label.getAllTag()
-      .then(res=>{
-        this.tagList = res.data
-        console.log(this.tagList)
+    getClassesList() {
+      this.$api.Customer.getClass().then(res => {
+        this.classesList = res.data
+        // let aaa = res.data.map(item => item.id)
       })
+    },
+    getAllTagList() {
+      this.$api.Label.getAllTag().then(res => {
+        this.tagList = res.data
+      })
+    },
+    passTagId(id) {
+      this.tagId = id
+    }
+  },
+  computed: {
+    priceAndRemarkEditor() {
+      return (val, row, key) => {
+        let editKey =
+          'isEdit' + key[0].toUpperCase() + key.substring(1, key.length)
+        return {
+          children: (
+            <div class="displayInput">
+              {row[editKey] ? (
+                <div>
+                  <a-input
+                    autoFocus
+                    placeholder="請輸入"
+                    value={row[key]}
+                    vModel={row[key]}
+                    onKeyup={() =>  key === 'discountPrice' && (row[key] = row[key].replace(/[^\d]/g, ''))}
+                    vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
+                  />
+                </div>
+              ) : (
+                <Fragment>
+                  <span onClick={() => this.inputORnot(row, editKey)}>
+                    {val}
+                  </span>
+                  <div class="displayEdit" />
+                  <a-icon
+                    className="editable-cell-icon"
+                    type="edit"
+                    onClick={() => this.inputORnot(row, editKey)}
+                  />
+                </Fragment>
+              )}
+            </div>
+          )
+        }
+      }
     }
   }
 }
@@ -421,5 +569,21 @@ export default {
 }
 .weight-wrapper {
   display: flex;
+}
+
+.displayEdit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+.editable-cell-icon {
+  display: block;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  top: 3.5px;
 }
 </style>

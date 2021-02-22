@@ -1097,8 +1097,8 @@ export default {
                   name: d.productName,
                   productId: d.productId,
                   unit: computedWeight(d.productUnit),
-                  salesPrice: d.productPrice,
-                  discountPrice: d.discountPrice,
+                  salesPrice: d.price,
+                  discountPrice: d.clientPrice,
                   remark: d.remark,
                   isEditDiscountPrice: true,
                   isEditRemark: true,
@@ -1215,7 +1215,7 @@ export default {
         let rows = this.discountTable[index]
         rows.productId = result.id
         rows.unit = computedWeight(undefined, result.unit)
-        rows.salesPrice = result.salesPrice
+        rows.salesPrice = result.price
         rows.using = result.using
       })
     },

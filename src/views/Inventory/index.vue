@@ -23,53 +23,66 @@
           </div>
           <div class="class-input" style="display: flex;">
             <span style="line-height:29px">商品條碼:</span>
-            <a-auto-complete
+            <a-input
               v-model="searchBarcode"
+              style="width: 50%"
               placeholder="請輸入商品條碼"
-              style="width: 50%;"
-              @search="addChange"
-              @select="addSelect"
-            >
-              <template slot="dataSource">
-                <a-select-option
-                  v-for="item in barCodeSelection"
-                  :key="item.id"
-                  :title="item.barcode"
-                >
-                  {{ item.barcode }}
-                </a-select-option>
-              </template>
-            </a-auto-complete>
+              @change="getStock"
+            />
+            <!--            <a-auto-complete-->
+            <!--              v-model="searchBarcode"-->
+            <!--              placeholder="請輸入商品條碼"-->
+            <!--              style="width: 50%;"-->
+            <!--              @search="addChange"-->
+            <!--              @select="addSelect"-->
+            <!--            >-->
+            <!--              <template slot="dataSource">-->
+            <!--                <a-select-option-->
+            <!--                  v-for="item in barCodeSelection"-->
+            <!--                  :key="item.id"-->
+            <!--                  :title="item.barcode"-->
+            <!--                >-->
+            <!--                  {{ item.barcode }}-->
+            <!--                </a-select-option>-->
+            <!--              </template>-->
+            <!--            </a-auto-complete>-->
           </div>
           <div class="class-input" style="display: flex;">
-            <span>商品名稱:</span>{{ addInventoryProductName }}
+            <span>商品名稱:</span>{{ inventoryList.productName }}
           </div>
           <div class="class-input" style="display: flex;">
             <span>計價單位:</span
-            >{{ computedWeight(undefined, addInventoryProductUnit) }}
+            >{{ computedWeight(undefined, inventoryList.unit) }}
           </div>
           <div class="class-input" style="display: flex;">
             <span style="line-height: 35px">數量:</span>
-            <a-form :form="form">
-              <a-form-item>
-                <a-input
-                  v-decorator="[
-                    'addInventoryAmount',
-                    {
-                      rules: [
-                        {
-                          required: true,
-                          message: '請輸入數字',
-                          pattern: /^\d+$/
-                        }
-                      ],
-                      initialValue: 1
-                    }
-                  ]"
-                  style="width: 30%;"
-                  @change="vvv"
-                /> </a-form-item
-            ></a-form>
+            <div
+              v-if="inventoryList.unit === '包' || inventoryList.unit === '件'"
+            >
+              <a-form :form="form">
+                <a-form-item>
+                  <a-input
+                    v-decorator="[
+                      'addInventoryAmount',
+                      {
+                        rules: [
+                          {
+                            required: true,
+                            message: '請輸入數字',
+                            pattern: /^\d+$/
+                          }
+                        ],
+                        initialValue: 1
+                      }
+                    ]"
+                    style="width: 30%;"
+                    @change="vvv"
+                  /> </a-form-item
+              ></a-form>
+            </div>
+            <div v-else>
+              <span style="line-height: 35px;">{{ inventoryList.weight }}</span>
+            </div>
           </div>
           <template slot="footer">
             <a-button type="primary" @click="submitNonStop">
@@ -253,8 +266,8 @@ export default {
   },
   data() {
     return {
-      selectList:[],
-      specificId:'',
+      selectList: [],
+      specificId: '',
       barcodeTdWidth: '',
       customerList: [],
       goodsTable: [],
@@ -342,7 +355,16 @@ export default {
         {
           class: 'inner-list-price-td',
           dataIndex: 'listPrice',
-          align: 'center'
+          align: 'center',
+          customRender:(val,row)=> {
+            return {
+              children:(
+                <div>
+                  {row.price}
+                </div>
+          )
+          }
+          }
         },
         {
           class: 'inner-amount-td',
@@ -360,7 +382,6 @@ export default {
       innerTableExpanded: false,
       addSearchValue: '',
       searchBarcode: '',
-      addInventoryData: [],
       addInventoryProductId: '',
       addInventoryProductName: '',
       addInventoryProductUnit: '',
@@ -375,11 +396,11 @@ export default {
     }
   },
   computed: {
-      filterName(){
-        return this.selectList.map(item=>{
-          return {value:item.productId,text:item.productName}
-        })
-      },
+    filterName() {
+      return this.selectList.map(item => {
+        return { value: item.productId, text: item.productName }
+      })
+    },
     Quantity() {
       return (val, row, key) => {
         let editKey =
@@ -416,9 +437,9 @@ export default {
         }
       }
     },
-    addSearch() {
-      return debounce(this.addSelect)
-    },
+    // addSearch() {
+    //   return debounce(this.addSelect)
+    // },
     computedWeight() {
       return computedWeight
     }
@@ -429,7 +450,6 @@ export default {
         this.addInventoryProductId = ''
         this.addInventoryProductName = ''
         this.addInventoryProductUnit = ''
-        this.CommodityDetail('')
       }
     }
   },
@@ -462,6 +482,7 @@ export default {
               return {
                 ...item,
                 id: index,
+                totalListPrice: item.price * item.amount,
                 unit: computedWeight(undefined, item.unit)
               }
             }
@@ -527,69 +548,42 @@ export default {
     addInventoryCancel() {
       this.purchaseViewVisible = false
       this.searchBarcode = ''
-      this.addInventoryData = []
-      this.addInventoryProductId = ''
-      this.addInventoryProductName = ''
-      this.addInventoryProductUnit = ''
+      this.inventoryList.inventoryId = ''
+      this.inventoryList.productName = ''
+      this.inventoryList.unit = ''
+      this.inventoryList.weight = ''
       this.addInventoryAmount = 1
     },
-    addSelect(value) {
-      this.searchBarcode = ''
-      this.addInventoryProductName = ''
-      this.addInventoryProductUnit = ''
-      let item = {}
-      item = this.barCodeSelection.find(x => x.id === value)
-      this.searchBarcode = item.barcode
-      this.addInventoryProductId = item.id
-      this.addInventoryProductName = item.name
-      this.addInventoryProductUnit = item.unit
-    },
-    addChange() {
-      this.CommodityDetail(this.searchBarcode)
-    },
+    // addSelect(value) {
+    //   this.searchBarcode = ''
+    //   this.addInventoryProductName = ''
+    //   this.addInventoryProductUnit = ''
+    //   let item = {}
+    //   item = this.barCodeSelection.find(x => x.id === value)
+    //   this.searchBarcode = item.barcode
+    //   this.addInventoryProductId = item.id
+    //   this.addInventoryProductName = item.name
+    //   this.addInventoryProductUnit = item.unit
+    // },
+    // addChange() {
+    //   this.getStock(this.searchBarcode)
+    // },
     submitNonStop() {
       if (!/^\d+$/.test(this.addInventoryAmount)) return
       const data = {}
-      data.productId = this.addInventoryProductId
-      data.amount = this.addInventoryAmount
+      data.id = this.inventoryList.inventoryId
+      data.amount =
+        parseInt(this.addInventoryAmount) + this.inventoryList.amount
       data.barcode = this.searchBarcode
-      data.unit = this.addInventoryProductUnit
-      data.weight = 0
-      this.$api.Inventory.addInventory(data)
-      .then(res => {
-        console.log(res)
-      this.purchaseViewVisible = true
-      this.searchBarcode = ''
-      this.addInventoryData = []
-      this.addInventoryProductId = ''
-      this.addInventoryProductName = ''
-      this.addInventoryProductUnit = ''
-      this.addInventoryAmount = 1
-      this.getInventoryList(this.search)
-      this.$message.success('入庫成功')
-      })
-      .catch(err => {
-        console.log(err)
-      })
-
-    },
-    addInventory() {
-      if (!/^\d+$/.test(this.addInventoryAmount)) return
-      const data = {}
-      data.productId = this.addInventoryProductId
-      data.amount = this.addInventoryAmount
-      data.barcode = this.searchBarcode
-      data.unit = this.addInventoryProductUnit
-      data.weight = 0
-      this.$api.Inventory.addInventory(data)
+      this.$api.Inventory.edit(data)
         .then(res => {
           console.log(res)
-          this.purchaseViewVisible = false
+          this.purchaseViewVisible = true
           this.searchBarcode = ''
-          this.addInventoryData = []
-          this.addInventoryProductId = ''
-          this.addInventoryProductName = ''
-          this.addInventoryProductUnit = ''
+          this.inventoryList.inventoryId = ''
+          this.inventoryList.productName = ''
+          this.inventoryList.unit = ''
+          this.inventoryList.weight = ''
           this.addInventoryAmount = 1
           this.getInventoryList(this.search)
           this.$message.success('入庫成功')
@@ -597,6 +591,53 @@ export default {
         .catch(err => {
           console.log(err)
         })
+    },
+    addInventory() {
+      if(this.inventoryList.unit === "包" || this.inventoryList.unit === "件"){
+        if (!/^\d+$/.test(this.addInventoryAmount)) return
+        const data = {}
+        data.id = this.inventoryList.inventoryId
+        data.amount = parseInt(this.addInventoryAmount) + this.inventoryList.amount
+        data.barcode = this.searchBarcode
+        this.$api.Inventory.edit(data)
+                .then(res => {
+                  console.log(res)
+                  this.purchaseViewVisible = false
+                  this.searchBarcode = ''
+                  this.inventoryList.inventoryId = ''
+                  this.inventoryList.productName = ''
+                  this.inventoryList.unit = ''
+                  this.inventoryList.weight = ''
+                  this.addInventoryAmount = 1
+                  this.getInventoryList(this.search)
+                  this.$message.success('入庫成功')
+                })
+                .catch(err => {
+                  console.log(err)
+                })
+      }else {
+        if (!/^\d+$/.test(this.addInventoryAmount)) return
+        const data = {}
+        data.id = this.inventoryList.inventoryId
+        data.amount = this.inventoryList.amount + 1
+        data.barcode = this.searchBarcode
+        this.$api.Inventory.edit(data)
+                .then(res => {
+                  console.log(res)
+                  this.purchaseViewVisible = false
+                  this.searchBarcode = ''
+                  this.inventoryList.inventoryId = ''
+                  this.inventoryList.productName = ''
+                  this.inventoryList.unit = ''
+                  this.inventoryList.weight = ''
+                  this.addInventoryAmount = 1
+                  this.getInventoryList(this.search)
+                  this.$message.success('入庫成功')
+                })
+                .catch(err => {
+                  console.log(err)
+                })
+      }
     },
     onShowSizeChange(current, pageSize) {
       this.current = 1
@@ -611,21 +652,29 @@ export default {
         this.customerList = res.data
       })
     },
-    CommodityDetail() {
-      this.barCodeSelection = []
-      this.$api.Commodity.getCommodityDetail({
-        searchKey: '',
+    // CommodityDetail() {
+    //   this.barCodeSelection = []
+    //   this.$api.Commodity.getCommodityDetail({
+    //     searchKey: '',
+    //     barcode: this.searchBarcode
+    //   }).then(res => {
+    //     this.inventoryList = res.data
+    //     let data = []
+    //     this.inventoryList.forEach(item => {
+    //       if (item.barcode !== '') {
+    //         data.push(item)
+    //       }
+    //     })
+    //     this.barCodeSelection = data
+    //     console.log(this.barCodeSelection)
+    //   })
+    // },
+    getStock() {
+      this.$api.Inventory.getStockDetail({
         barcode: this.searchBarcode
       }).then(res => {
         this.inventoryList = res.data
-        let data = []
-        this.inventoryList.forEach(item => {
-          if (item.barcode !== '') {
-            data.push(item)
-          }
-        })
-        this.barCodeSelection = data
-        console.log(this.barCodeSelection)
+        console.log(this.inventoryList)
       })
     },
     SalesProduct() {
@@ -649,9 +698,6 @@ export default {
   created() {
     this.getInventoryList(this.search)
     this.getCustomerList()
-  },
-  mounted() {
-    this.CommodityDetail(this.searchBarcode)
   }
 }
 </script>
