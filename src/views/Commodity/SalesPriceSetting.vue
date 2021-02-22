@@ -21,7 +21,7 @@
                 <a-input v-model="list.name" placeholder="請輸入" />
               </a-form-model-item>
               <a-form-model-item class="custom-form-item" label="出貨名稱">
-                <a-input placeholder="請輸入" />
+                <a-input v-model="list.alias" placeholder="請輸入" />
               </a-form-model-item>
               <a-form-model-item
                 class="custom-form-item"
@@ -62,7 +62,7 @@
               </a-form-model-item>
 
               <a-form-model-item class="custom-form-item" label="預設標籤">
-                <a-select style="width: 175px" @change="passTagId">
+                <a-select style="width: 175px" v-model="list.tagId" @change="passTagId">
                   <a-select-option v-for="item in tagList" :key="item.id">
                     {{ item.tagName }}
                   </a-select-option>
@@ -148,6 +148,7 @@ export default {
   props: ['getCommodity'],
   data() {
     return {
+      selectedId:[],
       cusList: [],
       tagId: '',
       customerId: '',
@@ -166,7 +167,9 @@ export default {
         listPrice: undefined,
         description: '',
         using: undefined,
-        updateTime: ''
+        updateTime: '',
+        tagId:'',
+        alias:''
       },
       rules: {
         barcode: [{ pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }],
@@ -190,7 +193,7 @@ export default {
                     style="width:200px"
                     placeholder="請選擇"
                     onChange={id => this.handleChange(id, row)}
-                    vModel={row.id}
+                    vModel={row.classes}
                   >
                     {this.classesList.map(item => (
                       <a-select-option value={item.id}>
@@ -212,9 +215,9 @@ export default {
             return {
               children: (
                 <div>
-                  <a-select style="width:200px" placeholder="請選擇">
-                    {this.cusList.map(item => (
-                      <a-select-option value={item.id}>
+                  <a-select style="width:200px" vModel={row.clientName} placeholder="請選擇" onChange={id => this.clientOption(id,row)} >
+                    {row.storeClient.map(item => (
+                      <a-select-option value={item.id} disabled={item.disabled}>
                         {item.name}
                       </a-select-option>
                     ))}
@@ -259,7 +262,7 @@ export default {
                       title="確定要刪除嗎?"
                       onConfirm={() =>
                         this.deleteSalesTable(
-                          row
+                          row,index
                           // (index = (this.current - 1) * this.pageSize + index)
                         )
                       }
@@ -287,44 +290,73 @@ export default {
         this.customerList = res.data
       })
     },
-    handleChange(id, row) {
+    handleChange(id) {
       this.customerId = id
-      this.cusList = this.customerList.filter(item => {
-        return item.classes.id === id
-      })
+
+    },
+    clientOption(id){
+      this.selectedId = id
+      // console.log(this.selectedId,6666)
     },
     handleAdd() {
       const { salesTable } = this
+      const self = this
       const newData = {
         classes: '',
-        // productId: undefined,
+        discountId: undefined,
         clientName: '',
         discountPrice: undefined,
         remark: '',
         isEditDiscountPrice: true,
-        isEditRemark: true
+        isEditRemark: true,
+        get storeClient() {
+          //找到已選過的選項
+          let selected = self.salesTable.map(stItem=>stItem.clientName)
+          return self.customerList.filter(item => {
+            //把找到的選項加上禁用
+            item.disabled = selected.includes(item.id)
+           return item.classes.id === newData.classes
+          })
+        }
       }
       this.salesTable = [...salesTable, newData]
     },
     salesTableChange() {},
     showModal(record) {
-      this.getCustomerList()
       this.getClassesList()
+      this.getCustomerList()
       this.visible = true
       if (!record) {
         this.changeTitle = '新增商品'
       } else {
-        this.changeTitle = '編輯商品'
         this.track = record.id
+        this.changeTitle = '編輯商品'
         if (record.using === true) {
           if (record !== '') {
             ;(this.list.name = record.name),
               (this.list.barcode = record.barcode),
               (this.list.unit = record.unit),
-              (this.list.listPrice = record.listPrice),
+              (this.list.listPrice = record.price),
               (this.list.description = record.description)
             this.list.updateTime = record.updateTime
+            this.list.alias = record.alias
+            this.list.weight = record.fixedWeight
+            this.list.tagId = record.tagId
             this.visible = true
+           this.$api.Commodity.getCommodityDiscount({
+              productId: this.track
+            }).then(res=>{
+
+             this.salesTable = res.data.map(item=>({
+                classes: item.classId,
+                clientName: item.clientId,
+                discountPrice: item.clientPrice,
+                remark: item.remark,
+                isEditDiscountPrice: true,
+                isEditRemark: true,
+                storeClient: this.customerList.filter(list => list.classes.id === item.classId)
+              }))
+           })
           }
         }
       }
@@ -338,9 +370,19 @@ export default {
               unit: this.list.unit,
               unitType: this.list.unitType,
               barcode: this.list.barcode,
-              listPrice: this.list.listPrice,
+              price: this.list.listPrice,
               description: this.list.description,
-              using: true
+              fixedWeight: this.list.weight,
+              tagId: this.tagId,
+              alias:this.list.alias,
+              using: true,
+              discountRequestList: this.salesTable.map(item=>{
+                return {
+                  clientId: "",
+                  price: item.discountPrice,
+                  remark: item.remark
+                }
+              })
             })
               .then(res => {
                 this.getCommodity()
@@ -365,16 +407,16 @@ export default {
               unit: this.list.unit,
               unitType: this.list.unitType,
               barcode: this.list.barcode,
-              listPrice: this.list.listPrice,
+              price: this.list.listPrice,
               description: this.list.description,
               fixedWeight: this.list.weight,
               tagId: this.tagId,
+              alias:this.list.alias,
               using: true,
               discountRequestList: this.salesTable.map(item=>{
                 return {
-                  "clientId": "40282833776b046001776b1622740000",
-                  "price": item.discountPrice,
-                  "remark": item.remark
+                  price: item.discountPrice,
+                  remark: item.remark
                 }
               })
             })
@@ -395,15 +437,18 @@ export default {
               unit: this.list.unit,
               unitType: this.list.unitType,
               barcode: this.list.barcode,
-              listPrice: this.list.listPrice,
+              price: this.list.listPrice,
               description: this.list.description,
               fixedWeight: this.list.weight,
+              tagId: this.tagId,
+              alias: this.list.alias,
               use: true,
               discountRequestList: this.salesTable.map(item=>{
+                console.log(item,665556);
                 return {
-                  "clientId": "40282833776b046001776b1622740000",
-                  "price": item.discountPrice,
-                  "remark": item.remark
+                  clientId: item.clientName,
+                  price: item.discountPrice,
+                  remark: item.remark
                 }
               })
             })
@@ -420,7 +465,15 @@ export default {
         }
       })
     },
-    deleteSalesTable() {},
+    deleteSalesTable(index) {
+      this.salesTable.splice(index, 1)
+    },
+    keepSelection() {
+      this.salesTable.reduce((p, v) => {
+        console.log(p,v)
+        return v.classes ? { ...p, [v.classes]: true } : p
+      }, {})
+    },
     handleCancel() {
       this.visible = false
       this.clearInput()
@@ -448,7 +501,6 @@ export default {
     getClassesList() {
       this.$api.Customer.getClass().then(res => {
         this.classesList = res.data
-        console.log(this.classesList)
         // let aaa = res.data.map(item => item.id)
       })
     },
