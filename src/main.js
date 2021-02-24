@@ -9,6 +9,7 @@ import './style/main.scss'
 import ConfigProvider from 'ant-design-vue'
 import loading from '@/plugins/Loading/index.js'
 import myutils from './utils/index.js';
+import JsBarcode from "jsbarcode";
 
 Vue.use(ConfigProvider)
 Vue.config.productionTip = false;
@@ -17,6 +18,7 @@ Vue.use(Antd)
 Vue.use(loading)
 Vue.prototype.$api = api
 Vue.prototype.$myutils=myutils;
+
 
 new Vue({
   router,

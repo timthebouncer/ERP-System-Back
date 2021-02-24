@@ -93,18 +93,25 @@
             <span><img src="@/assets/01PL628.jpg"/></span>
           </div>
           <div>
-            <span>出貨日期</span>
+            <span>出貨日期{{orderDetail.salesDay}}</span>
           </div>
         </div>
         <div class="package-content">
-          <div class="package-content-detail">收件客戶</div>
+          <div class="package-content-detail" v-if="list.receiver !== ''">
+            <h2>收件客戶</h2>{{receiverList.receiver}}
+          </div>
+          <div v-else>
+            <h2>收件客戶</h2>{{ list.defaultReceiveInfo === 0 ? list.name:list.companyName }}
+          </div>
           <div class="package-content-detail-order">
-            出貨單號
-            <div class="order-barcode"></div>
+            <h2>出貨單號</h2>
+            <div class="order-barcode"><svg id="ean-13"></svg></div>
           </div>
           <div class="package-content-detail-package">
-            物流編號
-            <div class="package-barcode"></div>
+            <h2>物流編號</h2>
+            <div class="package-barcode">
+              <svg id="ean-13"></svg>
+            </div>
           </div>
         </div>
       </div>
@@ -119,11 +126,12 @@
   </div>
 </template>
 <script>
+  import JsBarcode from 'jsbarcode'
 import * as htmlToImage from 'html-to-image'
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image'
 export default {
   name: 'ModalExample',
-  props:['distirbuteHandler','orderData', 'orderDetail'],
+  props:['distirbuteHandler','orderData', 'orderDetail','orderTitle','list','receiverList'],
   data() {
     return {
       show: false,
@@ -167,12 +175,17 @@ export default {
         type6: {
           title: '折讓',
           dataIndex: 'discount',
-          scopedSlots: { customRender: 'discount' }
+          customRender:(val, row)=>{
+            return <div>{row.discount}</div>
+          }
         },
         type7: {
           title: '總計',
-          dataIndex: 'totalPrice',
-          scopedSlots: { customRender: 'totalPrice' }
+          dataIndex: 'orderPrice',
+          customRender:(val, row)=>{
+            console.log(row.orderPrice)
+            return <div>{row.orderPrice}</div>
+          }
         },
         type8: {
           title: '備註',
@@ -189,11 +202,15 @@ export default {
   created() {
     this.www()
   },
+  mounted() {
+
+
+  },
   methods: {
     www() {
       const { tableData } = this
       const newData = {
-        name: 666,
+        name: '',
         unit: '-',
         productId: undefined,
         Price: 0,
@@ -206,7 +223,9 @@ export default {
       this.tableData = [...tableData, newData]
     },
     showModal1() {
-      this.distirbuteHandler();
+      if(this.orderTitle !== '訂單詳情'){
+        this.distirbuteHandler();
+      }
       this.templateType = '商用-有價格'
       this.visible = true
       this.columnList = this.getColumn([
@@ -222,10 +241,14 @@ export default {
       let _this = this;
       setTimeout(function() {
         _this.handleOk();
-      },200)
+      },500)
 
+      this.$emit('passTemplateType',this.templateType)
     },
     showModal2() {
+      if(this.orderTitle !== '訂單詳情'){
+        this.distirbuteHandler();
+      }
       this.templateType = '商用-無價格'
       this.visible = true
       this.columnList = this.getColumn([
@@ -241,9 +264,13 @@ export default {
       let _this = this;
       setTimeout(function() {
         _this.handleOk();
-      },200)
+      },500)
+      this.$emit('passTemplateType',this.templateType)
     },
     showModal3() {
+      if(this.orderTitle !== '訂單詳情'){
+        this.distirbuteHandler();
+      }
       this.templateType = '零售-有價格'
       this.visible = true
       this.columnList = this.getColumn(['type', 'type2', 'type3', 'type8'])
@@ -251,16 +278,23 @@ export default {
       let _this = this;
       setTimeout(function() {
         _this.handleOk();
-      },200)
+      },500)
+      this.$emit('passTemplateType',this.templateType)
     },
     showModal4() {
+      if(this.orderTitle !== '訂單詳情'){
+        this.distirbuteHandler();
+      }
       this.templateType = '貼箱標籤'
       this.show = true
-
+      setTimeout(function () {
+        JsBarcode("#ean-13", "1234567890128", {format: "ean13"})
+      },500)
       let _this = this;
       setTimeout(function() {
         _this.handleOk();
-      },200)
+      },500)
+      this.$emit('passTemplateType',this.templateType)
     },
     handleOk() {
       this.handleCancel()
@@ -298,7 +332,7 @@ export default {
             let printPage = document.querySelector('.print-modal')
             printPage.appendChild(img)
 
-            let myWindow = window.open('', '', 'width=500,height=700')
+            let myWindow = window.open('', '', 'width=2000,height=1000')
             myWindow.document.write(printPage.innerHTML)
 
             setTimeout(function() {
@@ -441,7 +475,7 @@ img {
 }
 .button-wrapper {
   margin-left: auto;
-  margin-top: 45px;
+  margin-top: 30px;
   width: 150px;
 }
 ::v-deep .ant-modal-header {
@@ -453,7 +487,6 @@ img {
 .package-wrapper {
 }
 .package-sticker {
-  height: 450px;
   padding: 11px 15px 10px 10px;
 }
 .package-top {
@@ -470,20 +503,23 @@ img {
 }
 .package-content-detail-order {
   display: flex;
+  margin: 0 0 15px 0;
+  align-items: center;
   justify-content: space-between;
   .order-barcode {
-    width: 250px;
-    height: 100px;
-    background-color: green;
+
   }
 }
 .package-content-detail-package {
   display: flex;
+  margin: 0 0 15px 0;
+  align-items: center;
   justify-content: space-between;
   .package-barcode {
-    width: 250px;
-    height: 100px;
-    background-color: red;
+
   }
+}
+svg {
+  /*margin: 30px;*/
 }
 </style>

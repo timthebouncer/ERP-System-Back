@@ -513,7 +513,7 @@
 
 <script>
 import { computedWeight } from '@/unit/dictionary/computed'
-import Fragment from '@/components/Fragment.vue'
+import Fragment from '@/components/Fragment'
 export default {
   name: 'Customer',
   data() {
@@ -863,7 +863,7 @@ export default {
                     <a-icon
                       class="editable-cell-icon"
                       type="edit"
-                      onClick={() => this.inputORnot2(row, editKey)}
+                      onClick={() => this.inputORnot(row, editKey)}
                     />
                   </Fragment>
                 )}
@@ -1035,7 +1035,7 @@ export default {
               classesId: this.list.classes.id,
               clientId: this.track,
               defaultReceiveInfo: this.receiveInfo,
-              recipientList:this.recipientList.filter(item => item.receiver !== ""),
+              recipientList:this.recipientList,
               discountList: this.discountTable.map(item => {
                 return {
                   discountId: item.id,
@@ -1067,7 +1067,6 @@ export default {
       this.clearInput()
     },
     editHandler(record) {
-      console.log(record)
       this.newCurrent = 1
       this.newPageSize = 10
       this.track = record.id
@@ -1076,8 +1075,18 @@ export default {
         .then(res => {
           this.discountTable = []
           if (res.data !== '') {
+            // if(record.defaultReceiveInfo > 1){
+              this.recipientList = res.data.recipientList
+            // }else {
+            //   this.recipientList = [{
+            //     address: "",
+            //     id: "",
+            //     postCode: "",
+            //     receiver: "",
+            //     tel: "",
+            //   }]
+            // }
             this.list = res.data
-            this.recipientList = res.data.recipientList
             this.receiveInfo = res.data.defaultReceiveInfo
             this.$api.Customer.discountNoPages({
               clientId: this.track
@@ -1319,13 +1328,14 @@ export default {
 }
 .displayEdit {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 0px;
+  left: 0px;
   width: 100%;
   height: 100%;
 }
 .displayEdit:hover + .editable-cell-icon {
   display: block;
+  //position: absolute;
 }
 .editable-cell-icon {
   display: block;
