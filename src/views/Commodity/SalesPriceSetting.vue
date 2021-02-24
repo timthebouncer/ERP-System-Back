@@ -283,6 +283,8 @@ export default {
   },
   created() {
     this.getAllTagList()
+    this.getClassesList()
+    this.getCustomerList()
   },
   methods: {
     getCustomerList() {
@@ -323,8 +325,6 @@ export default {
     },
     salesTableChange() {},
     showModal(record) {
-      this.getClassesList()
-      this.getCustomerList()
       this.visible = true
       if (!record) {
         this.changeTitle = '新增商品'
@@ -346,7 +346,6 @@ export default {
            this.$api.Commodity.getCommodityDiscount({
               productId: this.track
             }).then(res=>{
-
              this.salesTable = res.data.map(item=>({
                 classes: item.classId,
                 clientName: item.clientId,
@@ -444,7 +443,6 @@ export default {
               alias: this.list.alias,
               use: true,
               discountRequestList: this.salesTable.map(item=>{
-                console.log(item,665556);
                 return {
                   clientId: item.clientName,
                   price: item.discountPrice,
