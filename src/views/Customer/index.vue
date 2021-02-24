@@ -1076,7 +1076,7 @@ export default {
           this.discountTable = []
           if (res.data !== '') {
             // if(record.defaultReceiveInfo > 1){
-            //   this.recipientList = res.data.recipientList
+              this.recipientList = res.data.recipientList
             // }else {
             //   this.recipientList = [{
             //     address: "",

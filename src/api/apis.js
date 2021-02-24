@@ -117,6 +117,12 @@ const api = {
     },
     addOrder(data){
       return request.post('/deliveryOrder/addOrder',data)
+    },
+    editOrder(data){
+      return request.put('/deliveryOrder/editOrder',data)
+    },
+    getOrderNo(params){
+      return request.get('/deliveryOrder/getOrderSerialNo?',{params})
     }
   },
   Label:{
