@@ -44,12 +44,9 @@
                 <div class="weight-wrapper">
                   <a-input
                     v-model="list.weight"
-                    style="width: 115px"
+                    style="width: 175px"
                     placeholder="請輸入"
                   />
-                  <a-select style="width: 60px">
-                    <option></option>
-                  </a-select>
                 </div>
               </a-form-model-item>
 

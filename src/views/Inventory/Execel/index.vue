@@ -202,10 +202,6 @@ export default {
   created() {
     this.www()
   },
-  mounted() {
-
-
-  },
   methods: {
     www() {
       const { tableData } = this
