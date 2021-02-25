@@ -822,21 +822,23 @@ export default {
         })
         this.findDefaultInfo = [{id:'',receiver:'',address:'',tel:'',postCode:''},{id:'',receiver:'',address:'',tel:'',postCode:''}]
         this.findDefaultInfo.push(...this.list.recipientList)
-        this.findDefaultInfo[0].id = this.list.id
+        this.findDefaultInfo[0].id = '0'
         this.findDefaultInfo[0].receiver = this.list.name
         this.findDefaultInfo[0].address = this.list.address
         this.findDefaultInfo[0].postCode = this.list.postCode
         this.findDefaultInfo[0].tel = this.list.tel
-        this.findDefaultInfo[1].id = '2'
+        this.findDefaultInfo[1].id = '1'
         this.findDefaultInfo[1].receiver = this.list.companyName
         this.findDefaultInfo[1].address = this.list.companyAddress
         this.findDefaultInfo[1].postCode = this.list.companyPostCode
         this.findDefaultInfo[1].tel = this.list.companyTel
         this.list.receiverList = this.findDefaultInfo
 
-       let nonDefaultList = this.list.receiverList.filter(item=>{
-          return item.id === res.data.recipientId
+
+        let nonDefaultList = this.list.receiverList.filter(item=>{
+          return item.id === this.findDefaultInfo[0].id
         })
+
         this.defaultList = this.findDefaultInfo.filter((item,i) => i === this.list.defaultReceiveInfo)
         if(nonDefaultList[0].id === this.defaultList[0].id){
           if(this.list.defaultReceiveInfo === 0) {
@@ -847,8 +849,14 @@ export default {
             this.defaultList[0].default = '(預設地址)'
           }
           this.defaultOption = this.defaultList[0].default
-          this.recipientId = res.data.recipientId
-          this.receiverList = {...this.defaultList[0]}
+          if(this.list.defaultReceiveInfo === 0){
+            this.recipientId = this.findDefaultInfo[0].id
+            this.receiverList = {...this.defaultList[0]}
+          }else {
+            this.recipientId = res.data.recipientId
+            this.receiverList = {...this.defaultList[0]}
+          }
+
         }else {
           this.recipientId = res.data.recipientId
           this.receiverList = {...nonDefaultList[0]}
@@ -922,6 +930,7 @@ export default {
       this.receiverList = {}
     },
     handleChange(id) {
+
       this.list = this.customerList.find(item => {
         return item.id === id
       })
@@ -929,12 +938,12 @@ export default {
       //把資料叫回來組一個陣列拿index去判斷defaultReceiveInfo
       this.findDefaultInfo = [{id:'',receiver:'',address:'',tel:'',postCode:''},{id:'',receiver:'',address:'',tel:'',postCode:''}]
       this.findDefaultInfo.push(...this.list.recipientList)
-      this.findDefaultInfo[0].id = this.list.id
+      this.findDefaultInfo[0].id = '0'
       this.findDefaultInfo[0].receiver = this.list.name
       this.findDefaultInfo[0].address = this.list.address
       this.findDefaultInfo[0].postCode = this.list.postCode
       this.findDefaultInfo[0].tel = this.list.tel
-      this.findDefaultInfo[1].id = '2'
+      this.findDefaultInfo[1].id = '1'
       this.findDefaultInfo[1].receiver = this.list.companyName
       this.findDefaultInfo[1].address = this.list.companyAddress
       this.findDefaultInfo[1].postCode = this.list.companyPostCode
@@ -1131,9 +1140,11 @@ export default {
             this.$message.success('編輯出貨成功')
             if(this.templateType){
               this.orderViewVisible = true
+              this.templateType = ''
             }else {
               this.orderViewVisible = false
               this.handleCancel()
+              this.templateType = ''
             }
             this.templateType = ''
             this.resetPage()
@@ -1278,7 +1289,7 @@ export default {
         this.list.receiverList = this.findDefaultInfo
 
         let nonDefaultList = this.list.receiverList.filter(item=>{
-          return item.id === res.data.recipientId
+          return item.id === this.findDefaultInfo[0].id
         })
         this.defaultList = this.findDefaultInfo.filter((item,i) => i === this.list.defaultReceiveInfo)
         if(nonDefaultList[0].id === this.defaultList[0].id){
@@ -1326,12 +1337,12 @@ export default {
       })
       this.findDefaultInfo = [{id:'',receiver:'',address:'',tel:'',postCode:''},{id:'',receiver:'',address:'',tel:'',postCode:''}]
       this.findDefaultInfo.push(...this.list.recipientList)
-      this.findDefaultInfo[0].id = this.list.id
+      this.findDefaultInfo[0].id = '0'
       this.findDefaultInfo[0].receiver = this.list.name
       this.findDefaultInfo[0].address = this.list.address
       this.findDefaultInfo[0].postCode = this.list.postCode
       this.findDefaultInfo[0].tel = this.list.tel
-      this.findDefaultInfo[1].id = '2'
+      this.findDefaultInfo[1].id = '1'
       this.findDefaultInfo[1].receiver = this.list.companyName
       this.findDefaultInfo[1].address = this.list.companyAddress
       this.findDefaultInfo[1].postCode = this.list.companyPostCode

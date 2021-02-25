@@ -278,7 +278,6 @@ export default {
       this.$emit('passTemplateType',this.templateType)
     },
     showModal4() {
-      console.log(this.orderDetail)
       if(this.orderTitle !== '訂單詳情'){
         this.distirbuteHandler();
       }

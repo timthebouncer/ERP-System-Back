@@ -28,7 +28,7 @@
             v-for="col in [
             'name',
             'count',
-            'lastRecordTime',
+            'lastUpdate',
             'operation',
           ]"
             :slot="col"
@@ -90,10 +90,9 @@ export default {
         },
         {
           title: '最後更新時間',
-          dataIndex: 'lastRecordTime',
+          dataIndex: 'lastUpdate',
           width: '10%',
-          align: 'center',
-          scopedSlots: { customRender: 'updateDate' },
+          align: 'center'
         },
         {
           title: '操作',
