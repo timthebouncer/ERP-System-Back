@@ -6,14 +6,10 @@
       <button @click="showModal3" class="print-btn">零售格式-有價格</button>
       <button @click="showModal4" class="print-btn">貼箱標籤</button>
     </div>
-    <a-modal
+    <div
       :title="templateType"
       id="exampleWrapper"
-      :visible="visible"
-      @ok="handleOk"
-      @cancel="handleCancel"
-      :footer="null"
-      width="830px"
+      v-if="visible"
     >
       <div class="table-content">
         <div class="top-wrapper">
@@ -30,12 +26,12 @@
         </div>
         <div class="detail-wrapper">
           <div class="detail-list">
-            <span>客戶名稱:{{orderDetail.clientName}}</span>
-            <span>客戶類別:{{orderDetail.className}}</span>
-            <span>收件地址:{{orderDetail.receivePostCode}}{{orderDetail.receiveAddress}}</span>
-            <span>客戶電話:{{orderDetail.phoneNumber}}</span>
-            <span>統一編號:{{orderDetail.vatNumber}}</span>
-            <span>出貨方式:{{orderDetail.shipment}}</span>
+            <span> 客戶名稱:<span style="border-bottom: 1px dotted">{{orderDetail.clientName}}</span></span>
+            <span>客戶類別:<span style="border-bottom: 1px dotted">{{orderDetail.className}}</span></span>
+            <span>收件地址:<span style="border-bottom: 1px dotted">{{orderDetail.receivePostCode}}{{orderDetail.receiveAddress}}</span></span>
+            <span>客戶電話:<span style="border-bottom: 1px dotted">{{orderDetail.phoneNumber}}</span></span>
+            <span>統一編號:<span style="border-bottom: 1px dotted">{{orderDetail.vatNumber}}</span></span>
+            <span>出貨方式:<span style="border-bottom: 1px dotted">{{orderDetail.shipment === 1 ? '親送':(orderDetail.shipment === 2?'黑貓宅配':(orderDetail.shipment === 3?'自取':''))}}</span></span>
             <span>備註:{{orderDetail.remark}}</span>
           </div>
           <div class="barcode-wrapper">
@@ -73,19 +69,17 @@
           </div>
         </div>
       </div>
-      <div class="button-wrapper">
-        <a-button style="margin-right: 8px" type="primary" @click="handleOk"
-          >確定</a-button
-        >
-        <a-button type="primary" @click="handleCancel">取消</a-button>
-      </div>
-    </a-modal>
-    <a-modal
-      :title="templateType"
-      :visible="show"
-      width="500px"
-      :footer="null"
-      class="package-wrapper"
+<!--      <div class="button-wrapper">-->
+<!--        <a-button style="margin-right: 8px" type="primary" @click="handleOk"-->
+<!--          >確定</a-button-->
+<!--        >-->
+<!--        <a-button type="primary" @click="handleCancel">取消</a-button>-->
+<!--      </div>-->
+    </div>
+    <div
+            :title="templateType"
+            class="package-wrapper"
+            v-if="printable"
     >
       <div class="package-sticker">
         <div class="package-top">
@@ -93,35 +87,42 @@
             <span><img src="@/assets/01PL628.jpg"/></span>
           </div>
           <div>
-            <span>出貨日期{{orderDetail.salesDay}}</span>
+            <h2>出貨日期{{orderDetail.salesDay}}</h2>
           </div>
         </div>
         <div class="package-content">
           <div class="package-content-detail" v-if="list.receiver !== ''">
-            <h2>收件客戶</h2>{{receiverList.receiver}}
+            <h2>收件客戶</h2><h1>{{receiverList.receiver}}</h1>
           </div>
           <div v-else>
             <h2>收件客戶</h2>{{ list.defaultReceiveInfo === 0 ? list.name:list.companyName }}
           </div>
           <div class="package-content-detail-order">
             <h2>出貨單號</h2>
-            <div class="order-barcode"><svg id="ean-13"></svg></div>
+            <div class="order-barcode">
+              <svg id="ean-13"
+                   :jsbarcode-format="skus.format"
+                   :jsbarcode-value="orderDetail.orderNo"
+                   jsbarcode-textmargin="0"
+                   jsbarcode-fontoptions="bold"
+              ></svg>
+            </div>
           </div>
           <div class="package-content-detail-package">
             <h2>物流編號</h2>
             <div class="package-barcode">
-              <svg id="ean-13"></svg>
+              <svg id="trackNo"
+                   :jsbarcode-format="skus2.format"
+                   :jsbarcode-value="orderDetail.trackingNo"
+                   jsbarcode-textmargin="0"
+                   jsbarcode-fontoptions="bold"
+              >
+              </svg>
             </div>
           </div>
         </div>
       </div>
-      <div class="button-wrapper">
-        <a-button style="margin-right: 8px" type="primary" @click="handleOk"
-          >確定</a-button
-        >
-        <a-button type="primary" @click="handleCancel">取消</a-button>
-      </div>
-    </a-modal>
+    </div>
     <div style="display: none" class="print-modal"></div>
   </div>
 </template>
@@ -134,6 +135,9 @@ export default {
   props:['distirbuteHandler','orderData', 'orderDetail','orderTitle','list','receiverList'],
   data() {
     return {
+      printable:false,
+      skus: {format: 'auto', title: ''},
+      skus2:{format: 'auto', title: ''},
       show: false,
       templateType: '',
       visible: false,
@@ -282,42 +286,46 @@ export default {
         this.distirbuteHandler();
       }
       this.templateType = '貼箱標籤'
-      this.show = true
+      this.printable = true
       setTimeout(function () {
-        JsBarcode("#ean-13", "1234567890128", {format: "ean13"})
+        JsBarcode("#ean-13").init();
+        JsBarcode("#trackNo").init();
       },500)
+
       let _this = this;
       setTimeout(function() {
         _this.handleOk();
       },500)
+
       this.$emit('passTemplateType',this.templateType)
     },
     handleOk() {
       this.handleCancel()
 
       if (this.templateType !== '貼箱標籤') {
+        console.log(6898989)
         htmlToImage
           .toPng(document.querySelector('.table-content'))
           .then(function(dataUrl) {
             let img = new Image()
             img.src = dataUrl
 
-            // let printPage = document.querySelector('.print-modal')
-            // printPage.appendChild(img)
-
-            // let body = window.document.appendChild(img)
-
+            let printPage = document.body.appendChild(img)
 
             let myWindow = window.open('', '', 'width=2000,height=1000')
-            myWindow.document.write(img.outerHTML)
+            myWindow.document.write(printPage.outerHTML)
 
             setTimeout(function() {
               myWindow.document.close()
               myWindow.focus()
               myWindow.print()
               myWindow.close()
-            }, 250)
+            }, 550)
           })
+        let _this = this;
+        setTimeout(function () {
+          _this.visible = false
+        },600)
       } else {
         htmlToImage
           .toPng(document.querySelector('.package-sticker'))
@@ -325,24 +333,28 @@ export default {
             let img = new Image()
             img.src = dataUrl
 
-            let printPage = document.querySelector('.print-modal')
-            printPage.appendChild(img)
+            // let printPage = document.querySelector('.print-modal')
+            // printPage.appendChild(img)
+            let printPage = document.body.appendChild(img)
 
             let myWindow = window.open('', '', 'width=2000,height=1000')
-            myWindow.document.write(printPage.innerHTML)
+            myWindow.document.write(printPage.outerHTML)
 
             setTimeout(function() {
               myWindow.document.close()
               myWindow.focus()
               myWindow.print()
               myWindow.close()
-            }, 250)
+            }, 550)
           })
+        let _this = this;
+        setTimeout(function () {
+          _this.printable = false
+        },600)
       }
     },
     handleCancel() {
-      this.visible = false
-      this.show = false
+      // this.visible = false
       let printPage = document.querySelector('.print-modal')
       printPage.innerHTML = ''
     },
@@ -413,6 +425,10 @@ export default {
   .black-cat-logo {
     border: 2px solid;
   }
+  .title{
+    position: relative;
+    right: 50px;
+  }
 }
 img {
   width: 150px;
@@ -420,22 +436,24 @@ img {
   left: 0;
   top: 0;
 }
-
+.table-content{
+  padding: 0px 120px 0 75px;
+}
 .detail-wrapper {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
 
   .detail-list {
     display: flex;
     flex-direction: column;
-    position: relative;
-    right: 45px;
+    /*position: relative;*/
+    /*right: 45px;*/
   }
   .barcode-wrapper {
     display: flex;
     flex-direction: column;
-    position: relative;
-    right: 30px;
+    /*position: relative;*/
+    /*right: 30px;*/
   }
 }
 .content-wrapper {
@@ -449,23 +467,19 @@ img {
     margin-bottom: 50px;
   }
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   .contact-wrapper {
     display: flex;
     flex-direction: column;
-    margin-left: -100px;
   }
   .sign-wrapper {
-    margin-left: -140px;
   }
   .sign-block {
     background-color: #f4f4f4;
     width: 160px;
     height: 50px;
     line-height: 5;
-    position: absolute;
-    bottom: 117px;
-    right: 86px;
+    margin-top: 77px;
     padding: 0 0 0 12px;
   }
 }
@@ -481,9 +495,13 @@ img {
   display: none;
 }
 .package-wrapper {
+  width: 600px;
+  height: 600px;
+  margin: 0 auto;
+  position: relative;
+  z-index: -1;
 }
 .package-sticker {
-  padding: 11px 15px 10px 10px;
 }
 .package-top {
   display: flex;
@@ -495,7 +513,7 @@ img {
   height: 100%;
 }
 .package-content-detail {
-  margin-bottom: 100px;
+  margin-bottom: 10px;
 }
 .package-content-detail-order {
   display: flex;
@@ -516,6 +534,7 @@ img {
   }
 }
 svg {
-  /*margin: 30px;*/
+  width: 255px;
+  align-self: flex-end;
 }
 </style>
