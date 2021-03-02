@@ -9,7 +9,7 @@
         v-model="visible"
         width="500px"
         :title="changeTitle"
-        @cancel="clearInput"
+        @cancel="handleCancel"
     >
       <div class="class-input">
         <a-form-model-item
@@ -59,21 +59,21 @@ export default {
         this.updateId = record.id
       }
     },
-    clearInput(){
-      this.warehouse = ''
-    },
     handleOk(){
       if(this.changeTitle === "新增倉庫"){
         this.$api.Depot.addDepot({
           'name':this.warehouse
         })
                 .then(()=>{
-                  this.visible = false
-                  this.warehouse = ''
+                  this.handleCancel();
                   this.getDepotList();
-
+                  this.$message.success('新增倉庫成功')
                 }).catch(()=>{
-          this.$message.error('此倉庫名稱已存在')
+          if(this.warehouse === ''){
+            this.$message.error('商品倉庫名稱為空')
+          }else {
+            this.$message.error('此倉庫名稱已存在')
+          }
         })
       }else {
         this.$api.Depot.updateDepot({
@@ -83,7 +83,7 @@ export default {
         .then(()=>{
           this.$message.success('修改成功')
           this.getDepotList();
-          this.visible = false
+          this.handleCancel();
         }).catch(()=>{
           this.$message.error('此倉庫名稱已存在')
         })
@@ -91,8 +91,8 @@ export default {
     },
     handleCancel(){
       this.visible = false
+      this.warehouse = ''
     }
-
   }
 }
 </script>

@@ -3,7 +3,7 @@
     <div class="action">
       <div class="action-add">
         <a-button class="button1" @click="showModal"
-          >新增<a-icon type="plus"
+          >新增類別<a-icon type="plus"
         /></a-button>
       </div>
       <div class="search-wrapper">

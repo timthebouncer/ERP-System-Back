@@ -104,9 +104,12 @@
         :destroyOnClose="true"
       >
         <div class="modal-body">
-          <a-form-model layout="horizontal" ref="ruleForm">
-            <!--              :model="list"-->
-            <!--              :rules="rules"-->
+          <a-form-model
+            layout="horizontal"
+            ref="ruleForm"
+            :model="ruleList"
+            :rules="rules"
+          >
             <div class="firstPart">
               <div class="firstPart-item">
                 <a-form-model-item class="custom-form-item" label="出貨日期">
@@ -141,13 +144,17 @@
                 </a-form-model-item>
               </div>
               <div class="firstPart-item">
-                <a-form-model-item class="custom-form-item" label="客戶類別">
-                  <div v-if="orderModalTitle === '出貨'">
+                <a-form-model-item
+                  class="custom-form-item"
+                  label="客戶類別"
+                  prop="customerClass"
+                >
+                  <div v-if="orderModalTitle === '新增出貨'">
                     <a-select
                       show-search
                       placeholder="請選擇"
-                      style="width: 150px"
-                      v-model="customerClass"
+                      style="width: 175px"
+                      v-model="ruleList.customerClass"
                       @change="cusListChange"
                     >
                       <a-select-option
@@ -161,14 +168,18 @@
                   </div>
                   <div v-else>{{ orderDetail.className }}</div>
                 </a-form-model-item>
-                <a-form-model-item class="custom-form-item" label="客戶名稱">
-                  <div v-if="orderModalTitle === '出貨'">
+                <a-form-model-item
+                  class="custom-form-item"
+                  label="客戶名稱"
+                  prop="optionId"
+                >
+                  <div v-if="orderModalTitle === '新增出貨'">
                     <a-select
                       show-search
                       placeholder="請選擇"
-                      style="width: 200px"
+                      style="width: 175px"
                       :filter-option="filterOption"
-                      v-model="optionId"
+                      v-model="ruleList.optionId"
                       @change="handleChange"
                     >
                       <a-select-option v-for="item in cusList" :value="item.id">
@@ -183,7 +194,7 @@
                   label="客戶電話"
                   v-model="list.tel"
                 >
-                  <div v-if="orderModalTitle === '出貨'">
+                  <div v-if="orderModalTitle === '新增出貨'">
                     {{ list.tel }}
                   </div>
                   <div v-else>
@@ -195,26 +206,33 @@
                 <a-form-model-item class="custom-form-item" label="收件人">
                   <div v-if="orderModalTitle !== '訂單詳情'">
                     <a-select
-                            show-search
-                            placeholder="請選擇"
-                            style="width: 150px"
-                            v-model="recipientId"
-                            @change="recipientChange"
+                      show-search
+                      placeholder="請選擇"
+                      style="width: 175px"
+                      v-model="recipientId"
+                      @change="recipientChange"
                     >
-                      <a-select-option v-for="item in list.receiverList" :value="item.id">
+                      <a-select-option
+                        v-for="item in list.receiverList"
+                        :value="item.id"
+                      >
                         {{ item.receiver }}
                       </a-select-option>
                     </a-select>
                     <span>
-                      {{defaultOption}}
+                      {{ defaultOption }}
                     </span>
                   </div>
                   <div v-else>
-                    <div v-if="list.receiver !== ''">
-                      {{receiverList.receiver}}
+                    <div v-if="orderDetail.receiver !== ''">
+                      {{ orderDetail.receiver }}
                     </div>
                     <div v-else>
-                      {{ list.defaultReceiveInfo === 0 ? list.name:list.companyName }}
+                      {{
+                        list.defaultReceiveInfo === 0
+                          ? list.name
+                          : list.companyName
+                      }}
                     </div>
                   </div>
                 </a-form-model-item>
@@ -250,8 +268,16 @@
               </div>
             </div>
             <div class="sales-detail">
-              <a-form-model class="option-wrapper">
-                <a-form-model-item label="付款方式" class="option-content">
+              <a-form-model
+                class="option-wrapper"
+                ref="ruleForm"
+                :rules="rules"
+              >
+                <a-form-model-item
+                  label="付款方式"
+                  class="option-content"
+                  prop="payment"
+                >
                   <div v-if="orderModalTitle !== '訂單詳情'">
                     <a-radio-group v-model="payments">
                       <a-radio class="option-content-input" :value="1">
@@ -279,7 +305,11 @@
                     </a-radio-group>
                   </div>
                 </a-form-model-item>
-                <a-form-model-item label="出貨方式" class="option-content">
+                <a-form-model-item
+                  label="出貨方式"
+                  prop="shipment"
+                  class="option-content"
+                >
                   <div v-if="orderModalTitle !== '訂單詳情'">
                     <a-radio-group v-model="shipment" @change="clearTrackingNo">
                       <a-radio
@@ -345,7 +375,10 @@
                 </div>
                 <a-form-model-item label="溫層類別" class="option-content">
                   <div v-if="orderModalTitle !== '訂單詳情'">
-                    <a-radio-group v-model="temperatureCategory">
+                    <a-radio-group
+                      v-model="temperatureCategory"
+                      @change="shippingFeeCaluelate"
+                    >
                       <a-radio
                         class="option-content-input"
                         style="margin-right:36px"
@@ -384,7 +417,10 @@
                 </a-form-model-item>
                 <a-form-model-item label="材積單位" class="option-content">
                   <div v-if="orderModalTitle !== '訂單詳情'">
-                    <a-radio-group v-model="volume">
+                    <a-radio-group
+                      v-model="volume"
+                      @change="shippingFeeCaluelate"
+                    >
                       <a-radio
                         class="option-content-input"
                         style="margin-right:20px"
@@ -406,7 +442,11 @@
                       >
                         120公分
                       </a-radio>
-                      <a-radio class="option-content-input" :value="4">
+                      <a-radio
+                        v-show="this.temperatureCategory === 1"
+                        class="option-content-input"
+                        :value="4"
+                      >
                         150公分
                       </a-radio>
                     </a-radio-group>
@@ -434,7 +474,11 @@
                       >
                         120公分
                       </a-radio>
-                      <a-radio class="option-content-input" :value="4">
+                      <a-radio
+                        v-show="this.temperatureCategory === 1"
+                        class="option-content-input"
+                        :value="4"
+                      >
                         150公分
                       </a-radio>
                     </a-radio-group>
@@ -443,12 +487,13 @@
                 <a-form-model-item
                   class="option-content"
                   label="運費金額"
-                  prop=""
+                  prop="shippingFee"
                 >
                   <div v-if="orderModalTitle !== '訂單詳情'">
+                    <span style="font-weight: bold">$</span>
                     <a-input
-                      v-model="calculating"
-                      style="width: 200px"
+                      v-model="shippingFee"
+                      style="width: 150px"
                       placeholder="請輸入"
                     />
                   </div>
@@ -462,7 +507,7 @@
               <div class="second-part-item">
                 <div>
                   <div style="display: flex">
-                    出貨商品
+                    <h3 style="margin-top: 10px">出貨商品</h3>
                     <div v-if="orderModalTitle !== '訂單詳情'">
                       <a-button
                         type="primary"
@@ -493,7 +538,7 @@
                         :auto-size="{ minRows: 3, maxRows: 5 }"
                       />
                     </div>
-                    <div v-else>{{orderDetail.remark}}</div>
+                    <div v-else>{{ orderDetail.remark }}</div>
                     <template v-if="orderModalTitle !== '訂單詳情'">
                       <span> 總數量:{{ totalAmountPrice.count }} </span>
                       <span> 總金額:{{ totalAmountPrice.total }} </span>
@@ -508,7 +553,7 @@
             </div>
           </a-form-model>
           <div class="print-wrapper">
-            <h3>列印資料</h3>
+            <div style="margin-left: 21px;"><h3>列印操作</h3></div>
             <div class="button-wrapper">
               <ModalExample
                 :distirbuteHandler="handleOk"
@@ -531,8 +576,7 @@
               取消
             </a-button>
           </div>
-         <div v-else>
-         </div>
+          <div v-else></div>
         </template>
       </a-modal>
     </div>
@@ -563,13 +607,14 @@ export default {
           title: '商品條碼',
           dataIndex: 'barCode',
           align: 'center',
-          width: '20%',
+          width: '13%',
           customRender: (value, row) => {
             return {
               children:
                 this.orderModalTitle !== '訂單詳情' ? (
                   <div>
                     <a-input
+                      style={{ width: '150px' }}
                       onChange={barCode => this.pushName(barCode, row)}
                       vModel={row.barCode}
                       placeholder="請手動輸入商品條碼"
@@ -610,23 +655,23 @@ export default {
           scopedSlots: { customRender: 'amount' }
         },
         {
-          title: '建議售價',
+          title: '建議售價(單價*數量)',
           dataIndex: 'price',
           align: 'center',
           width: '8%',
           customRender: (val, row) => {
             return {
-              children: <div>{row.price}</div>
+              children: <div>{row.price * row.amount}</div>
             }
           }
         },
         {
-          title: '出貨售價',
+          title: '出貨售價(出貨單價*數量)',
           dataIndex: 'clientPrice',
           align: 'center',
           width: '8%',
           customRender: (val, row) => {
-            return <div>{row.clientPrice}</div>
+            return <div>{row.clientPrice * row.amount}</div>
           }
         },
         {
@@ -643,14 +688,18 @@ export default {
           title: '小計',
           dataIndex: 'orderPrice',
           align: 'center',
+          width: '8%',
           customRender: (_, row) => {
             return {
-              children:
-              this.$set(row,'orderPrice',row.clientPrice > 0
+              children: this.$set(
+                row,
+                'orderPrice',
+                row.clientPrice > 0
                   ? row.clientPrice * row.amount - row.discount
-                  : row.price * row.amount - row.discount)
+                  : row.price * row.amount - row.discount
+              )
             }
-          },
+          }
         },
         {
           title: '備註',
@@ -717,16 +766,10 @@ export default {
           scopedSlots: { customRender: 'orderNo' }
         },
         {
-          title: '客戶',
+          title: '客戶名稱',
           dataIndex: 'clientName',
           align: 'center',
           scopedSlots: { customRender: 'clientName' }
-        },
-        {
-          title: '商品數量',
-          dataIndex: 'productAmount',
-          align: 'center',
-          scopedSlots: { customRender: 'productAmount' }
         },
         {
           title: '總金額',
@@ -748,8 +791,6 @@ export default {
         }
       ],
       search: '',
-      optionId: '',
-      customerClass: '',
       pageSizeOptions: ['10', '30', '50', '100'],
       pageNumber: 1,
       pageSize: 10,
@@ -763,14 +804,32 @@ export default {
       temperatureCategory: 2,
       volume: 1,
       trackingNo: '',
-      shippingFee: '',
+      shippingFee: 0,
       receiverList: {},
       orderDetail: {},
-      recipientId:'',
-      defaultList:[],
-      defaultOption:'',
-      findDefaultInfo:[],
-      templateType:''
+      recipientId: '',
+      defaultList: [],
+      defaultOption: '',
+      findDefaultInfo: [],
+      templateType: '',
+      ruleList: {
+        customerClass: '',
+        optionId: ''
+      },
+      rules: {
+        customerClass: [{ required: true, message: '請選擇', trigger: 'blur' }],
+        optionId: [{ required: true, message: '請選擇', trigger: 'blur' }],
+        payment: [{ required: true, message: '請選擇', trigger: 'blur' }],
+        shipment: [{ required: true, message: '請選擇', trigger: 'blur' }],
+        shippingFee: [
+          {
+            required: true,
+            pattern: /^\d+$/,
+            message: '請輸入數字',
+            trigger: 'blur'
+          }
+        ]
+      }
     }
   },
   created() {
@@ -783,12 +842,38 @@ export default {
     this.CommodityDetail(this.searchBarcode)
   },
   methods: {
-    getTemplateType(e){
+    shippingFeeCaluelate() {
+      let aaa =
+        shippingRule[
+          '' + this.shipment + this.temperatureCategory + this.volume
+        ]
+      this.shippingFee = aaa
+    },
+    temperatureChange() {
+      let aaa =
+        shippingRule[
+          '' + this.shipment + this.temperatureCategory + this.volume
+        ]
+      this.shippingFee = aaa
+    },
+    volumeChange() {
+      let aaa =
+        shippingRule[
+          '' + this.shipment + this.temperatureCategory + this.volume
+        ]
+      this.shippingFee = aaa
+    },
+    getTemplateType(e) {
       this.templateType = e
     },
     showAddOrderView() {
-      this.orderModalTitle = '出貨'
+      this.orderModalTitle = '新增出貨'
       this.orderViewVisible = true
+      this.payments = 1
+      this.shipment = 1
+      this.temperatureCategory = 2
+      this.volume = 1
+      this.shippingFeeCaluelate()
     },
     editHandler(record) {
       this.orderViewVisible = true
@@ -799,15 +884,15 @@ export default {
         orderId: record.orderId
       }).then(res => {
         this.orderDetail = res.data
-        this.customerClass = res.data.classId
-        this.optionId = res.data.clientId
-        // this.recipientId = res.data.recipientId
+        this.ruleList.customerClass = res.data.classId
+        this.ruleList.optionId = res.data.clientId
         this.payments = res.data.payment
         this.shipment = res.data.shipment
         this.temperatureCategory = res.data.temperatureCategory
         this.volume = res.data.volume
         this.trackingNo = res.data.trackingNo
         this.remark = res.data.remark
+        this.shippingFee = res.data.shippingFee
 
         this.$api.Commodity.getSalesProduct({
           searchKey: '',
@@ -818,9 +903,12 @@ export default {
         })
 
         this.list = this.customerList.find(item => {
-          return item.id === this.optionId
+          return item.id === this.ruleList.optionId
         })
-        this.findDefaultInfo = [{id:'',receiver:'',address:'',tel:'',postCode:''},{id:'',receiver:'',address:'',tel:'',postCode:''}]
+        this.findDefaultInfo = [
+          { id: '', receiver: '', address: '', tel: '', postCode: '' },
+          { id: '', receiver: '', address: '', tel: '', postCode: '' }
+        ]
         this.findDefaultInfo.push(...this.list.recipientList)
         this.findDefaultInfo[0].id = '0'
         this.findDefaultInfo[0].receiver = this.list.name
@@ -834,32 +922,46 @@ export default {
         this.findDefaultInfo[1].tel = this.list.companyTel
         this.list.receiverList = this.findDefaultInfo
 
-
-        let nonDefaultList = this.list.receiverList.filter(item=>{
-          return item.id === this.findDefaultInfo[0].id
+        let nonDefaultList = this.list.receiverList.filter((item, i) => {
+          return item.id === this.findDefaultInfo[i].id
         })
-
-        this.defaultList = this.findDefaultInfo.filter((item,i) => i === this.list.defaultReceiveInfo)
-        if(nonDefaultList[0].id === this.defaultList[0].id){
-          if(this.list.defaultReceiveInfo === 0) {
+        this.defaultList = this.findDefaultInfo.filter(
+          (item, i) => i === this.list.defaultReceiveInfo
+        )
+        if (
+          nonDefaultList[this.list.defaultReceiveInfo].id ===
+          this.defaultList[0].id
+        ) {
+          if (this.list.defaultReceiveInfo === 0) {
             this.defaultList[0].default = '同客戶資料(預設地址)'
-          }else if(this.list.defaultReceiveInfo === 1) {
+            this.defaultOption = this.defaultList[0].default
+          } else if (this.list.defaultReceiveInfo === 1) {
             this.defaultList[0].default = '同公司資料(預設地址)'
-          }else {
-            this.defaultList[0].default = '(預設地址)'
+            this.defaultOption = this.defaultList[0].default
+          } else {
+            if (res.data.receiver === this.defaultList[0].receiver) {
+              this.defaultList[0].default = '(預設地址)'
+              this.defaultOption = this.defaultList[0].default
+            }
           }
-          this.defaultOption = this.defaultList[0].default
-          if(this.list.defaultReceiveInfo === 0){
+          if (this.defaultList[0].id === '0') {
             this.recipientId = this.findDefaultInfo[0].id
-            this.receiverList = {...this.defaultList[0]}
-          }else {
-            this.recipientId = res.data.recipientId
-            this.receiverList = {...this.defaultList[0]}
+            this.receiverList = { ...this.defaultList[0] }
+          } else if (this.defaultList[0].id === '1') {
+            this.recipientId = this.findDefaultInfo[1].id
+            this.receiverList = { ...this.defaultList[0] }
+          } else {
+            if (res.data.receiver !== '' && res.data.recipientId === null) {
+              this.recipientId = this.findDefaultInfo[0].id
+              this.receiverList = { ...this.defaultList[0] }
+            } else if (res.data.receiver === '') {
+              this.recipientId = this.findDefaultInfo[1].id
+              this.receiverList = { ...this.defaultList[0] }
+            } else {
+              this.recipientId = res.data.recipientId
+              this.receiverList = { ...nonDefaultList[0] }
+            }
           }
-
-        }else {
-          this.recipientId = res.data.recipientId
-          this.receiverList = {...nonDefaultList[0]}
         }
 
         this.orderData = res.data.orderDetailItemResponseList.map(item => {
@@ -889,22 +991,24 @@ export default {
       this.list = {}
       this.remark = ''
       this.selectList = []
-      this.optionId = ''
-      this.customerClass = ''
+      this.ruleList.optionId = ''
+      this.ruleList.customerClass = ''
       this.dateForOrderNo = ''
       this.orderNumber = ''
-      this.payments = 1
-      this.shipment = 1
-      this.temperatureCategory = 2
-      this.volume = 1
+      this.payments = ''
+      this.shipment = ''
+      this.temperatureCategory = ''
+      this.volume = ''
       this.trackingNo = ''
       this.shippingFee = ''
       this.recipientId = ''
       this.receiverList = {}
       this.defaultOption = ''
       this.list.recipientList = []
+      this.resetForm()
     },
     clearTrackingNo() {
+      this.shippingFeeCaluelate()
       this.trackingNo = ''
     },
     addNewItem(row, editKey) {
@@ -924,19 +1028,21 @@ export default {
       this.cusList = this.customerList.filter(item => {
         return item.classes.id === id
       })
-      this.optionId = ''
+      this.ruleList.optionId = ''
       this.list = {}
       this.recipientId = ''
       this.receiverList = {}
     },
     handleChange(id) {
-
       this.list = this.customerList.find(item => {
         return item.id === id
       })
 
       //把資料叫回來組一個陣列拿index去判斷defaultReceiveInfo
-      this.findDefaultInfo = [{id:'',receiver:'',address:'',tel:'',postCode:''},{id:'',receiver:'',address:'',tel:'',postCode:''}]
+      this.findDefaultInfo = [
+        { id: '', receiver: '', address: '', tel: '', postCode: '' },
+        { id: '', receiver: '', address: '', tel: '', postCode: '' }
+      ]
       this.findDefaultInfo.push(...this.list.recipientList)
       this.findDefaultInfo[0].id = '0'
       this.findDefaultInfo[0].receiver = this.list.name
@@ -950,39 +1056,51 @@ export default {
       this.findDefaultInfo[1].tel = this.list.companyTel
 
       this.list.receiverList = this.findDefaultInfo
-      this.defaultList = this.findDefaultInfo.filter((item,i) => i === this.list.defaultReceiveInfo)
+      this.defaultList = this.findDefaultInfo.filter(
+        (item, i) => i === this.list.defaultReceiveInfo
+      )
 
-      if(this.list.defaultReceiveInfo === 0) {
+      if (this.list.defaultReceiveInfo === 0) {
         this.defaultList[0].default = '同客戶資料(預設地址)'
-      }else if(this.list.defaultReceiveInfo === 1) {
+      } else if (this.list.defaultReceiveInfo === 1) {
         this.defaultList[0].default = '同公司資料(預設地址)'
-      }else {
+      } else {
         this.defaultList[0].default = '(預設地址)'
       }
       this.defaultOption = this.defaultList[0].default
-        this.recipientId = this.defaultList[0].id
-        this.receiverList = {...this.defaultList[0]}
+      this.recipientId = this.defaultList[0].id
+      this.receiverList = { ...this.defaultList[0] }
 
       // this.receiverList = Object.assign({}, this.list.recipientList.filter(item=>item.id === id))[0]
       // this.recipientId = this.receiverList.id
       // this.list = JSON.parse(JSON.stringify(this.customerList.find(item => {
       //   return item.id === id
       // })))
-      // this.recipientId = ''
-      // this.receiverList = {}
       this.specificId = id
       this.SalesProduct()
     },
-    recipientChange(id){
+    recipientChange(id) {
       this.recipientId = id
-      this.receiverList = Object.assign({}, this.list.receiverList.filter(item=>item.id === id))[0]
-      if(this.receiverList.default === "同客戶資料(預設地址)" && this.list.defaultReceiveInfo === 0){
+      this.receiverList = Object.assign(
+        {},
+        this.list.receiverList.filter(item => item.id === id)
+      )[0]
+      if (
+        this.receiverList.default === '同客戶資料(預設地址)' &&
+        this.list.defaultReceiveInfo === 0
+      ) {
         this.defaultOption = '同客戶資料(預設地址)'
-      }else if(this.receiverList.default === "同公司資料(預設地址)" && this.list.defaultReceiveInfo === 1) {
+      } else if (
+        this.receiverList.default === '同公司資料(預設地址)' &&
+        this.list.defaultReceiveInfo === 1
+      ) {
         this.defaultOption = '同公司資料(預設地址)'
-      }else if(this.receiverList.default === "(預設地址)" && this.list.defaultReceiveInfo > 1){
+      } else if (
+        this.receiverList.default === '(預設地址)' &&
+        this.list.defaultReceiveInfo > 1
+      ) {
         this.defaultOption = '(預設地址)'
-      }else {
+      } else {
         this.defaultOption = ''
       }
     },
@@ -1019,12 +1137,6 @@ export default {
       }
       this.orderData = [...orderData, newData]
     },
-    clearData(row, index) {
-      let rows = this.orderData[index]
-      rows.barCode = ''
-      rows.unit = '-'
-      rows.clientPrice = 0
-    },
     pushValue(id, index) {
       let rows = this.orderData[index]
       this.selectList.forEach(item => {
@@ -1058,114 +1170,145 @@ export default {
     },
     handleOk() {
       let productId = this.orderData.map(item => item.productId)
-      if (this.orderModalTitle === '出貨') {
-        if (this.list.id) {
-          if (this.orderData.length !== 0) {
-            if (productId[0] !== undefined) {
-              this.$api.Distribute.addOrder({
-                recipientId:this.recipientId,
-                clientId: this.list.id,
-                remark: this.remark,
-                payment: this.payments,
-                shipment: this.shipment,
-                temperatureCategory: this.temperatureCategory,
-                volume: this.volume,
-                orderNo: this.orderNumber,
-                stockOutDate: this.dateForOrderNo,
-                trackingNo: this.trackingNo,
-                shippingFee: this.calculating,
-                orderItemRequestList: this.orderData.map(item => {
-                  return {
-                    barcode: item.barCode,
-                    amount: item.amount,
-                    discount: item.discount,
-                    price: item.orderPrice,
-                    remark: item.remark
-                  }
-                })
-              })
-                .then(() => {
-                  this.$message.success('出貨確認成功')
-                  this.orderViewVisible = false
-                  this.handleCancel()
-                  this.resetPage()
-                })
-                .catch(() => {
-                  const stock = this.orderData.map(item => {
-                    return item.amount
+      this.$refs.ruleForm.validate(valid => {
+        if (valid) {
+          if (this.orderModalTitle === '新增出貨') {
+            if (this.list.id) {
+              if (this.orderData.length !== 0) {
+                if (productId[0] !== undefined) {
+                  this.$api.Distribute.addOrder({
+                    recipientId: this.recipientId,
+                    clientId: this.list.id,
+                    remark: this.remark,
+                    payment: this.payments,
+                    shipment: this.shipment,
+                    temperatureCategory: this.temperatureCategory,
+                    volume: this.volume,
+                    orderNo: this.orderNumber,
+                    stockOutDate: this.dateForOrderNo,
+                    trackingNo: this.trackingNo,
+                    shippingFee: this.shippingFee,
+                    orderItemRequestList: this.orderData.map(item => {
+                      return {
+                        barcode: item.barCode,
+                        amount: item.amount,
+                        discount: item.discount,
+                        price: item.orderPrice,
+                        remark: item.remark
+                      }
+                    })
                   })
-                  const quantity = this.selectList.some(
-                    (item, i) => item.amount < stock[i]
-                  )
-                  if (quantity) {
-                    this.$message.error('出貨量大於庫存量')
-                  } else {
-                    this.$message.error('無此商品條碼')
-                  }
-                })
+                    .then((res) => {
+                      this.$message.success('出貨確認成功')
+                      if (this.templateType) {
+                        this.$api.Distribute.getDistributeDetail({
+                          orderId: res.data.id
+                        }).then(response=>{
+                          this.orderDetail = response.data
+                        })
+                        this.orderViewVisible = true
+                        this.templateType = ''
+                      } else {
+                        this.orderViewVisible = false
+                        this.handleCancel()
+                        this.templateType = ''
+                      }
+                      // this.orderViewVisible = false
+                      // this.handleCancel()
+                      this.resetPage()
+                    })
+                    .catch(() => {
+                      const stock = this.orderData.map(item => {
+                        return item.amount
+                      })
+                      const quantity = this.selectList.some(
+                        (item, i) => item.amount < stock[i]
+                      )
+                      if (quantity) {
+                        this.$message.error('出貨量大於庫存量')
+                      } else {
+                        this.$message.error('無此商品條碼')
+                      }
+                    })
+                } else {
+                  this.$message.error('請選擇商品')
+                }
+              } else {
+                this.$message.error('請先新增商品')
+              }
             } else {
-              this.$message.error('請選擇商品')
+              this.$message.error('請選擇客戶')
             }
           } else {
-            this.$message.error('請先新增商品')
-          }
-        } else {
-          this.$message.error('請選擇客戶')
-        }
-      } else {
-        this.$api.Distribute.editOrder({
-          orderId: this.orderId,
-          recipientId: this.receiverList.id,
-          remark: this.remark,
-          payment: this.payments,
-          shipment: this.shipment,
-          temperatureCategory: this.temperatureCategory,
-          volume: this.volume,
-          orderNo: this.orderNumber,
-          stockOutDate: this.dateForOrderNo,
-          trackingNo: this.trackingNo,
-          shippingFee: this.calculating,
-          orderItemRequestList: this.orderData.map(item => {
-            return {
-              id: item.id,
-              barcode: item.barCode,
-              amount: item.amount,
-              discount: item.discount,
-              price: item.orderPrice,
-              remark: item.remark
-            }
-          })
-        })
-          .then(() => {
-            this.$message.success('編輯出貨成功')
-            if(this.templateType){
-              this.orderViewVisible = true
-              this.templateType = ''
-            }else {
-              this.orderViewVisible = false
-              this.handleCancel()
-              this.templateType = ''
-            }
-            this.templateType = ''
-            this.resetPage()
-          })
-          .catch(() => {
-            const stock = this.orderData.map(item => {
-              return item.amount
+            this.$api.Distribute.editOrder({
+              orderId: this.orderId,
+              recipientId: this.receiverList.id,
+              remark: this.remark,
+              payment: this.payments,
+              shipment: this.shipment,
+              temperatureCategory: this.temperatureCategory,
+              volume: this.volume,
+              orderNo: this.orderNumber,
+              stockOutDate: this.dateForOrderNo,
+              trackingNo: this.trackingNo,
+              shippingFee: this.shippingFee,
+              orderItemRequestList: this.orderData.map(item => {
+                return {
+                  id: item.id,
+                  barcode: item.barCode,
+                  amount: item.amount,
+                  discount: item.discount,
+                  price: item.orderPrice,
+                  remark: item.remark
+                }
+              })
             })
-            const quantity = this.selectList.some(
-              (item, i) => item.amount < stock[i]
-            )
-            if (quantity) {
-              this.$message.error('出貨量大於庫存量')
-            } else {
-              this.$message.error('無此商品條碼')
-            }
-          })
-      }
+              .then(() => {
+                this.$message.success('編輯出貨成功')
+                if (this.templateType) {
+                  this.$api.Distribute.getDistributeDetail({
+                    orderId: this.orderId
+                  }).then(response=>{
+                    this.orderDetail = response.data
+                  })
+                  this.orderViewVisible = true
+                  this.templateType = ''
+                } else {
+                  this.orderViewVisible = false
+                  this.handleCancel()
+                  this.templateType = ''
+                }
+                this.templateType = ''
+                this.resetPage()
+              })
+              .catch(() => {
+                const stock = this.orderData.map(item => {
+                  return item.amount
+                })
+                const quantity = this.selectList.some(
+                  (item, i) => item.amount < stock[i]
+                )
+                if (quantity) {
+                  this.$message.error('出貨量大於庫存量')
+                } else {
+                  this.$message.error('無此商品條碼')
+                }
+              })
+          }
+        }
+      })
     },
     deleteOrder(row, index) {
-      this.orderData.splice(index, 1)
+      if (this.changeTitle === '新增出貨') {
+        this.orderData.splice(index, 1)
+      } else {
+        if (row.id) {
+          this.$api.Distribute.deleteCommodityDiscount(row)
+          this.orderData.splice(index, 1)
+        } else {
+          this.orderData.splice(index, 1)
+        }
+      }
     },
     getCustomerList() {
       this.$api.Inventory.onlyCustomerList().then(res => {
@@ -1253,7 +1396,6 @@ export default {
           break
       }
     },
-    // formatToDate: string = 'YYYY-MM-DD'
     onChange(date, dateString) {
       ;(this.startDate = dateString[0]), (this.endDate = dateString[1])
       this.distributeList()
@@ -1285,29 +1427,32 @@ export default {
       this.$api.Distribute.getDistributeDetail({
         orderId: record.orderId
       }).then(res => {
-       this.createReceiverList(record);
+        this.createReceiverList(record)
         this.list.receiverList = this.findDefaultInfo
 
-        let nonDefaultList = this.list.receiverList.filter(item=>{
+        let nonDefaultList = this.list.receiverList.filter(item => {
           return item.id === this.findDefaultInfo[0].id
         })
-        this.defaultList = this.findDefaultInfo.filter((item,i) => i === this.list.defaultReceiveInfo)
-        if(nonDefaultList[0].id === this.defaultList[0].id){
-          if(this.list.defaultReceiveInfo === 0) {
+        this.defaultList = this.findDefaultInfo.filter(
+          (item, i) => i === this.list.defaultReceiveInfo
+        )
+        if (nonDefaultList[0].id === this.defaultList[0].id) {
+          if (this.list.defaultReceiveInfo === 0) {
             this.defaultList[0].default = '同客戶資料(預設地址)'
-          }else if(this.list.defaultReceiveInfo === 1) {
+          } else if (this.list.defaultReceiveInfo === 1) {
             this.defaultList[0].default = '同公司資料(預設地址)'
-          }else {
+          } else {
             this.defaultList[0].default = '(預設地址)'
           }
           this.defaultOption = this.defaultList[0].default
           this.recipientId = res.data.recipientId
-          this.receiverList = {...this.defaultList[0]}
-        }else {
+          this.receiverList = { ...this.defaultList[0] }
+        } else {
           this.recipientId = res.data.recipientId
-          this.receiverList = {...nonDefaultList[0]}
+          this.receiverList = { ...nonDefaultList[0] }
         }
         this.orderDetail = res.data
+        console.log(this.orderDetail)
         this.orderData = res.data.orderDetailItemResponseList
         this.orderList = res.data.orderDetailItemResponseList
         this.shipment = res.data.shipment
@@ -1331,11 +1476,17 @@ export default {
       this.pageNumber = 1
       this.distributeList()
     },
-    createReceiverList(record){
+    resetForm() {
+      this.$refs.ruleForm.resetFields()
+    },
+    createReceiverList(record) {
       this.list = this.customerList.find(item => {
-        return item.id ===  record.clientId
+        return item.id === record.clientId
       })
-      this.findDefaultInfo = [{id:'',receiver:'',address:'',tel:'',postCode:''},{id:'',receiver:'',address:'',tel:'',postCode:''}]
+      this.findDefaultInfo = [
+        { id: '', receiver: '', address: '', tel: '', postCode: '' },
+        { id: '', receiver: '', address: '', tel: '', postCode: '' }
+      ]
       this.findDefaultInfo.push(...this.list.recipientList)
       this.findDefaultInfo[0].id = '0'
       this.findDefaultInfo[0].receiver = this.list.name
@@ -1350,25 +1501,26 @@ export default {
     }
   },
   computed: {
-    totalAmountPrice(){
-      let count =0;
-      let total =0;
+    totalAmountPrice() {
+      let count = 0
+      let total = 0
       this.orderData.forEach(item => {
-            count += parseInt(item.amount)
-            total += item.orderPrice
-          })
-      return {count,total}
+        count += parseInt(item.amount)
+        total += item.orderPrice
+      })
+      return { count, total }
     },
-    calculating: {
-      get: function() {
-        return shippingRule[
-          '' + this.shipment + this.temperatureCategory + this.volume
-        ]
-      },
-      set: function(newValue) {
-        this.shippingFee = newValue
-      }
-    },
+    // calculating: {
+    //   get: function() {
+    //     return shippingRule[
+    //     '' + this.shipment + this.temperatureCategory + this.volume
+    //             ]
+    //   },
+    //   set: function(newValue) {
+    //     console.log(newValue)
+    //     this.shippingFee = newValue
+    //   }
+    // },
     filterName() {
       return this.selectList.map(item => {
         return { value: item.productId, text: item.productName }
@@ -1389,13 +1541,15 @@ export default {
                     value={row[key]}
                     vModel={row[key]}
                     onKeyup={() =>
-                      (key === 'discount' || key === 'amount'|| key === 'remark') &&
+                      (key === 'discount' ||
+                        key === 'amount' ||
+                        key === 'remark') &&
                       (row[key] = row[key].replace(/[^\d]/g, ''))
                     }
                     vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
                   />
                 </div>
-              ) : this.orderModalTitle !== '訂單詳情' ?(
+              ) : this.orderModalTitle !== '訂單詳情' ? (
                 <Fragment>
                   <span onClick={() => this.inputORnot(row, editKey)}>
                     {val}
@@ -1407,9 +1561,9 @@ export default {
                     onClick={() => this.inputORnot(row, editKey)}
                   />
                 </Fragment>
-              ): <span>
-                  {val}
-                  </span>}
+              ) : (
+                <span>{val}</span>
+              )}
             </div>
           )
         }
@@ -1440,7 +1594,7 @@ export default {
   margin-top: 20px;
 }
 .ant-calendar-picker {
-  padding: 5px;
+  /*padding: 5px;*/
 }
 .detail-menu {
   display: flex;
@@ -1485,7 +1639,8 @@ export default {
   margin: 15px 0px 0 0px;
   padding: 0px 20px 0px 20px;
   .editable-add-btn {
-    margin-bottom: 15px;
+    margin-top: 10px;
+    /*margin-bottom: 15px;*/
     .discount {
       display: flex;
       align-items: center;

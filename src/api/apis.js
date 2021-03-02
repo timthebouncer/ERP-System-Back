@@ -123,6 +123,9 @@ const api = {
     },
     getOrderNo(params){
       return request.get('/deliveryOrder/getOrderSerialNo?',{params})
+    },
+    deleteCommodityDiscount(row){
+      return request.delete('/deliveryOrderDetail/deleteDetail/'+row.id)
     }
   },
   Label:{

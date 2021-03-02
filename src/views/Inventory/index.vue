@@ -5,7 +5,8 @@
         <a-space>
           <a-button class="reviewButton" @click="resetPage">重新整理</a-button>
           <a-button class="addButton1" @click="showAddPurchaseView"
-            >重新入庫</a-button
+            >重新入庫<a-icon type="plus"
+          /></a-button
           >
         </a-space>
       </div>
@@ -18,7 +19,7 @@
           class="addPurchaseView"
         >
           <div>
-            <span>建立日期:</span
+            <span>工作日期:</span
             ><span>{{ moment(new Date()).format('YYYY-MM-DD') }}</span>
           </div>
           <div class="class-input" style="display: flex;">
