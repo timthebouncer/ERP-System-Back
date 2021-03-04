@@ -171,10 +171,10 @@
                 <a-col
                   :span="3"
                   class="tags"
-                  @drag="handleDrag(productNameTag, 'productName')"
+                  @drag="handleDrag(productNoTag, 'productNo')"
                   draggable
                   style="margin-left: 20px; margin-right: 20px;"
-                  >商品序號</a-col
+                  >{{ productNoTag }}</a-col
                 >
                 <a-col
                   :span="3"
@@ -188,18 +188,18 @@
                 <a-col
                   :span="3"
                   class="tags"
-                  @drag="handleDrag(listPriceTag, 'listPrice')"
+                  @drag="handleDrag(priceTag, 'price')"
                   draggable
-                  >{{ listPriceTag }}</a-col
+                  >{{ priceTag }}</a-col
                 >
-                <a-col
-                  :span="3"
-                  class="tags"
-                  @drag="handleDrag(salesPriceTag, 'salesPrice')"
-                  draggable
-                  style="margin-left: 20px; margin-right: 20px;"
-                  >{{ salesPriceTag }}</a-col
-                >
+                <!--                <a-col-->
+                <!--                  :span="3"-->
+                <!--                  class="tags"-->
+                <!--                  @drag="handleDrag(salesPriceTag, 'salesPrice')"-->
+                <!--                  draggable-->
+                <!--                  style="margin-left: 20px; margin-right: 20px;"-->
+                <!--                  >{{ salesPriceTag }}</a-col-->
+                <!--                >-->
                 <a-col
                   :span="3"
                   style="width: 200px; display: flex; justify-content: center; align-items: center;"
@@ -289,9 +289,11 @@ export default {
         { name: 'rSolarDay', text: '反向太陽日', width: 0 },
         { name: 'productName', text: '商品名稱', width: 0 },
         { name: 'barcode', text: '商品條碼', width: 0 },
+        { name: 'productNo', text: '商品序號', width: 0 },
         // { name: 'costPrice', text: '成本價', width: 0 },
-        { name: 'listPrice', text: '建議售價', width: 0 },
-        { name: 'salesPrice', text: '出貨售價', width: 0 },
+        // { name: 'listPrice', text: '建議售價', width: 0 },
+        // { name: 'salesPrice', text: '出貨售價', width: 0 },
+        { name: 'price', text: '價格', width: 0 },
         { name: 'weight', text: '重量', width: 0 },
         { name: 'unit', text: '計價單位', width: 0 },
         { name: 'text', text: 'TEXT', width: 0 },
@@ -321,10 +323,12 @@ export default {
       rSolarDayTag: '反向太陽日',
       productNameTag: '商品名稱',
       barcodeTag: '商品條碼',
+      productNoTag: '商品序號',
       barcodeImageUrl: '',
       // costPriceTag: '成本價',
-      listPriceTag: '建議售價',
-      salesPriceTag: '出貨售價',
+      // listPriceTag: '建議售價',
+      // salesPriceTag: '出貨售價',
+      priceTag: '價格',
       weightTag: '重量',
       unitTag: '計價單位',
       logoTag: 'Logo',
@@ -402,10 +406,12 @@ export default {
       item = this.productData.find(x => x.id === value)
       this.searchProductName = item.name
       this.productNameTag = '商品名稱:' + item.name
+      this.productNoTag = '1'
       this.barcodeTag = '商品條碼' + item.barcode
       // this.costPriceTag = '成本價:' + item.costPrice + '元'
-      this.listPriceTag = '建議售價:' + item.listPrice + '元'
-      this.salesPriceTag = '出貨售價:' + item.salesPrice + '元'
+      // this.listPriceTag = '建議售價:' + item.listPrice + '元'
+      // this.salesPriceTag = '出貨售價:' + item.salesPrice + '元'
+      this.priceTag = '價格:' + item.price + '元'
       this.weightTag = '重量:100'
       this.unitTag = '計價單位:' + computedWeight(undefined, item.unit)
       this.logoTag = 'Logo'
@@ -414,12 +420,14 @@ export default {
       this.currentDrag.find(
         x => x.name == 'productName'
       ).text = this.productNameTag
+      this.currentDrag.find(x => x.name == 'productNo').text = this.productNoTag
       this.currentDrag.find(x => x.name == 'barcode').text = this.barcodeTag
       // this.currentDrag.find(x => x.name == 'costPrice').text = this.costPriceTag
-      this.currentDrag.find(x => x.name == 'listPrice').text = this.listPriceTag
-      this.currentDrag.find(
-        x => x.name == 'salesPrice'
-      ).text = this.salesPriceTag
+      // this.currentDrag.find(x => x.name == 'listPrice').text = this.listPriceTag
+      // this.currentDrag.find(
+      //   x => x.name == 'salesPrice'
+      // ).text = this.salesPriceTag
+      this.currentDrag.find(x => x.name == 'price').text = this.priceTag
       this.currentDrag.find(x => x.name == 'weight').text = this.weightTag
       this.currentDrag.find(x => x.name == 'unit').text = this.unitTag
       this.currentDrag.find(x => x.name == 'text').text = 'TEXT'
@@ -475,9 +483,11 @@ export default {
       this.searchProductName = ''
       this.productNameTag = '商品名稱'
       this.barcodeTag = '商品條碼'
+      this.productNoTag = '商品序號'
       // this.costPriceTag = '成本價'
-      this.listPriceTag = '建議售價'
-      this.salesPriceTag = '出貨售價'
+      // this.listPriceTag = '建議售價'
+      // this.salesPriceTag = '出貨售價'
+      this.priceTag = '價格'
       this.weightTag = '重量'
       this.unitTag = '計價單位'
       this.logoTag = 'Logo'
@@ -485,12 +495,14 @@ export default {
       this.currentDrag.find(
         x => x.name == 'productName'
       ).text = this.productNameTag
+      this.currentDrag.find(x => x.name == 'productNo').text = this.productNoTag
       this.currentDrag.find(x => x.name == 'barcode').text = this.barcodeTag
       // this.currentDrag.find(x => x.name == 'costPrice').text = this.costPriceTag
-      this.currentDrag.find(x => x.name == 'listPrice').text = this.listPriceTag
-      this.currentDrag.find(
-        x => x.name == 'salesPrice'
-      ).text = this.salesPriceTag
+      // this.currentDrag.find(x => x.name == 'listPrice').text = this.listPriceTag
+      // this.currentDrag.find(
+      //   x => x.name == 'salesPrice'
+      // ).text = this.salesPriceTag
+      this.currentDrag.find(x => x.name == 'price').text = this.priceTag
       this.currentDrag.find(x => x.name == 'weight').text = this.weightTag
       this.currentDrag.find(x => x.name == 'unit').text = this.unitTag
       this.currentDrag.find(x => x.name == 'text').text = 'TEXT'
