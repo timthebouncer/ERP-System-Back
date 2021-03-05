@@ -1,3 +1,26 @@
+.custom-form-commodity{
+  line-height: 10px;
+  display: flex;
+  margin: 0 8px 8px 0;
+  .ant-form-item-label {
+    //width: 90px;
+  }
+  .ant-form-item-control-wrapper {
+    //width: calc(100% - 80px);
+    width: 350px;
+  }
+  &.alone {
+    margin-right: 445px;
+  }
+}
+.desc-area{
+  line-height: 10px;
+  display: flex;
+  margin: 0 8px 8px 24px;
+  .ant-form-item-control-wrapper {
+    width: 91%;
+  }
+}
 .custom-form-item {
   line-height: 10px;
   display: flex;

@@ -6,8 +6,7 @@
           <a-button class="reviewButton" @click="resetPage">重新整理</a-button>
           <a-button class="addButton1" @click="showAddPurchaseView"
             >重新入庫<a-icon type="plus"
-          /></a-button
-          >
+          /></a-button>
         </a-space>
       </div>
       <div>
@@ -22,32 +21,23 @@
             <span>工作日期:</span
             ><span>{{ moment(new Date()).format('YYYY-MM-DD') }}</span>
           </div>
-          <div class="class-input" style="display: flex;">
-            <span style="line-height:29px">商品條碼:</span>
-            <a-input
-              v-model="searchBarcode"
-              style="width: 50%"
-              placeholder="請輸入商品條碼"
-              @change="getStock"
-            />
-            <!--            <a-auto-complete-->
-            <!--              v-model="searchBarcode"-->
-            <!--              placeholder="請輸入商品條碼"-->
-            <!--              style="width: 50%;"-->
-            <!--              @search="addChange"-->
-            <!--              @select="addSelect"-->
-            <!--            >-->
-            <!--              <template slot="dataSource">-->
-            <!--                <a-select-option-->
-            <!--                  v-for="item in barCodeSelection"-->
-            <!--                  :key="item.id"-->
-            <!--                  :title="item.barcode"-->
-            <!--                >-->
-            <!--                  {{ item.barcode }}-->
-            <!--                </a-select-option>-->
-            <!--              </template>-->
-            <!--            </a-auto-complete>-->
-          </div>
+          <a-form-model :model="list" ref="ruleForm" :rules="rules">
+            <div class="barcode-input">
+              <!--              <span style="line-height:29px">商品條碼:</span>-->
+              <a-form-model-item
+                style="display: flex; margin:-8px 0 -5px -10px;"
+                label="商品條碼"
+                prop="searchBarcode"
+              >
+                <a-input
+                  style="width: 200px"
+                  placeholder="請輸入商品條碼"
+                  @change="getStock"
+                  v-model="list.searchBarcode"
+                />
+              </a-form-model-item>
+            </div>
+          </a-form-model>
           <div class="class-input" style="display: flex;">
             <span>商品名稱:</span>{{ inventoryList.productName }}
           </div>
@@ -72,8 +62,7 @@
                             message: '請輸入數字',
                             pattern: /^\d+$/
                           }
-                        ],
-                        initialValue: 1
+                        ]
                       }
                     ]"
                     style="width: 30%;"
@@ -86,19 +75,25 @@
             </div>
           </div>
           <template slot="footer">
-            <a-button type="primary" @click="submitNonStop">
-              儲存並新增
+            <a-button key="back" @click="addInventoryCancel">
+              取消
             </a-button>
             <a-button key="submit" type="primary" @click="addInventory">
               儲存
             </a-button>
-            <a-button key="back" @click="addInventoryCancel">
-              取消
+            <a-button type="primary" @click="submitNonStop">
+              儲存並新增
             </a-button>
           </template>
         </a-modal>
       </div>
       <div class="search-wrapper">
+        <div class="search-selection">
+          <a-select default-value="" style="width: 120px">
+            <a-select-option value="">
+            </a-select-option>
+          </a-select>
+        </div>
         <div class="searchInput">
           <a-input-search
             v-model="search"
@@ -277,7 +272,7 @@ export default {
       purchaseViewVisible: false,
       purchaseModalTitle: '重新入庫',
       orderModalTitle: '出貨',
-      list: {},
+      list: { searchBarcode: '' },
       remark: '',
       barcode: '',
       expandIndex: [],
@@ -357,14 +352,10 @@ export default {
           class: 'inner-list-price-td',
           dataIndex: 'listPrice',
           align: 'center',
-          customRender:(val,row)=> {
+          customRender: (val, row) => {
             return {
-              children:(
-                <div>
-                  {row.price}
-                </div>
-          )
-          }
+              children: <div>{row.price}</div>
+            }
           }
         },
         {
@@ -382,7 +373,6 @@ export default {
       ],
       innerTableExpanded: false,
       addSearchValue: '',
-      searchBarcode: '',
       addInventoryProductId: '',
       addInventoryProductName: '',
       addInventoryProductUnit: '',
@@ -393,7 +383,10 @@ export default {
       total: 10,
       alertMsgTitle: '',
       alertMessage: '',
-      form: this.$form.createForm(this, { name: 'dynamic_rule' })
+      form: this.$form.createForm(this, { name: 'dynamic_rule' }),
+      rules: {
+        searchBarcode: [{ required: true, message: '請輸入商品條碼' }]
+      }
     }
   },
   computed: {
@@ -504,7 +497,7 @@ export default {
     },
     showAddPurchaseView() {
       this.purchaseViewVisible = true
-      this.searchBarcode = ''
+      this.list.searchBarcode = ''
       this.form.resetFields()
     },
     onSearch() {
@@ -548,7 +541,7 @@ export default {
     },
     addInventoryCancel() {
       this.purchaseViewVisible = false
-      this.searchBarcode = ''
+      this.list.searchBarcode = ''
       this.inventoryList.inventoryId = ''
       this.inventoryList.productName = ''
       this.inventoryList.unit = ''
@@ -556,89 +549,134 @@ export default {
       this.addInventoryAmount = 1
     },
     // addSelect(value) {
-    //   this.searchBarcode = ''
+    //   this.list.searchBarcode = ''
     //   this.addInventoryProductName = ''
     //   this.addInventoryProductUnit = ''
     //   let item = {}
     //   item = this.barCodeSelection.find(x => x.id === value)
-    //   this.searchBarcode = item.barcode
+    //   this.list.searchBarcode = item.barcode
     //   this.addInventoryProductId = item.id
     //   this.addInventoryProductName = item.name
     //   this.addInventoryProductUnit = item.unit
     // },
     // addChange() {
-    //   this.getStock(this.searchBarcode)
+    //   this.getStock(this.list.searchBarcode)
     // },
     submitNonStop() {
-      if (!/^\d+$/.test(this.addInventoryAmount)) return
-      const data = {}
-      data.id = this.inventoryList.inventoryId
-      data.amount =
-        parseInt(this.addInventoryAmount) + this.inventoryList.amount
-      data.barcode = this.searchBarcode
-      this.$api.Inventory.edit(data)
-        .then(res => {
-          console.log(res)
-          this.purchaseViewVisible = true
-          this.searchBarcode = ''
-          this.inventoryList.inventoryId = ''
-          this.inventoryList.productName = ''
-          this.inventoryList.unit = ''
-          this.inventoryList.weight = ''
-          this.addInventoryAmount = 1
-          this.getInventoryList(this.search)
-          this.$message.success('入庫成功')
-        })
-        .catch(err => {
-          console.log(err)
-        })
-    },
-    addInventory() {
-      if(this.inventoryList.unit === "包" || this.inventoryList.unit === "件"){
+      if (
+        this.inventoryList.unit === '包' ||
+        this.inventoryList.unit === '件'
+      ) {
         if (!/^\d+$/.test(this.addInventoryAmount)) return
         const data = {}
         data.id = this.inventoryList.inventoryId
-        data.amount = parseInt(this.addInventoryAmount) + this.inventoryList.amount
-        data.barcode = this.searchBarcode
+        data.amount =
+          parseInt(this.addInventoryAmount) + this.inventoryList.amount
+        data.barcode = this.list.searchBarcode
         this.$api.Inventory.edit(data)
-                .then(res => {
-                  console.log(res)
-                  this.purchaseViewVisible = false
-                  this.searchBarcode = ''
-                  this.inventoryList.inventoryId = ''
-                  this.inventoryList.productName = ''
-                  this.inventoryList.unit = ''
-                  this.inventoryList.weight = ''
-                  this.addInventoryAmount = 1
-                  this.getInventoryList(this.search)
-                  this.$message.success('入庫成功')
-                })
-                .catch(err => {
-                  console.log(err)
-                })
-      }else {
+          .then(res => {
+            this.purchaseViewVisible = true
+            this.list.searchBarcode = ''
+            this.inventoryList.inventoryId = ''
+            this.inventoryList.productName = ''
+            this.inventoryList.unit = ''
+            this.inventoryList.weight = ''
+            this.addInventoryAmount = 1
+            this.getInventoryList(this.search)
+            this.$message.success('入庫成功')
+          })
+          .catch(() => {
+            if (this.list.searchBarcode === '') {
+              this.$message.error('請輸入商品條碼')
+            } else {
+              this.$message.error('商品條碼有誤')
+            }
+          })
+      } else {
         if (!/^\d+$/.test(this.addInventoryAmount)) return
         const data = {}
         data.id = this.inventoryList.inventoryId
         data.amount = this.inventoryList.amount + 1
-        data.barcode = this.searchBarcode
+        data.barcode = this.list.searchBarcode
         this.$api.Inventory.edit(data)
-                .then(res => {
-                  console.log(res)
-                  this.purchaseViewVisible = false
-                  this.searchBarcode = ''
-                  this.inventoryList.inventoryId = ''
-                  this.inventoryList.productName = ''
-                  this.inventoryList.unit = ''
-                  this.inventoryList.weight = ''
-                  this.addInventoryAmount = 1
-                  this.getInventoryList(this.search)
-                  this.$message.success('入庫成功')
-                })
-                .catch(err => {
-                  console.log(err)
-                })
+          .then(res => {
+            this.purchaseViewVisible = true
+            this.list.searchBarcode = ''
+            this.inventoryList.inventoryId = ''
+            this.inventoryList.productName = ''
+            this.inventoryList.unit = ''
+            this.inventoryList.weight = ''
+            this.addInventoryAmount = 1
+            this.getInventoryList(this.search)
+            this.$message.success('入庫成功')
+          })
+          .catch(() => {
+            if (this.list.searchBarcode === '') {
+              this.$message.error('請輸入商品條碼')
+            } else {
+              this.$message.error('商品條碼有誤')
+            }
+          })
       }
+    },
+    addInventory() {
+      this.$refs.ruleForm.validate(valid => {
+        if (valid) {
+          if (
+            this.inventoryList.unit === '包' ||
+            this.inventoryList.unit === '件'
+          ) {
+            if (!/^\d+$/.test(this.addInventoryAmount)) return
+            const data = {}
+            data.id = this.inventoryList.inventoryId
+            data.amount =
+              parseInt(this.addInventoryAmount) + this.inventoryList.amount
+            data.barcode = this.list.searchBarcode
+            this.$api.Inventory.edit(data)
+              .then(res => {
+                console.log(res)
+                this.purchaseViewVisible = false
+                this.list.searchBarcode = ''
+                this.inventoryList.inventoryId = ''
+                this.inventoryList.productName = ''
+                this.inventoryList.unit = ''
+                this.inventoryList.weight = ''
+                this.addInventoryAmount = 1
+                this.getInventoryList(this.search)
+                this.$message.success('入庫成功')
+              })
+              .catch((err) => {
+                if (err) {
+                  this.$message.error('商品條碼有誤')
+                }
+              })
+          } else {
+            if (!/^\d+$/.test(this.addInventoryAmount)) return
+            const data = {}
+            data.id = this.inventoryList.inventoryId
+            data.amount = this.inventoryList.amount + 1
+            data.barcode = this.list.searchBarcode
+            this.$api.Inventory.edit(data)
+              .then(res => {
+                console.log(res)
+                this.purchaseViewVisible = false
+                this.list.searchBarcode = ''
+                this.inventoryList.inventoryId = ''
+                this.inventoryList.productName = ''
+                this.inventoryList.unit = ''
+                this.inventoryList.weight = ''
+                this.addInventoryAmount = 1
+                this.getInventoryList(this.search)
+                this.$message.success('入庫成功')
+              })
+              .catch((err) => {
+                if (err) {
+                  this.$message.error('商品條碼有誤')
+                }
+              })
+          }
+        }
+      })
     },
     onShowSizeChange(current, pageSize) {
       this.current = 1
@@ -653,26 +691,9 @@ export default {
         this.customerList = res.data
       })
     },
-    // CommodityDetail() {
-    //   this.barCodeSelection = []
-    //   this.$api.Commodity.getCommodityDetail({
-    //     searchKey: '',
-    //     barcode: this.searchBarcode
-    //   }).then(res => {
-    //     this.inventoryList = res.data
-    //     let data = []
-    //     this.inventoryList.forEach(item => {
-    //       if (item.barcode !== '') {
-    //         data.push(item)
-    //       }
-    //     })
-    //     this.barCodeSelection = data
-    //     console.log(this.barCodeSelection)
-    //   })
-    // },
     getStock() {
       this.$api.Inventory.getStockDetail({
-        barcode: this.searchBarcode
+        barcode: this.list.searchBarcode
       }).then(res => {
         this.inventoryList = res.data
         console.log(this.inventoryList)
@@ -891,5 +912,9 @@ export default {
   right: -20px;
   bottom: -20px;
   left: -20px;
+}
+/deep/ .ant-form-item-required {
+  font-size: 16px;
+  font-weight: 300;
 }
 </style>

@@ -1,14 +1,14 @@
 import request from "./https";
 
 const api = {
-  Login:{
-    userLogin(formData){
-      return request.post("/api/login",formData)
+  Login: {
+    userLogin(formData) {
+      return request.post("/api/login", formData)
     },
-    loginIdentify(){
+    loginIdentify() {
       return request.get('session/isAuthenticated')
     },
-    logOut(){
+    logOut() {
       return request.post('/api/logout')
     }
   },
@@ -101,8 +101,8 @@ const api = {
     getCommodityDiscount(params) {
       return request.get('/discount/getProductDiscountList?', {params})
       },
-    editStatus(params){
-      return request.put('/product/changeStatus?',{params})
+    editStatus(data){
+      return request.put("/product/changeStatus?productId="+data.productId+"&status="+data.status)
     }
   },
   Distribute:{

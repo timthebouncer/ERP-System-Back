@@ -54,7 +54,7 @@
               >
               <a-popconfirm
                   title="確定要刪除嗎?"
-                  @confirm="() => onDelete(record.id)"
+                  @confirm="() => onDelete(record)"
               >
                 <a-button type="link" size="small">刪除</a-button>
               </a-popconfirm>
@@ -84,6 +84,7 @@
         />
       </div>
       <template slot="footer">
+        <a-button key="back" @click="handleCancel"> 取消 </a-button>
         <a-button
           key="submit"
           type="primary"
@@ -92,7 +93,6 @@
         >
           儲存
         </a-button>
-        <a-button key="back" @click="handleCancel"> 取消 </a-button>
       </template>
     </a-modal>
   </div>
@@ -209,11 +209,11 @@ export default {
         this.visible = true
       }
     },
-    onDelete(id) {
-      this.$api.Classify.deleteClass(id)
+    onDelete(record) {
+      this.$api.Classify.deleteClass(record.id)
         .then(() => {
           this.getClassifyList()
-          this.$message.success('刪除類別成功')
+          this.$message.success(`刪除${record.className}成功`)
         })
         .catch(err => {
           this.$message.error('刪除類別失敗')
