@@ -14,17 +14,18 @@
           <div class="firstPart">
             <div class="firstPart-item">
               <a-form-model-item
-                class="custom-form-item"
+                class="custom-form-commodity"
                 label="商品名稱"
                 prop="name"
               >
                 <a-input v-model="list.name" placeholder="請輸入" />
               </a-form-model-item>
-              <a-form-model-item class="custom-form-item" label="出貨名稱">
+              <a-form-model-item class="custom-form-commodity" style="margin-left: 13px;" label="出貨名稱">
                 <a-input v-model="list.alias" placeholder="請輸入" />
               </a-form-model-item>
               <a-form-model-item
-                class="custom-form-item"
+                class="custom-form-commodity"
+                style="margin-left: 11px"
                 label="商品條碼"
                 prop="barcode"
               >
@@ -32,34 +33,39 @@
               </a-form-model-item>
 
               <a-form-model-item
-                class="custom-form-item"
+                class="custom-form-commodity"
                 label="計價單位"
                 labelAlign="left"
                 prop="unit"
               >
-                <translate v-model="list.unit" style="width: 175px" />
+                <translate v-model="list.unit" />
               </a-form-model-item>
 
-              <a-form-model-item class="custom-form-item" label="定重重量">
+              <a-form-model-item class="custom-form-commodity" style="margin-left: -16px" label="定重重量">
                 <div class="weight-wrapper">
                   <a-input
                     v-model="list.weight"
-                    style="width: 175px"
+                    style="width: 230px"
                     placeholder="請輸入"
                   />
+                  <a-select default-value="lucy" style="width: 120px">
+                    <a-select-option value="jack">
+                      Jack
+                    </a-select-option>
+                  </a-select>
                 </div>
               </a-form-model-item>
-
               <a-form-model-item
-                class="custom-form-item"
+                class="custom-form-commodity"
                 label="單價"
                 prop="listPrice"
+                style="margin-left: -26px;position: relative;left: 27px;"
               >
-                <a-input v-model="list.listPrice" placeholder="請輸入" />
+                <a-input v-model="list.listPrice" prefix="$" placeholder="請輸入" />
               </a-form-model-item>
 
-              <a-form-model-item class="custom-form-item" label="預設標籤">
-                <a-select style="width: 175px" v-model="list.tagId" @change="passTagId">
+              <a-form-model-item class="custom-form-commodity alone" label="預設標籤">
+                <a-select v-model="list.tagId" @change="passTagId" default-value="list.tagId">
                   <a-select-option v-for="item in tagList" :key="item.id">
                     {{ item.tagName }}
                   </a-select-option>
@@ -67,14 +73,13 @@
               </a-form-model-item>
             </div>
             <a-form-model-item
-              class="custom-form-item"
+              class="desc-area"
               label="商品描述"
-              style="width: 100%"
             >
               <a-textarea
                 v-model="list.description"
                 placeholder="請輸入"
-                style="height: 100px"
+                style="height: 100px;"
               />
             </a-form-model-item>
           </div>
@@ -112,13 +117,8 @@
             {{ list.updateTime.split(' ')[1] }}</span
           >
         </div>
-        <a-button
-          v-show="changeTitle === '新增商品'"
-          type="primary"
-          :loading="loading"
-          @click="submitNonstop"
-        >
-          儲存並新增
+        <a-button key="back" @click="handleCancel">
+          取消
         </a-button>
         <a-button
           key="submit"
@@ -128,8 +128,13 @@
         >
           儲存
         </a-button>
-        <a-button key="back" @click="handleCancel">
-          取消
+        <a-button
+                v-show="changeTitle === '新增商品'"
+                type="primary"
+                :loading="loading"
+                @click="submitNonstop"
+        >
+          儲存並新增
         </a-button>
       </template>
     </a-modal>
@@ -161,7 +166,7 @@ export default {
         unit: 'KG',
         unitType: '',
         barcode: '',
-        listPrice: undefined,
+        listPrice: '',
         description: '',
         using: undefined,
         updateTime: '',
@@ -172,10 +177,7 @@ export default {
         barcode: [{ pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }],
         unit: [{ required: true, message: '請選擇', trigger: 'blur' }],
         name: [{ required: true, message: '請輸入商品名稱', trigger: 'blur' }],
-        // salesPrice: [{ required: true, pattern:/^\d+$/,message: "請輸入售價(數字)", trigger: "blur" }],
-        listPrice: [
-          { pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }
-        ]
+        listPrice: [{ required: true,pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }]
       },
       columns: [
         {
@@ -369,7 +371,7 @@ export default {
               price: this.list.listPrice,
               description: this.list.description,
               fixedWeight: this.list.weight,
-              tagId: this.tagId,
+              tagId: this.list.tagId,
               alias:this.list.alias,
               using: true,
               discountRequestList: this.salesTable.map(item=>{
@@ -406,7 +408,7 @@ export default {
               price: this.list.listPrice,
               description: this.list.description,
               fixedWeight: this.list.weight,
-              tagId: this.tagId,
+              tagId: this.list.tagId,
               alias:this.list.alias,
               using: true,
               discountRequestList: this.salesTable.map(item=>{
@@ -436,9 +438,9 @@ export default {
               price: this.list.listPrice,
               description: this.list.description,
               fixedWeight: this.list.weight,
-              tagId: this.tagId,
+              tagId: this.list.tagId,
               alias: this.list.alias,
-              use: true,
+              using: true,
               discountRequestList: this.salesTable.map(item=>{
                 return {
                   clientId: item.clientName,
@@ -450,6 +452,7 @@ export default {
               .then(() => {
                 this.getCommodity()
                 this.$message.success('修改商品成功')
+                this.clearInput()
                 this.visible = false
               })
               .catch(() => {
@@ -505,7 +508,8 @@ export default {
       })
     },
     passTagId(id) {
-      this.tagId = id
+      this.list.tagId = id
+      console.log(this.list.tagId)
     }
   },
   computed: {
@@ -560,10 +564,7 @@ export default {
   display: flex;
   /*flex-direction: column;*/
   flex-wrap: wrap;
-  justify-content: space-between;
-}
-.weight-wrapper {
-  display: flex;
+  justify-content: space-evenly;
 }
 
 .displayEdit {
@@ -574,6 +575,10 @@ export default {
   height: 100%;
   z-index: -1;
 }
+.editable-add-btn{
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
 .editable-cell-icon {
   display: block;
   position: relative;
@@ -581,4 +586,5 @@ export default {
   cursor: pointer;
   top: 3.5px;
 }
+
 </style>

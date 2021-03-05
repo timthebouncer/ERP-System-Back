@@ -1,9 +1,9 @@
-import request from './https'
+import request from "./https";
 
 const api = {
   Login: {
     userLogin(formData) {
-      return request.post('/api/login', formData)
+      return request.post("/api/login", formData)
     },
     loginIdentify() {
       return request.get('session/isAuthenticated')
@@ -14,13 +14,14 @@ const api = {
   },
   Customer: {
     getList(params) {
-      return request.get('/client/clients/', { params })
+      return request.get("/client/clients/",{params});
     },
-    getSingleList(record) {
-      return request.get('/client/' + record.id)
-    },
+    getSingleList(record){
+      return request.get("/client/"+ record.id)
+    }
+    ,
     getClass() {
-      return request.get('/class/classList')
+      return request.get("/class/classList");
     },
     add(data) {
       return request.post('/client/addClient', data)
@@ -31,127 +32,111 @@ const api = {
     delete(record) {
       return request.delete('/client/removeClient/' + record.id)
     },
-    discount(params) {
-      return request.get('/discount/getClientDiscount/', { params })
+    discount(params){
+      return request.get('/discount/getClientDiscount/',{params})
     },
-    discountRemove(row) {
+    discountRemove(row){
       return request.delete('/discount/deleteDiscount/' + row.id)
     },
-    discountNoPages(params) {
-      return request.get('/discount/clientDiscount?', { params })
+    discountNoPages(params){
+      return request.get('/discount/clientDiscount?', {params})
     }
   },
   Classify: {
-    addClass(data) {
-      return request.post('/class/addClass', data)
+    addClass(data){
+      return request.post('/class/addClass',data)
     },
-    updateClass(data) {
-      return request.put('/class/updateClass', data)
+    updateClass(data){
+      return request.put('/class/updateClass',data)
     },
-    deleteClass(id) {
-      return request.delete('/class/deleteClass/' + id)
+    deleteClass(id){
+      return request.delete('/class/deleteClass/'+ id)
     }
   },
   Inventory: {
-    getList(productName, pageNumber, pageSize) {
-      return request.get(
-        '/inventory/stockList?productName=' +
-          productName +
-          '&pageNumber=' +
-          pageNumber +
-          '&pageSize=' +
-          pageSize
-      )
+    getList(productName,pageNumber,pageSize) {
+      return request.get("/inventory/stockList?productName="+productName+"&pageNumber="+pageNumber+"&pageSize="+pageSize);
     },
-    edit(data) {
-      return request.put('/inventory/updateStock', data)
+    edit(data){
+      return request.put("/inventory/updateStock", data);
     },
-    searchProduct(searchKey) {
-      return request.get('/product/getProduct?searchKey=' + searchKey)
+    searchProduct(searchKey){
+      return request.get("/product/getProduct?searchKey="+searchKey);
     },
-    addInventory(data) {
-      return request.post('/inventory/stockIn', data)
+    addInventory(data){
+      return request.post("/inventory/stockIn",data);
     },
-    deleteInventory(id) {
-      return request.delete('/inventory/deleteInventory/' + id)
+    deleteInventory(id){
+      return request.delete("/inventory/deleteInventory/"+id);
     },
     getInventoryLogList(data) {
-      return request.post('/inventoryLog/list', data)
+      return request.post("/inventoryLog/list",data);
     },
     onlyCustomerList() {
       return request.get('/client/clientList?searchKey=')
     },
-    getStockDetail(params) {
-      return request.get('inventory/getStock?', { params })
-    }
+    getStockDetail(params){
+      return request.get('inventory/getStock?', {params})
+    },
   },
-  Commodity: {
-    getCommodityList(params) {
-      return request.get('/product/productList/', { params })
+  Commodity:{
+    getCommodityList(params){
+      return request.get('/product/productList/', {params})
     },
-    getCommodityDetail(params) {
-      return request.get('/product/getProduct', { params })
+    getCommodityDetail(params){
+      return request.get('/product/getProduct',{params})
     },
-    addCommodity(data) {
+    addCommodity(data){
       return request.post('/product/addProduct', data)
     },
-    updateCommodity(data) {
-      return request.put('/product/updateProduct', data)
+    updateCommodity(data){
+      return request.put('/product/updateProduct',data)
     },
     deleteCommodity(record) {
-      return request.delete('/product/deleteProduct/' + record.id)
+      return request.delete('/product/deleteProduct/'+ record.id);
     },
-    getSalesProduct(params) {
-      return request.get('/product/getSalesProduct/', { params })
+    getSalesProduct(params){
+      return request.get('/product/getSalesProduct/',{params})
     },
     getCommodityDiscount(params) {
-      return request.get('/discount/getProductDiscountList?', { params })
-    },
-    editStatus(params) {
-      return request.put('/product/changeStatus?', { params })
+      return request.get('/discount/getProductDiscountList?', {params})
+      },
+    editStatus(data){
+      return request.put("/product/changeStatus?productId="+data.productId+"&status="+data.status)
     }
   },
-  Distribute: {
-    getDistributeList(params) {
-      return request.get('deliveryOrder/orderList', { params })
+  Distribute:{
+    getDistributeList(params){
+      return request.get('deliveryOrder/orderList',{params})
     },
     getDistributeDetail(record) {
       return request.get('/deliveryOrder/getDetail?orderId=' + record.orderId)
     },
     deleteOrderList(record) {
-      return request.delete('/deliveryOrder/cancelOrder/' + record.orderId)
+      return request.delete('/deliveryOrder/cancelOrder/'+ record.orderId);
     },
-    addOrder(data) {
-      return request.post('/deliveryOrder/addOrder', data)
+    addOrder(data){
+      return request.post('/deliveryOrder/addOrder',data)
     },
     editOrder(data) {
       return request.put('/deliveryOrder/editOrder', data)
     },
-    getOrderNo(params) {
-      return request.get('/deliveryOrder/getOrderSerialNo?', { params })
+    getOrderNo(params){
+      return request.get('/deliveryOrder/getOrderSerialNo?',{params})
     },
-    deleteCommodityDiscount(row) {
-      return request.delete('/deliveryOrderDetail/deleteDetail/' + row.id)
+    deleteCommodityDiscount(row){
+      return request.delete('/deliveryOrderDetail/deleteDetail/'+row.id)
     }
   },
-  Label: {
-    addLabel(data) {
-      return request.post('/tag/addProductTag', data)
+  Label:{
+    addLabel(data){
+      return request.post('/tag/addProductTag',data)
     },
-    searchProduct(searchKey, barcode) {
-      return request.get(
-        '/product/getProduct?searchKey=' + searchKey + '&barcode=' + barcode
-      )
+    searchProduct(searchKey,barcode) {
+      return request.get("/product/getProduct?searchKey="+searchKey+"&barcode="+barcode);
     },
-    getTagList(tagName, pageNumber, pageSize) {
-      return request.get(
-        '/tag/tagList?tagName=' +
-          tagName +
-          '&pageNumber=' +
-          pageNumber +
-          '&pageSize=' +
-          pageSize
-      )
+    getTagList(tagName, pageNumber, pageSize){
+      return request.get("/tag/tagList?tagName="+tagName+"&pageNumber="+pageNumber+"&pageSize="+pageSize)
     },
     getAllTag() {
       return request.get('/tag/tags')

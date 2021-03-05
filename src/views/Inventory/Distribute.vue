@@ -42,7 +42,7 @@
             'productAmount',
             'totalPrice',
             'remark',
-            'operation'
+            'operation',
           ]"
           :slot="col"
           slot-scope="text, record"
@@ -52,6 +52,9 @@
               <a-button @click="showDetail(record)" type="link">{{
                 text
               }}</a-button>
+            </template>
+            <template v-else-if="col === 'remark'">
+                {{record.remark === '註銷' ? '註銷': ''}}
             </template>
             <template v-else>
               {{ text }}
@@ -113,13 +116,13 @@
             <div class="firstPart">
               <div class="firstPart-item">
                 <a-form-model-item class="custom-form-item" label="出貨日期">
-                  <div v-if="orderModalTitle !== '訂單詳情'">
+                  <div v-if="orderModalTitle !== '訂單詳情'" style="width: 315px;">
                     <a-date-picker
                       v-model="dateForOrderNo"
                       @change="salesDate"
                     />
                   </div>
-                  <div v-else>{{ orderDetail.salesDay }}</div>
+                  <div v-else style="width: 315px;">{{ orderDetail.salesDay }}</div>
                 </a-form-model-item>
                 <a-form-model-item
                   class="custom-form-item"
@@ -149,7 +152,7 @@
                   label="客戶類別"
                   prop="customerClass"
                 >
-                  <div v-if="orderModalTitle === '新增出貨'">
+                  <div v-if="orderModalTitle === '新增出貨'" style="width: 315px">
                     <a-select
                       show-search
                       placeholder="請選擇"
@@ -166,7 +169,7 @@
                       </a-select-option>
                     </a-select>
                   </div>
-                  <div v-else>{{ orderDetail.className }}</div>
+                  <div v-else style="width: 315px">{{ orderDetail.className }}</div>
                 </a-form-model-item>
                 <a-form-model-item
                   class="custom-form-item"
@@ -204,7 +207,7 @@
               </div>
               <div class="firstPart-item">
                 <a-form-model-item class="custom-form-item" label="收件人">
-                  <div v-if="orderModalTitle !== '訂單詳情'">
+                  <div v-if="orderModalTitle !== '訂單詳情'" style="width: 315px">
                     <a-select
                       show-search
                       placeholder="請選擇"
@@ -294,13 +297,13 @@
                   <div v-else>
                     <a-radio-group v-model="orderDetail.payment" disabled>
                       <a-radio class="option-content-input" :value="1">
-                        貨到付款
+                       <span>貨到付款</span>
                       </a-radio>
                       <a-radio class="option-content-input" :value="2">
-                        匯款
+                       <span>匯款</span>
                       </a-radio>
                       <a-radio class="option-content-input" :value="3">
-                        現金
+                        <span>現金</span>
                       </a-radio>
                     </a-radio-group>
                   </div>
@@ -342,17 +345,17 @@
                         style="margin-right:36px"
                         :value="1"
                       >
-                        親送
+                        <span>親送</span>
                       </a-radio>
                       <a-radio class="option-content-input" :value="2">
-                        黑貓宅配
+                        <span>黑貓宅配</span>
                       </a-radio>
                       <a-radio
                         class="option-content-input"
                         style="margin-left:-28px"
                         :value="3"
                       >
-                        自取
+                        <span>自取</span>
                       </a-radio>
                     </a-radio-group>
                   </div>
@@ -362,18 +365,25 @@
                     class="option-content"
                     label="物流編號"
                     prop=""
+                    style="margin-left: 10px"
                   >
-                    <a-input
-                      v-model="trackingNo"
-                      style="width: 200px"
-                      placeholder="請輸入"
-                    />
+                    <div v-if="orderModalTitle !== '訂單詳情'">
+                      <a-input
+                              @change="dynamicChange"
+                              v-model="trackingNo"
+                              style="width: 200px"
+                              placeholder="請輸入"
+                      />
+                    </div>
+                    <div v-else>
+                      {{orderDetail.trackingNo}}
+                    </div>
                   </a-form-model-item>
                 </div>
                 <div v-else>
                   <div></div>
                 </div>
-                <a-form-model-item label="溫層類別" class="option-content">
+                <a-form-model-item label="溫層類別" class="option-content" style="margin-left: 10px">
                   <div v-if="orderModalTitle !== '訂單詳情'">
                     <a-radio-group
                       v-model="temperatureCategory"
@@ -404,18 +414,18 @@
                         style="margin-right:36px"
                         :value="1"
                       >
-                        常溫
+                        <span>自取</span>
                       </a-radio>
                       <a-radio class="option-content-input" :value="2">
-                        冷藏
+                        <span>自取</span>
                       </a-radio>
                       <a-radio class="option-content-input" :value="3">
-                        冷凍
+                        <span>冷凍</span>
                       </a-radio>
                     </a-radio-group>
                   </div>
                 </a-form-model-item>
-                <a-form-model-item label="材積單位" class="option-content">
+                <a-form-model-item label="材積單位" class="option-content" style="margin-left: 10px">
                   <div v-if="orderModalTitle !== '訂單詳情'">
                     <a-radio-group
                       v-model="volume"
@@ -458,28 +468,28 @@
                         style="margin-right:20px"
                         :value="1"
                       >
-                        60公分
+                        <span>60公分</span>
                       </a-radio>
                       <a-radio
                         class="option-content-input"
                         style="margin-right:-6px"
                         :value="2"
                       >
-                        90公分
+                        <span>60公分</span>
                       </a-radio>
                       <a-radio
                         class="option-content-input"
                         style="margin-right:-10px"
                         :value="3"
                       >
-                        120公分
+                       <span>120公分</span>
                       </a-radio>
                       <a-radio
                         v-show="this.temperatureCategory === 1"
                         class="option-content-input"
                         :value="4"
                       >
-                        150公分
+                        <span>150公分</span>
                       </a-radio>
                     </a-radio-group>
                   </div>
@@ -498,6 +508,7 @@
                     />
                   </div>
                   <div v-else>
+                    <span style="font-weight: bold">$</span>
                     {{ orderDetail.shippingFee }}
                   </div>
                 </a-form-model-item>
@@ -526,7 +537,7 @@
                     rowKey="productId"
                     :columns="orderColumns"
                     :data-source="orderData"
-                    :pagination="true"
+                    :pagination="orderModalTitle !== '訂單詳情'?true:false"
                   >
                   </a-table>
                   <a-form-model-item class="remark-wrapper" label="備註">
@@ -562,6 +573,7 @@
                 :orderTitle="orderModalTitle"
                 :list="list"
                 :receiverList="receiverList"
+                :Calculate="Calculate"
                 v-on:passTemplateType="getTemplateType"
               />
             </div>
@@ -569,11 +581,11 @@
         </div>
         <template slot="footer">
           <div v-if="orderModalTitle !== '訂單詳情'">
-            <a-button key="submit" type="primary" @click="handleOk">
-              儲存
-            </a-button>
             <a-button key="back" @click="handleCancel">
               取消
+            </a-button>
+            <a-button key="submit" type="primary" @click="handleOk">
+              儲存
             </a-button>
           </div>
           <div v-else></div>
@@ -607,14 +619,15 @@ export default {
           title: '商品條碼',
           dataIndex: 'barCode',
           align: 'center',
-          width: '13%',
+          width: '12%',
           customRender: (value, row) => {
             return {
               children:
                 this.orderModalTitle !== '訂單詳情' ? (
                   <div>
                     <a-input
-                      style={{ width: '150px' }}
+                      autoFocus
+                      style={{ width: '130px' }}
                       onChange={barCode => this.pushName(barCode, row)}
                       vModel={row.barCode}
                       placeholder="請手動輸入商品條碼"
@@ -650,7 +663,8 @@ export default {
           align: 'center',
           width: '8%',
           customRender: (val, row) => {
-            return this.Quantity(val, row, 'amount')
+            console.log(row)
+            return (row.unit === '件' || row.unit === '包') ? this.Quantity(val, row, 'amount') : row.weight
           },
           scopedSlots: { customRender: 'amount' }
         },
@@ -658,7 +672,7 @@ export default {
           title: '建議售價(單價*數量)',
           dataIndex: 'price',
           align: 'center',
-          width: '8%',
+          width: '9.5%',
           customRender: (val, row) => {
             return {
               children: <div>{row.price * row.amount}</div>
@@ -669,7 +683,7 @@ export default {
           title: '出貨售價(出貨單價*數量)',
           dataIndex: 'clientPrice',
           align: 'center',
-          width: '8%',
+          width: '10.5%',
           customRender: (val, row) => {
             return <div>{row.clientPrice * row.amount}</div>
           }
@@ -788,7 +802,7 @@ export default {
           dataIndex: 'remark',
           align: 'center',
           scopedSlots: { customRender: 'remark' }
-        }
+        },
       ],
       search: '',
       pageSizeOptions: ['10', '30', '50', '100'],
@@ -849,19 +863,8 @@ export default {
         ]
       this.shippingFee = aaa
     },
-    temperatureChange() {
-      let aaa =
-        shippingRule[
-          '' + this.shipment + this.temperatureCategory + this.volume
-        ]
-      this.shippingFee = aaa
-    },
-    volumeChange() {
-      let aaa =
-        shippingRule[
-          '' + this.shipment + this.temperatureCategory + this.volume
-        ]
-      this.shippingFee = aaa
+    dynamicChange(){
+      this.trackingNo = this.trackingNo.replace(/(\d{4})(?=\d)/g, '$1-')
     },
     getTemplateType(e) {
       this.templateType = e
@@ -876,6 +879,7 @@ export default {
       this.shippingFeeCaluelate()
     },
     editHandler(record) {
+      console.log(record)
       this.orderViewVisible = true
       this.orderModalTitle = '編輯出貨'
       this.orderId = record.orderId
@@ -1032,8 +1036,18 @@ export default {
       this.list = {}
       this.recipientId = ''
       this.receiverList = {}
+
+      // if(this.ruleList.customerClass){
+      //   let aaa = document.querySelector('.ant-form-explain')
+      //   aaa.classList.add('visible')
+      //   console.log(aaa)
+      // }
+      this.$refs.ruleForm.validate()
+
+
     },
     handleChange(id) {
+      this.$refs.ruleForm.validate()
       this.list = this.customerList.find(item => {
         return item.id === id
       })
@@ -1131,6 +1145,7 @@ export default {
         discount: 0,
         remark: '',
         orderPrice: 0,
+        weight:0,
         isEditAmount: true,
         isEditRemark: true,
         isEditDiscount: true
@@ -1157,6 +1172,7 @@ export default {
             row.clientPrice = item.clientPrice
             row.productName = item.productName
             row.price = item.price
+            row.weight = item.weight
           }
           return item.barcode === row.barCode
         })
@@ -1164,8 +1180,11 @@ export default {
         row.productId = ''
         row.productName = ''
         row.unit = '-'
+        row.price = 0
         row.clientPrice = 0
         row.amount = 1
+        row.weight = 0
+        row.remark = ''
       }
     },
     handleOk() {
@@ -1257,7 +1276,7 @@ export default {
                   id: item.id,
                   barcode: item.barCode,
                   amount: item.amount,
-                  discount: item.discount,
+                  discount: parseInt(item.discount),
                   price: item.orderPrice,
                   remark: item.remark
                 }
@@ -1470,6 +1489,7 @@ export default {
     cancelHandler(record) {
       this.$api.Distribute.deleteOrderList(record).then(() => {
         record.remark = '註銷'
+        this.$message.success(`${record.orderNo}訂單取消成功`)
       })
     },
     searchHandler() {
@@ -1536,7 +1556,6 @@ export default {
               {row[editKey] ? (
                 <div>
                   <a-input
-                    autoFocus
                     placeholder="請輸入"
                     value={row[key]}
                     vModel={row[key]}
@@ -1661,6 +1680,9 @@ export default {
 }
 .option-content-input {
   padding: 0 80px 0 0;
+  span{
+    color: black;
+  }
 }
 .print-wrapper {
   height: 100px;
@@ -1698,4 +1720,5 @@ export default {
   cursor: pointer;
   top: 3.5px;
 }
+
 </style>

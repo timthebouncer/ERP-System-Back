@@ -24,6 +24,7 @@
         </a-form-model-item>
       </div>
       <template slot="footer">
+        <a-button key="back" @click="handleCancel"> 取消 </a-button>
         <a-button
             key="submit"
             type="primary"
@@ -31,7 +32,6 @@
         >
           儲存
         </a-button>
-        <a-button key="back" @click="handleCancel"> 取消 </a-button>
       </template>
     </a-modal>
   </div>
