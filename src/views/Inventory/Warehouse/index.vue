@@ -48,7 +48,7 @@
               >
               <a-popconfirm
                   title="確定要刪除嗎?"
-                  @confirm="() => onDelete(record.id)"
+                  @confirm="() => onDelete(record)"
               >
                 <a-button type="link" size="small">刪除</a-button>
               </a-popconfirm>
@@ -117,11 +117,11 @@ export default {
       console.log(this.$refs.ModalObject)
       this.$refs.ModalObject.showModal(record)
     },
-    onDelete(id){
-      this.$api.Depot.deleteDepot(id)
+    onDelete(record){
+      this.$api.Depot.deleteDepot(record.id)
       .then(() => {
         this.getDepotList()
-        this.$message.success('刪除類別成功')
+        this.$message.success(`刪除${record.name}倉庫成功`)
       })
       .catch(() => {
         this.$message.error('刪除類別失敗')

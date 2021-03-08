@@ -126,26 +126,28 @@
       >
         <template
           v-for="col in [
-            'order',
             'barcode',
             'name',
             'unit',
             'listPrice',
             'stockAmount',
+            'createDate',
+            'price',
             'description'
           ]"
           :slot="col"
-          slot-scope="text, record, index"
+          slot-scope="text, record"
         >
           <div :key="col">
-            <template v-if="col === 'order'">
-              {{ index + 1 }}
-            </template>
-            <template v-else-if="col === 'unit'">
-              {{ computedWeight(undefined, text) }}
+            <template v-if="col === 'unit'">
+              <div :style="{color: record.using === true? 'black':'#ACB9BF'}">
+                {{ computedWeight(undefined, text) }}
+              </div>
             </template>
             <template v-else>
-              {{ text }}
+              <div :style="{color: record.using === true? 'black':'#ACB9BF'}">
+                {{ text }}
+              </div>
             </template>
           </div>
         </template>
@@ -272,15 +274,6 @@ export default {
           scopedSlots: { customRender: 'operation' }
         }
       ],
-      rules: {
-        barcode: [{ pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }],
-        unit: [{ required: true, message: '請選擇', trigger: 'blur' }],
-        name: [{ required: true, message: '請輸入商品名稱', trigger: 'blur' }],
-        // salesPrice: [{ required: true, pattern:/^\d+$/,message: "請輸入售價(數字)", trigger: "blur" }],
-        listPrice: [
-          { pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }
-        ]
-      },
       pageSizeOptions: ['10', '30', '50', '100'],
       current: 1,
       pageSize: 10,
@@ -369,4 +362,5 @@ export default {
 .weight-wrapper {
   display: flex;
 }
+
 </style>
