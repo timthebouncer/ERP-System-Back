@@ -4,7 +4,7 @@
       <a-button class="addButton2" @click="showAddOrderView"
         >新增出貨<a-icon type="plus"
       /></a-button>
-      <inventoryExcel />
+<!--      <inventoryExcel />-->
       <div class="calendar">
         <a-select :defaultValue="2" style="width: 100px;" @change="changeDate">
           <a-select-option :value="0">今天</a-select-option>
@@ -598,7 +598,7 @@
   </div>
 </template>
 <script>
-import inventoryExcel from './inventoryExcel'
+// import inventoryExcel from './inventoryExcel'
 import VueMask from 'v-mask'
 import { shippingRule } from '@/components/shippingFee'
 import ModalExample from './Execel/index'
@@ -606,7 +606,7 @@ import moment from 'moment'
 import { computedWeight } from '@/unit/dictionary/computed'
 import Fragment from '@/components/Fragment'
 export default {
-  components: { ModalExample ,inventoryExcel},
+  components: { ModalExample },
   data() {
     let differentDate = [
       moment()
