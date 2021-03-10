@@ -2,7 +2,7 @@
   <!--    商品管理-->
   <div class="container">
     <div class="action">
-      <CustomPrice ref="Modal" :getCommodity="getCommodity" />
+      <CustomPrice ref="Modal" :getCommodity="getCommodity" :tableData="tableData" />
       <!--<div class="addM">
 
 
@@ -195,6 +195,7 @@
 <script>
 import { computedWeight } from '@/unit/dictionary/computed'
 import CustomPrice from './SalesPriceSetting'
+
 export default {
   name: 'Merchant',
   components: { CustomPrice },

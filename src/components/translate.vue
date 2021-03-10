@@ -36,6 +36,6 @@ export default {
     onSelect(v) {
       this.$emit('input', v)
     }
-  },
+  }
 }
 </script>

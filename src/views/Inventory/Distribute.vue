@@ -4,6 +4,7 @@
       <a-button class="addButton2" @click="showAddOrderView"
         >新增出貨<a-icon type="plus"
       /></a-button>
+      <inventoryExcel />
       <div class="calendar">
         <a-select :defaultValue="2" style="width: 100px;" @change="changeDate">
           <a-select-option :value="0">今天</a-select-option>
@@ -226,7 +227,7 @@
                       {{ defaultOption }}
                     </span>
                   </div>
-                  <div v-else>
+                  <div v-else  style="width: 315px">
                     <div v-if="orderDetail.receiver !== ''">
                       {{ orderDetail.receiver }}
                     </div>
@@ -373,6 +374,7 @@
                               v-model="trackingNo"
                               style="width: 200px"
                               placeholder="請輸入"
+                              v-mask="'####-####-####'"
                       />
                     </div>
                     <div v-else>
@@ -414,10 +416,10 @@
                         style="margin-right:36px"
                         :value="1"
                       >
-                        <span>自取</span>
+                        <span>常溫</span>
                       </a-radio>
                       <a-radio class="option-content-input" :value="2">
-                        <span>自取</span>
+                        <span>冷藏</span>
                       </a-radio>
                       <a-radio class="option-content-input" :value="3">
                         <span>冷凍</span>
@@ -475,7 +477,7 @@
                         style="margin-right:-6px"
                         :value="2"
                       >
-                        <span>60公分</span>
+                        <span>90公分</span>
                       </a-radio>
                       <a-radio
                         class="option-content-input"
@@ -540,6 +542,7 @@
                     :pagination="orderModalTitle !== '訂單詳情'?true:false"
                   >
                   </a-table>
+
                   <a-form-model-item class="remark-wrapper" label="備註">
                     <div v-if="orderModalTitle !== '訂單詳情'">
                       <a-textarea
@@ -595,13 +598,15 @@
   </div>
 </template>
 <script>
+import inventoryExcel from './inventoryExcel'
+import VueMask from 'v-mask'
 import { shippingRule } from '@/components/shippingFee'
 import ModalExample from './Execel/index'
 import moment from 'moment'
 import { computedWeight } from '@/unit/dictionary/computed'
 import Fragment from '@/components/Fragment'
 export default {
-  components: { ModalExample },
+  components: { ModalExample ,inventoryExcel},
   data() {
     let differentDate = [
       moment()
@@ -680,10 +685,10 @@ export default {
           }
         },
         {
-          title: '出貨售價(出貨單價*數量)',
+          title: () => <div>出貨售價<br/>(出貨單價*數量)</div>,
           dataIndex: 'clientPrice',
           align: 'center',
-          width: '10.5%',
+          width: '140px',
           customRender: (val, row) => {
             return <div>{row.clientPrice * row.amount}</div>
           }
@@ -823,6 +828,7 @@ export default {
       orderDetail: {},
       recipientId: '',
       defaultList: [],
+      defaultReceiver:'',
       defaultOption: '',
       findDefaultInfo: [],
       templateType: '',
@@ -864,7 +870,7 @@ export default {
       this.shippingFee = aaa
     },
     dynamicChange(){
-      this.trackingNo = this.trackingNo.replace(/(\d{4})(?=\d)/g, '$1-')
+      // this.trackingNo = this.trackingNo.replace(/(\d{4})(?=\d)/g, '$1-')
     },
     getTemplateType(e) {
       this.templateType = e
@@ -879,7 +885,6 @@ export default {
       this.shippingFeeCaluelate()
     },
     editHandler(record) {
-      console.log(record)
       this.orderViewVisible = true
       this.orderModalTitle = '編輯出貨'
       this.orderId = record.orderId
@@ -897,7 +902,7 @@ export default {
         this.trackingNo = res.data.trackingNo
         this.remark = res.data.remark
         this.shippingFee = res.data.shippingFee
-
+        this.defaultReceiver = res.data.defaultReceiveInfo
         this.$api.Commodity.getSalesProduct({
           searchKey: '',
           barcode: '',
@@ -932,10 +937,7 @@ export default {
         this.defaultList = this.findDefaultInfo.filter(
           (item, i) => i === this.list.defaultReceiveInfo
         )
-        if (
-          nonDefaultList[this.list.defaultReceiveInfo].id ===
-          this.defaultList[0].id
-        ) {
+        if (nonDefaultList[this.list.defaultReceiveInfo].id === this.defaultList[0].id) {
           if (this.list.defaultReceiveInfo === 0) {
             this.defaultList[0].default = '同客戶資料(預設地址)'
             this.defaultOption = this.defaultList[0].default
@@ -948,24 +950,29 @@ export default {
               this.defaultOption = this.defaultList[0].default
             }
           }
-          if (this.defaultList[0].id === '0') {
-            this.recipientId = this.findDefaultInfo[0].id
-            this.receiverList = { ...this.defaultList[0] }
-          } else if (this.defaultList[0].id === '1') {
-            this.recipientId = this.findDefaultInfo[1].id
-            this.receiverList = { ...this.defaultList[0] }
-          } else {
-            if (res.data.receiver !== '' && res.data.recipientId === null) {
-              this.recipientId = this.findDefaultInfo[0].id
-              this.receiverList = { ...this.defaultList[0] }
-            } else if (res.data.receiver === '') {
-              this.recipientId = this.findDefaultInfo[1].id
-              this.receiverList = { ...this.defaultList[0] }
-            } else {
-              this.recipientId = res.data.recipientId
-              this.receiverList = { ...nonDefaultList[0] }
-            }
-          }
+          nonDefaultList[this.defaultReceiver]
+          this.recipientId = nonDefaultList[this.defaultReceiver].id
+          console.log(nonDefaultList[this.defaultReceiver],111)
+          this.receiverList = nonDefaultList[this.defaultReceiver]
+          console.log(this.receiverList,222)
+          // if (this.defaultList[0].id === '0') {
+          //   this.recipientId = this.findDefaultInfo[0].id
+          //   this.receiverList = { ...this.defaultList[0] }
+          // } else if (this.defaultList[0].id === '1') {
+          //   this.recipientId = this.findDefaultInfo[1].id
+          //   this.receiverList = { ...this.defaultList[0] }
+          // } else {
+          //   if (res.data.receiver !== '' && res.data.recipientId === null) {
+          //     this.recipientId = this.findDefaultInfo[0].id
+          //     this.receiverList = { ...this.defaultList[0] }
+          //   } else if (res.data.receiver === '') {
+          //     this.recipientId = this.findDefaultInfo[1].id
+          //     this.receiverList = { ...this.defaultList[0] }
+          //   } else {
+          //     this.recipientId = res.data.recipientId
+          //     this.receiverList = { ...nonDefaultList[0] }
+          //   }
+          // }
         }
 
         this.orderData = res.data.orderDetailItemResponseList.map(item => {
@@ -979,6 +986,7 @@ export default {
             clientPrice: item.clientPrice,
             unit: item.unit,
             discount: item.discount,
+            weight: item.weight,
             isEditAmount: true,
             isEditRemark: true,
             isEditDiscount: true
@@ -1036,15 +1044,7 @@ export default {
       this.list = {}
       this.recipientId = ''
       this.receiverList = {}
-
-      // if(this.ruleList.customerClass){
-      //   let aaa = document.querySelector('.ant-form-explain')
-      //   aaa.classList.add('visible')
-      //   console.log(aaa)
-      // }
       this.$refs.ruleForm.validate()
-
-
     },
     handleChange(id) {
       this.$refs.ruleForm.validate()
@@ -1085,6 +1085,7 @@ export default {
       this.recipientId = this.defaultList[0].id
       this.receiverList = { ...this.defaultList[0] }
 
+      this.defaultReceiver = this.list.receiverList.findIndex(item => item.id === this.defaultList[0].id)
       // this.receiverList = Object.assign({}, this.list.recipientList.filter(item=>item.id === id))[0]
       // this.recipientId = this.receiverList.id
       // this.list = JSON.parse(JSON.stringify(this.customerList.find(item => {
@@ -1117,6 +1118,8 @@ export default {
       } else {
         this.defaultOption = ''
       }
+
+       this.defaultReceiver = this.list.receiverList.findIndex(item => item.id === id)
     },
     salesDate(date, dateString) {
       this.dateForOrderNo = dateString
@@ -1207,6 +1210,7 @@ export default {
                     stockOutDate: this.dateForOrderNo,
                     trackingNo: this.trackingNo,
                     shippingFee: this.shippingFee,
+                    defaultReceiveInfo:this.defaultReceiver,
                     orderItemRequestList: this.orderData.map(item => {
                       return {
                         barcode: item.barCode,
@@ -1271,6 +1275,7 @@ export default {
               stockOutDate: this.dateForOrderNo,
               trackingNo: this.trackingNo,
               shippingFee: this.shippingFee,
+              defaultReceiveInfo:this.defaultReceiver,
               orderItemRequestList: this.orderData.map(item => {
                 return {
                   id: item.id,
@@ -1560,10 +1565,7 @@ export default {
                     value={row[key]}
                     vModel={row[key]}
                     onKeyup={() =>
-                      (key === 'discount' ||
-                        key === 'amount' ||
-                        key === 'remark') &&
-                      (row[key] = row[key].replace(/[^\d]/g, ''))
+                      ((key === 'discount' ||key === 'amount') && (row[key] = row[key].replace(/[^\d]/g, '')))
                     }
                     vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
                   />
