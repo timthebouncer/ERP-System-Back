@@ -89,8 +89,9 @@
       </div>
       <div class="search-wrapper">
         <div class="search-selection">
-          <a-select default-value="" style="width: 120px">
-            <a-select-option value="">
+          <a-select v-model="depotName" style="width: 120px">
+            <a-select-option v-for="item in this.goodsTable" :key="item.id">
+              {{item.name}}
             </a-select-option>
           </a-select>
         </div>
@@ -110,7 +111,7 @@
         :columns="columns"
         bordered
         :pagination="false"
-        :data-source="tableData"
+        :data-source="filterDepotName"
         :rowKey="record => record.id"
         :expandedRowKeys="expandIndex"
       >
@@ -286,6 +287,13 @@ export default {
           scopedSlots: { customRender: 'expandAction' }
         },
         {
+          class: 'depot-td',
+          title: '庫存倉庫',
+          dataIndex: 'depotName',
+          align: 'center',
+          scopedSlots: { customRender: 'depotName' }
+        },
+        {
           class: 'barcode-td',
           title: '商品條碼',
           dataIndex: 'barCode',
@@ -311,7 +319,13 @@ export default {
           title: '建議售價',
           dataIndex: 'totalListPrice',
           align: 'center',
-          scopedSlots: { customRender: 'totalListPrice' }
+          customRender: (val, row) => {
+            let count = 0;
+            row.inventoryList.forEach(item => count += item.price)
+            return {
+              children: <div>${count}</div>
+            }
+          }
         },
         {
           class: 'amount-td',
@@ -334,6 +348,11 @@ export default {
           scopedSlots: { customRender: 'spaceCol' }
         },
         {
+          class: 'inner-depot-td',
+          dataIndex: 'depotName',
+          align: 'center'
+        },
+        {
           class: 'inner-barcode-td',
           dataIndex: 'barcode',
           align: 'center'
@@ -354,7 +373,7 @@ export default {
           align: 'center',
           customRender: (val, row) => {
             return {
-              children: <div>{row.price}</div>
+              children: <div>${row.price}</div>
             }
           }
         },
@@ -386,7 +405,8 @@ export default {
       form: this.$form.createForm(this, { name: 'dynamic_rule' }),
       rules: {
         searchBarcode: [{ required: true, message: '請輸入商品條碼' }]
-      }
+      },
+      depotName:''
     }
   },
   computed: {
@@ -436,6 +456,13 @@ export default {
     // },
     computedWeight() {
       return computedWeight
+    },
+    filterDepotName(){
+      if(!this.depotName){
+        return this.tableData
+      }else {
+        return this.tableData.filter(item=> item.depotId.includes(this.depotName))
+      }
     }
   },
   watch: {
@@ -482,18 +509,20 @@ export default {
             }
           )
           this.total = res.data.totalElements
-          this.goodsTable = this.tableData.map(item => {
-            return {
-              id: item.productId,
-              barcode: item.inventoryList.map(item => {
-                return item.barcode
-              })
-            }
-          })
         })
         .catch(err => {
           console.log(err)
         })
+    },
+    getDepotList(){
+      this.$api.Depot.getDepotList({
+        depotName: this.depotName
+      }).then(res=>{
+        this.goodsTable = res.data
+        this.goodsTable.unshift({id:1,name:'全部'})
+        this.depotName = this.goodsTable[0].id
+        console.log(this.goodsTable)
+      })
     },
     showAddPurchaseView() {
       this.purchaseViewVisible = true
@@ -720,6 +749,7 @@ export default {
   created() {
     this.getInventoryList(this.search)
     this.getCustomerList()
+    this.getDepotList()
   }
 }
 </script>
@@ -858,8 +888,6 @@ export default {
 /deep/ .unit-td {
   width: 8%;
 }
-/deep/ .sales-price-td,
-/deep/ .cost-price-td,
 /deep/ .list-price-td {
   width: 10%;
 }
@@ -870,19 +898,22 @@ export default {
   width: 5%;
 }
 /deep/ .inner-expand-td {
-  width: 3%;
+  width: 5%;
 }
-/deep/ .inner-barcode-td,
+/deep/ .inner-depot-td{
+  width: 25%;
+}
+/deep/ .inner-barcode-td{
+  width: 20%;
+}
 /deep/ .inner-product-name-td {
   width: 20%;
 }
 /deep/ .inner-unit-td {
   width: 8%;
 }
-/deep/ .inner-sales-price-td,
-/deep/ .inner-cost-price-td,
 /deep/ .inner-list-price-td {
-  width: 10%;
+  width: 11%;
 }
 /deep/ .inner-amount-td {
   width: 5%;

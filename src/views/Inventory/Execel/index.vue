@@ -10,7 +10,7 @@
       <div class="table-content">
         <div class="top-wrapper">
           <div>
-            <span class="Brand-logo"><img src="@/assets/01PL628.jpg"/></span>
+            <span class="Brand-logo"><img src="@/assets/brand_logo.jpg"/></span>
           </div>
           <div class="title">
             <h1>出貨單</h1>
@@ -70,9 +70,9 @@
               付款方式: <span style="border-bottom: 1px dotted">{{
                 orderDetail.payment === 1
                   ? '貨到付款'
-                  : orderDetail.shipment === 2
+                  : orderDetail.payment === 2
                   ? '匯款'
-                  : orderDetail.shipment === 3
+                  : orderDetail.payment === 3
                   ? '現金'
                   : ''
               }}</span>
@@ -120,13 +120,13 @@
           <div class="contact-wrapper" v-if="templateType !== '零售-有價格'">
             <h2>總計 {{Calculate.count}}</h2>
             <span>藤舍牧業(何藤畜牧場) 農場牧登字第一一七四三三號</span>
-            <span>業務聯絡人</span>
-            <span>帳務聯絡人</span>
+            <span>業務聯絡人 : 0935-734982</span>
+            <span>帳務聯絡人 : 0952-582050</span>
             <span>匯款帳號: 中國信託-新竹分行 822-554540329807</span>
             <span>戶名: 張何男</span>
           </div>
           <div v-else class="contact-wrapper">
-            <h2>總計</h2>
+            <h2>總計 {{Calculate.count}}</h2>
             <span>藤舍牧業(何藤畜牧場) 農場牧登字第一一七四三三號</span>
             <span>聯絡電話: 03-4760311</span>
             <span>匯款帳號: 中國信託-新竹分行 822-554540329807</span>
@@ -149,7 +149,7 @@
       <div class="package-sticker">
         <div class="package-top">
           <div class="Brand-logo">
-            <span><img src="@/assets/01PL628.jpg"/></span>
+            <span><img src="@/assets/brand_logo.jpg"/></span>
           </div>
           <div>
             <h3>出貨日期{{ orderDetail.salesDay }}</h3>
@@ -194,167 +194,6 @@
     <div style="display: none" class="print-modal"></div>
   </div>
 </template>
-<style scoped lang="scss">
-.print-button-wrapper {
-  display: flex;
-  justify-content: space-evenly;
-}
-.print-btn {
-  background-color: #fba129;
-  color: #fcfcfc;
-  font-size: large;
-  border: unset;
-  cursor: pointer;
-}
-.top-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 120px;
-  .black-cat-logo {
-    border: 2px solid;
-  }
-  .title {
-    position: relative;
-    right: 50px;
-  }
-}
-img {
-  width: 150px;
-  position: relative;
-  left: 0;
-  top: 0;
-}
-#exampleWrapper {
-  opacity: 0;
-}
-.table-content {
-  padding: 0px 120px 0 75px;
-}
-.detail-wrapper {
-  display: flex;
-  justify-content: space-between;
-
-  .detail-list {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    line-height: 30px;
-    left: 50px;
-    span {
-      font-weight: bold;
-    }
-  }
-  .barcode-wrapper {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    right: 30px;
-    span {
-      font-weight: bold;
-    }
-  }
-}
-.other3-order-barcode {
-  svg {
-    width: 150px;
-  }
-}
-.content-wrapper {
-  position: relative;
-  top: 20px;
-  margin-bottom: 20px;
-}
-.footer {
-  margin-top: 80px;
-  h2 {
-    margin-bottom: 50px;
-  }
-  display: flex;
-  justify-content: space-between;
-  .contact-wrapper {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    left: 60px;
-  }
-  .sign-wrapper {
-    position: relative;
-    right: 30px;
-  }
-  .sign-block {
-    background-color: #f4f4f4;
-    width: 160px;
-    height: 50px;
-    line-height: 5;
-    margin-top: 77px;
-    padding: 0 0 0 12px;
-  }
-}
-.button-wrapper {
-  margin-left: auto;
-  margin-top: 30px;
-  width: 150px;
-}
-::v-deep .ant-modal-header {
-  display: none;
-}
-::v-deep .ant-modal-header {
-  display: none;
-}
-.package-wrapper {
-  width: 520px;
-  height: 510px;
-  margin: 0 auto;
-  position: relative;
-  opacity: 0;
-}
-.package-sticker {
-h3{
-color:#D7D7D7
-}
-}
-.package-top {
-display: flex;
-justify-content: space-between;
-align-items: center;
-}
-.package-content {
-padding: 2px 0 0 30px;
-height: 100%;
-}
-.package-content-detail {
-margin-bottom: 10px;
-}
-.paper-content-detail-order {
-display: flex;
-margin: -25px 0 -25px 0;
-align-items: center;
-}
-.package-content-detail-order {
-display: flex;
-justify-content: space-between;
-align-items: center;
-.order-barcode {
-}
-}
-.package-content-detail-package {
-display: flex;
-justify-content: space-between;
-align-items: center;
-.package-barcode {
-}
-}
-.other3-package-barcode {
-svg {
-width: 150px;
-}
-}
-svg {
-width: 255px;
-align-self: flex-end;
-}
-</style>
 <script>
 import JsBarcode from 'jsbarcode'
 import * as htmlToImage from 'html-to-image'
@@ -549,8 +388,6 @@ export default {
       this.$emit('passTemplateType', this.templateType)
     },
     handleOk() {
-      this.handleCancel()
-
       if (this.templateType !== '貼箱標籤') {
         htmlToImage
           .toPng(document.querySelector('.table-content'))
@@ -559,6 +396,7 @@ export default {
             img.src = dataUrl
 
             let printPage = document.body.appendChild(img)
+            printPage.classList.add('printImage')
 
             let myWindow = window.open('', '', 'width=2000,height=1000')
             myWindow.document.write(printPage.outerHTML)
@@ -573,6 +411,7 @@ export default {
         let _this = this
         setTimeout(function() {
           _this.visible = false
+          _this.handleCancel()
         }, 1000)
       } else {
         htmlToImage
@@ -581,9 +420,8 @@ export default {
             let img = new Image()
             img.src = dataUrl
 
-            // let printPage = document.querySelector('.print-modal')
-            // printPage.appendChild(img)
             let printPage = document.body.appendChild(img)
+            printPage.classList.add('printImage')
 
             let myWindow = window.open('', '', 'width=2000,height=1000')
             myWindow.document.write(printPage.outerHTML)
@@ -595,16 +433,18 @@ export default {
               myWindow.close()
             }, 550)
           })
-        // let _this = this
-        // setTimeout(function () {
-        //   _this.printable = false
-        // },600)
+        let _this = this
+        setTimeout(function () {
+          _this.printable = false
+          _this.handleCancel()
+        },600)
       }
     },
     handleCancel() {
-      // this.visible = false
-      let printPage = document.querySelector('.print-modal')
-      printPage.innerHTML = ''
+      let printPage = document.querySelector('.printImage')
+      // printPage.outerHTML = ''
+      // printPage.remove()
+      printPage.parentNode.removeChild(printPage);
     },
     getColumn(columns) {
       return columns === null
@@ -653,3 +493,164 @@ export default {
   }
 }
 </script>
+<style scoped lang="scss">
+  .print-button-wrapper {
+    display: flex;
+    justify-content: space-evenly;
+  }
+  .print-btn {
+    background-color: #fba129;
+    color: #fcfcfc;
+    font-size: large;
+    border: unset;
+    cursor: pointer;
+  }
+  .top-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 120px;
+    .black-cat-logo {
+      border: 2px solid;
+    }
+    .title {
+      position: relative;
+      right: 50px;
+    }
+  }
+  img {
+    width: 150px;
+    position: relative;
+    left: 0;
+    top: 0;
+  }
+  #exampleWrapper {
+    opacity: 0;
+  }
+  .table-content {
+    padding: 0px 120px 0 75px;
+  }
+  .detail-wrapper {
+    display: flex;
+    justify-content: space-between;
+
+    .detail-list {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      line-height: 30px;
+      left: 50px;
+      span {
+        font-weight: bold;
+      }
+    }
+    .barcode-wrapper {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      right: 30px;
+      span {
+        font-weight: bold;
+      }
+    }
+  }
+  .other3-order-barcode {
+    svg {
+      width: 150px;
+    }
+  }
+  .content-wrapper {
+    position: relative;
+    top: 20px;
+    margin-bottom: 20px;
+  }
+  .footer {
+    margin-top: 80px;
+    h2 {
+      margin-bottom: 50px;
+    }
+    display: flex;
+    justify-content: space-between;
+    .contact-wrapper {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      left: 60px;
+    }
+    .sign-wrapper {
+      position: relative;
+      right: 30px;
+    }
+    .sign-block {
+      background-color: #f4f4f4;
+      width: 160px;
+      height: 50px;
+      line-height: 5;
+      margin-top: 77px;
+      padding: 0 0 0 12px;
+    }
+  }
+  .button-wrapper {
+    margin-left: auto;
+    margin-top: 30px;
+    width: 150px;
+  }
+  ::v-deep .ant-modal-header {
+    display: none;
+  }
+  ::v-deep .ant-modal-header {
+    display: none;
+  }
+  .package-wrapper {
+    width: 520px;
+    height: 510px;
+    margin: 0 auto;
+    position: relative;
+    opacity: 0;
+  }
+  .package-sticker {
+    h3{
+      color:#D7D7D7
+    }
+  }
+  .package-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .package-content {
+    padding: 2px 0 0 30px;
+    height: 100%;
+  }
+  .package-content-detail {
+    margin-bottom: 10px;
+  }
+  .paper-content-detail-order {
+    display: flex;
+    margin: -25px 0 -25px 0;
+    align-items: center;
+  }
+  .package-content-detail-order {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .order-barcode {
+    }
+  }
+  .package-content-detail-package {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .package-barcode {
+    }
+  }
+  .other3-package-barcode {
+    svg {
+      width: 150px;
+    }
+  }
+  svg {
+    width: 255px;
+    align-self: flex-end;
+  }
+</style>

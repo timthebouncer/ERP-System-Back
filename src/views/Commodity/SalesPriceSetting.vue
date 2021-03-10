@@ -20,7 +20,11 @@
               >
                 <a-input v-model="list.name" placeholder="請輸入" />
               </a-form-model-item>
-              <a-form-model-item class="custom-form-commodity" style="margin-left: 13px;" label="出貨名稱">
+              <a-form-model-item
+                class="custom-form-commodity"
+                style="margin-left: 13px;"
+                label="出貨名稱"
+              >
                 <a-input v-model="list.alias" placeholder="請輸入" />
               </a-form-model-item>
               <a-form-model-item
@@ -38,17 +42,27 @@
                 labelAlign="left"
                 prop="unit"
               >
-                <translate v-model="list.unit" />
+                <translate ref="qqq" v-model="list.unit" />
               </a-form-model-item>
-
-              <a-form-model-item class="custom-form-commodity" style="margin-left: -16px" label="定重重量">
-                <div class="weight-wrapper">
+              <a-form-model-item
+                class="custom-form-commodity"
+                style="margin-left: -16px"
+                label="定重重量"
+              >
+                <div
+                  class="weight-wrapper"
+                  v-if="list.unit === 'PACK' || list.unit === 'PIECE'"
+                >
                   <a-input
                     v-model="list.weight"
-                    style="width: 230px"
+                    style="width: 550px"
                     placeholder="請輸入"
                   />
-                  <a-select default-value="lucy" style="width: 120px">
+                  <threeWeights v-model="list.weightUni" />
+                </div>
+                <div v-else>
+                  <a-input disabled style="width: 230px" />
+                  <a-select style="width: 120px" disabled>
                     <a-select-option value="jack">
                       Jack
                     </a-select-option>
@@ -61,21 +75,32 @@
                 prop="listPrice"
                 style="margin-left: -26px;position: relative;left: 27px;"
               >
-                <a-input v-model="list.listPrice" prefix="$" placeholder="請輸入" />
+                <a-input
+                  v-model="list.listPrice"
+                  prefix="$"
+                  placeholder="請輸入"
+                />
               </a-form-model-item>
 
-              <a-form-model-item class="custom-form-commodity alone" label="預設標籤">
-                <a-select v-model="list.tagId" @change="passTagId" default-value="list.tagId">
+              <a-form-model-item
+                class="custom-form-commodity alone"
+                label="預設標籤"
+              >
+                <a-select
+                  v-model="list.tagId"
+                  @change="passTagId"
+                  style="z-index: 1"
+                >
                   <a-select-option v-for="item in tagList" :key="item.id">
                     {{ item.tagName }}
                   </a-select-option>
                 </a-select>
+                <div class="tagMessage">
+                  *若未設定標籤資料，請先新增標籤
+                </div>
               </a-form-model-item>
             </div>
-            <a-form-model-item
-              class="desc-area"
-              label="商品描述"
-            >
+            <a-form-model-item class="desc-area" label="商品描述">
               <a-textarea
                 v-model="list.description"
                 placeholder="請輸入"
@@ -129,10 +154,10 @@
           儲存
         </a-button>
         <a-button
-                v-show="changeTitle === '新增商品'"
-                type="primary"
-                :loading="loading"
-                @click="submitNonstop"
+          v-show="changeTitle === '新增商品'"
+          type="primary"
+          :loading="loading"
+          @click="submitNonstop"
         >
           儲存並新增
         </a-button>
@@ -142,17 +167,17 @@
 </template>
 <script>
 import translate from '@/components/translate'
+import threeWeights from '@/components/threeweightTrans'
 import Fragment from '@/components/Fragment.vue'
 // import { computedWeight } from "@/unit/dictionary/computed";
 export default {
   name: 'CustomPrice',
-  components: { translate },
-  props: ['getCommodity'],
+  components: { translate, threeWeights },
+  props: ['getCommodity', 'tableData'],
   data() {
     return {
-      selectedId:[],
+      selectedId: [],
       cusList: [],
-      tagId: '',
       customerId: '',
       customerList: [],
       tagList: [],
@@ -170,14 +195,22 @@ export default {
         description: '',
         using: undefined,
         updateTime: '',
-        tagId:'',
-        alias:''
+        tagId: '',
+        alias: '',
+        weightUni: ''
       },
       rules: {
         barcode: [{ pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }],
         unit: [{ required: true, message: '請選擇', trigger: 'blur' }],
         name: [{ required: true, message: '請輸入商品名稱', trigger: 'blur' }],
-        listPrice: [{ required: true,pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }]
+        listPrice: [
+          {
+            required: true,
+            pattern: /^\d+$/,
+            message: '請輸入數字',
+            trigger: 'blur'
+          }
+        ]
       },
       columns: [
         {
@@ -214,7 +247,12 @@ export default {
             return {
               children: (
                 <div>
-                  <a-select style="width:200px" vModel={row.clientName} placeholder="請選擇" onChange={id => this.clientOption(id,row)} >
+                  <a-select
+                    style="width:200px"
+                    vModel={row.clientName}
+                    placeholder="請選擇"
+                    onChange={id => this.clientOption(id, row)}
+                  >
                     {row.storeClient.map(item => (
                       <a-select-option value={item.id} disabled={item.disabled}>
                         {item.name}
@@ -261,7 +299,8 @@ export default {
                       title="確定要刪除嗎?"
                       onConfirm={() =>
                         this.deleteSalesTable(
-                          row,index
+                          row,
+                          index
                           // (index = (this.current - 1) * this.pageSize + index)
                         )
                       }
@@ -293,13 +332,14 @@ export default {
     },
     handleChange(id) {
       this.customerId = id
-
     },
-    clientOption(id){
+    clientOption(id) {
       this.selectedId = id
       // console.log(this.selectedId,6666)
     },
     handleAdd() {
+      console.log(this.$refs.qqq)
+      console.log(this.$refs.aaa)
       const { salesTable } = this
       const self = this
       const newData = {
@@ -312,11 +352,11 @@ export default {
         isEditRemark: true,
         get storeClient() {
           //找到已選過的選項
-          let selected = self.salesTable.map(stItem=>stItem.clientName)
+          let selected = self.salesTable.map(stItem => stItem.clientName)
           return self.customerList.filter(item => {
             //把找到的選項加上禁用
             item.disabled = selected.includes(item.id)
-           return item.classes.id === newData.classes
+            return item.classes.id === newData.classes
           })
         }
       }
@@ -340,21 +380,24 @@ export default {
             this.list.updateTime = record.updateTime
             this.list.alias = record.alias
             this.list.weight = record.fixedWeight
+            this.list.weightUni = record.weightUni
             this.list.tagId = record.tagId
             this.visible = true
-           this.$api.Commodity.getCommodityDiscount({
+            this.$api.Commodity.getCommodityDiscount({
               productId: this.track
-            }).then(res=>{
-             this.salesTable = res.data.map(item=>({
+            }).then(res => {
+              this.salesTable = res.data.map(item => ({
                 classes: item.classId,
                 clientName: item.clientId,
                 discountPrice: item.clientPrice,
                 remark: item.remark,
                 isEditDiscountPrice: true,
                 isEditRemark: true,
-                storeClient: this.customerList.filter(list => list.classes.id === item.classId)
+                storeClient: this.customerList.filter(
+                  list => list.classes.id === item.classId
+                )
               }))
-           })
+            })
           }
         }
       }
@@ -371,12 +414,12 @@ export default {
               price: this.list.listPrice,
               description: this.list.description,
               fixedWeight: this.list.weight,
+              weightUni: this.list.weightUni,
               tagId: this.list.tagId,
-              alias:this.list.alias,
+              alias: this.list.alias,
               using: true,
-              discountRequestList: this.salesTable.map(item=>{
+              discountRequestList: this.salesTable.map(item => {
                 return {
-                  clientId: "",
                   price: item.discountPrice,
                   remark: item.remark
                 }
@@ -385,13 +428,19 @@ export default {
               .then(res => {
                 this.getCommodity()
                 this.$message.success(`新增${res.data.name}成功`)
+                this.visible = true
+                this.clearInput()
               })
               .catch(() => {
                 this.visible = true
-                this.$message.error('此商品已存在')
+                if (!this.list.tagId) {
+                  this.$message.error('請先設定標籤')
+                } else if (
+                  this.tableData.some(item => item.name === this.list.name)
+                ) {
+                  this.$message.error('此商品已存在')
+                }
               })
-            this.visible = true
-            this.clearInput()
           }
         }
       })
@@ -408,10 +457,11 @@ export default {
               price: this.list.listPrice,
               description: this.list.description,
               fixedWeight: this.list.weight,
+              weightUni: this.list.weightUni,
               tagId: this.list.tagId,
-              alias:this.list.alias,
+              alias: this.list.alias,
               using: true,
-              discountRequestList: this.salesTable.map(item=>{
+              discountRequestList: this.salesTable.map(item => {
                 return {
                   price: item.discountPrice,
                   remark: item.remark
@@ -426,7 +476,13 @@ export default {
               })
               .catch(() => {
                 this.visible = true
-                this.$message.error('此商品已存在')
+                if (!this.list.tagId) {
+                  this.$message.error('請先設定標籤')
+                } else if (
+                  this.tableData.some(item => item.name === this.list.name)
+                ) {
+                  this.$message.error('此商品已存在')
+                }
               })
           } else {
             this.$api.Commodity.updateCommodity({
@@ -438,10 +494,11 @@ export default {
               price: this.list.listPrice,
               description: this.list.description,
               fixedWeight: this.list.weight,
+              weightUni: this.list.weightUni,
               tagId: this.list.tagId,
               alias: this.list.alias,
               using: true,
-              discountRequestList: this.salesTable.map(item=>{
+              discountRequestList: this.salesTable.map(item => {
                 return {
                   clientId: item.clientName,
                   price: item.discountPrice,
@@ -456,8 +513,14 @@ export default {
                 this.visible = false
               })
               .catch(() => {
-                this.$message.error('此商品條碼已存在')
                 this.visible = true
+                if (!this.list.tagId) {
+                  this.$message.error('請先設定標籤')
+                } else if (
+                  this.tableData.some(item => item.name === this.list.name)
+                ) {
+                  this.$message.error('此商品已存在')
+                }
               })
           }
         }
@@ -468,7 +531,7 @@ export default {
     },
     keepSelection() {
       this.salesTable.reduce((p, v) => {
-        console.log(p,v)
+        console.log(p, v)
         return v.classes ? { ...p, [v.classes]: true } : p
       }, {})
     },
@@ -505,6 +568,11 @@ export default {
     getAllTagList() {
       this.$api.Label.getAllTag().then(res => {
         this.tagList = res.data
+
+        let oldestTime = res.data.reduce((p,c)=>{
+          return p.createTime > c.createTime ? c:p
+        })
+        this.list.tagId = oldestTime.id
       })
     },
     passTagId(id) {
@@ -527,7 +595,10 @@ export default {
                     placeholder="請輸入"
                     value={row[key]}
                     vModel={row[key]}
-                    onKeyup={() =>  key === 'discountPrice' && (row[key] = row[key].replace(/[^\d]/g, ''))}
+                    onKeyup={() =>
+                      key === 'discountPrice' &&
+                      (row[key] = row[key].replace(/[^\d]/g, ''))
+                    }
                     vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
                   />
                 </div>
@@ -575,7 +646,7 @@ export default {
   height: 100%;
   z-index: -1;
 }
-.editable-add-btn{
+.editable-add-btn {
   margin-top: 10px;
   margin-bottom: 10px;
 }
@@ -586,5 +657,13 @@ export default {
   cursor: pointer;
   top: 3.5px;
 }
-
+.tagMessage {
+  width: 100%;
+  margin: -40px 0 0 355px;
+  z-index: -1;
+  color: red;
+}
+.weight-wrapper {
+  display: flex;
+}
 </style>

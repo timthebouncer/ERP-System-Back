@@ -1,4 +1,4 @@
-import {dWeight} from "@/unit/dictionary";
+import {dWeight} from "@/unit/www";
 
 export default {
   name: 'AAA',
