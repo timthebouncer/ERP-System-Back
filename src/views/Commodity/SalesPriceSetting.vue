@@ -336,7 +336,6 @@ export default {
     },
     clientOption(id) {
       this.selectedId = id
-      // console.log(this.selectedId,6666)
     },
     handleAdd() {
       console.log(this.$refs.qqq)
@@ -365,10 +364,9 @@ export default {
     salesTableChange() {},
     showModal(record) {
       this.visible = true
-
       if (!record) {
         this.changeTitle = '新增商品'
-       this.list.tagId =  this.defaultTagId
+        this.list.tagId = this.defaultTagId
       } else {
         this.track = record.id
         this.changeTitle = '編輯商品'
@@ -549,7 +547,8 @@ export default {
         unit: 'KG',
         barcode: '',
         listPrice: '',
-        description: ''
+        description: '',
+        tagId: ''
       }
       this.salesTable = []
       this.resetForm()
@@ -580,7 +579,6 @@ export default {
     },
     passTagId(id) {
       this.list.tagId = id
-      console.log(this.list.tagId)
     }
   },
   computed: {
