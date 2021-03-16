@@ -54,8 +54,8 @@ const api = {
     }
   },
   Inventory: {
-    getList(productName,pageNumber,pageSize) {
-      return request.get("/inventory/stockList?productName="+productName+"&pageNumber="+pageNumber+"&pageSize="+pageSize);
+    getList(productName,depotId,pageNumber,pageSize) {
+      return request.get("/inventory/stockList?productName="+productName+"&depotId="+depotId+"&pageNumber="+pageNumber+"&pageSize="+pageSize);
     },
     edit(data){
       return request.put("/inventory/updateStock", data);

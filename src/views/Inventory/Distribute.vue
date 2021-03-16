@@ -55,7 +55,7 @@
               }}</a-button>
             </template>
             <template v-else-if="col === 'remark'">
-                {{record.remark === '註銷' ? '註銷': ''}}
+                {{record.action === 'CANCEL_ORDER' ? '註銷': ''}}
             </template>
             <template v-else>
               {{ text }}
@@ -63,7 +63,7 @@
           </div>
         </template>
         <template slot="operation" slot-scope="text, record">
-          <template v-if="record.remark === '註銷'">
+          <template v-if="record.action === 'CANCEL_ORDER'">
             <a-button type="link" size="small" disabled="">編輯</a-button>
             <a-button type="link" size="small" disabled>取消訂單</a-button>
           </template>
@@ -885,6 +885,7 @@ export default {
       this.shippingFeeCaluelate()
     },
     editHandler(record) {
+      console.log(record,666)
       this.orderViewVisible = true
       this.orderModalTitle = '編輯出貨'
       this.orderId = record.orderId

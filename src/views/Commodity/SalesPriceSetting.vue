@@ -176,6 +176,7 @@ export default {
   props: ['getCommodity', 'tableData'],
   data() {
     return {
+      defaultTagId:'',
       selectedId: [],
       cusList: [],
       customerId: '',
@@ -339,7 +340,6 @@ export default {
     },
     handleAdd() {
       console.log(this.$refs.qqq)
-      console.log(this.$refs.aaa)
       const { salesTable } = this
       const self = this
       const newData = {
@@ -365,8 +365,10 @@ export default {
     salesTableChange() {},
     showModal(record) {
       this.visible = true
+
       if (!record) {
         this.changeTitle = '新增商品'
+       this.list.tagId =  this.defaultTagId
       } else {
         this.track = record.id
         this.changeTitle = '編輯商品'
@@ -420,6 +422,7 @@ export default {
               using: true,
               discountRequestList: this.salesTable.map(item => {
                 return {
+                  clientId:item.clientName,
                   price: item.discountPrice,
                   remark: item.remark
                 }
@@ -463,6 +466,7 @@ export default {
               using: true,
               discountRequestList: this.salesTable.map(item => {
                 return {
+                  clientId:item.clientName,
                   price: item.discountPrice,
                   remark: item.remark
                 }
@@ -562,7 +566,6 @@ export default {
     getClassesList() {
       this.$api.Customer.getClass().then(res => {
         this.classesList = res.data
-        // let aaa = res.data.map(item => item.id)
       })
     },
     getAllTagList() {
@@ -572,7 +575,7 @@ export default {
         let oldestTime = res.data.reduce((p,c)=>{
           return p.createTime > c.createTime ? c:p
         })
-        this.list.tagId = oldestTime.id
+        this.defaultTagId = oldestTime.id
       })
     },
     passTagId(id) {
