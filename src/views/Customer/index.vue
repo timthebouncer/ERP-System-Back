@@ -817,9 +817,6 @@ export default {
     // }
   },
   computed: {
-    ListpostCode() {
-      return parseInt(this.list.postCode, 10)
-    },
     priceAndRemarkEditor() {
       return (val, row, key) => {
         let editKey =
@@ -1149,7 +1146,6 @@ export default {
         })
     },
     onDelete(record) {
-      console.log(record)
       this.$api.Customer.delete(record)
         .then(() => {
           this.getCustomerList()
@@ -1170,7 +1166,6 @@ export default {
       this.getCustomerList(this.search)
     },
     discountTableChange({ current, pageSize }) {
-      console.log(current, pageSize)
       this.newCurrent = current
       this.newPageSize = pageSize
     },
@@ -1250,17 +1245,6 @@ export default {
         rows.salesPrice = result.price
         rows.using = result.using
       })
-    },
-    receiveChange() {
-      // if (this.receiveInfo <= 1) {
-      //   this.recipientList = [{
-      //     address: "",
-      //     id: "",
-      //     postCode: "",
-      //     receiver: "",
-      //     tel: "",
-      //   }]
-      // }
     }
   }
 }

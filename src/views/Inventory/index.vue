@@ -89,7 +89,10 @@
       </div>
       <div class="search-wrapper">
         <div class="search-selection">
-          <a-select v-model="depotName" style="width: 120px">
+          <a-select v-model="depotName" style="width: 120px" @change="getDepotId">
+            <a-select-option value="">
+              全部
+            </a-select-option>
             <a-select-option v-for="item in this.goodsTable" :key="item.id">
               {{item.name}}
             </a-select-option>
@@ -111,7 +114,7 @@
         :columns="columns"
         bordered
         :pagination="false"
-        :data-source="filterDepotName"
+        :data-source="tableData"
         :rowKey="record => record.id"
         :expandedRowKeys="expandIndex"
       >
@@ -406,7 +409,8 @@ export default {
       rules: {
         searchBarcode: [{ required: true, message: '請輸入商品條碼' }]
       },
-      depotName:''
+      depotName:'',
+      depotId:''
     }
   },
   computed: {
@@ -457,13 +461,13 @@ export default {
     computedWeight() {
       return computedWeight
     },
-    filterDepotName(){
-      if(!this.depotName){
-        return this.tableData
-      }else {
-        return this.tableData.filter(item=> item.depotId.includes(this.depotName))
-      }
-    }
+    // filterDepotName(){
+    //   if(!this.depotName){
+    //     return this.tableData
+    //   }else {
+    //     return this.tableData.filter(item=> item.depotId.includes(this.depotName))
+    //   }
+    // }
   },
   watch: {
     searchBarcode: function(newValue) {
@@ -496,7 +500,7 @@ export default {
     },
     getInventoryList(productName) {
       this.tableData = []
-      this.$api.Inventory.getList(productName, this.current, this.pageSize)
+      this.$api.Inventory.getList(productName,this.depotId, this.current, this.pageSize)
         .then(res => {
           this.tableData = res.data.inventoryListResponseList.map(
             (item, index) => {
@@ -519,10 +523,12 @@ export default {
         depotName: this.depotName
       }).then(res=>{
         this.goodsTable = res.data
-        this.goodsTable.unshift({id:1,name:'全部'})
-        this.depotName = this.goodsTable[0].id
-        console.log(this.goodsTable)
       })
+    },
+    getDepotId(id) {
+      this.current = 1
+      this.depotId = id
+      this.getInventoryList(this.search)
     },
     showAddPurchaseView() {
       this.purchaseViewVisible = true
@@ -725,7 +731,6 @@ export default {
         barcode: this.list.searchBarcode
       }).then(res => {
         this.inventoryList = res.data
-        console.log(this.inventoryList)
       })
     },
     SalesProduct() {
