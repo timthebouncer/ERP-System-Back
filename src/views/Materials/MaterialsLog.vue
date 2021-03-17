@@ -41,7 +41,7 @@
           <div class="searchInput">
             <a-input-search
               v-model="searchValue"
-              placeholder="搜尋商品"
+              placeholder="搜尋物料名稱"
               enter-button
               @search="onSearch"
             />
@@ -64,6 +64,15 @@
           <span v-else-if="text == 'MATERIALS_DELETE'">刪除物料</span>
           <span v-else-if="text == 'MATERIALS_IN'">入料</span>
           <span v-else-if="text == 'MATERIALS_OUT'">出料</span>
+        </template>
+        <template slot="count" slot-scope="text, record">
+          <span v-if="record.action == 'MATERIALS_IN'"
+            >+{{ record.count }}</span
+          >
+          <span v-else-if="record.action == 'MATERIALS_OUT'" style="color: red;"
+            >-{{ record.count }}</span
+          >
+          <span v-else>{{ record.count }}</span>
         </template>
       </a-table>
     </div>
@@ -126,7 +135,8 @@ export default {
           title: '數量',
           dataIndex: 'count',
           width: '10%',
-          align: 'center'
+          align: 'center',
+          scopedSlots: { customRender: 'count' }
         }
       ],
       pageSizeOptions: ['10', '30', '50', '100'],
@@ -231,6 +241,7 @@ export default {
               ...item
             }
             obj.time = moment(item.time).format('YYYY-MM-DD')
+            obj.times = item.time
             return obj
           })
           this.total = res.data.totalElements

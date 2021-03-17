@@ -127,7 +127,7 @@
                 class="label-wrap"
                 type="flex"
                 justify="space-between"
-                style="margin-top: -30px;"
+                style="margin-top: -30px; margin-bottom: 20px;"
               >
                 <a-col
                   :span="3"
@@ -152,7 +152,12 @@
                   >{{ unitTag }}</a-col
                 >
               </a-row>
-              <a-row class="label-wrap" type="flex" justify="space-between">
+              <a-row
+                class="label-wrap"
+                type="flex"
+                justify="space-between"
+                style="margin-bottom: 20px;"
+              >
                 <a-col
                   :span="3"
                   class="tags"
