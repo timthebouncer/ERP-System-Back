@@ -159,7 +159,7 @@ export default {
     getMaterialsList() {
       this.$api.Materials.getMaterialsList(
         this.searchValue,
-        this.current - 1,
+        this.current,
         this.pageSize
       )
         .then(res => {
