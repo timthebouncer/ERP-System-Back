@@ -25,7 +25,7 @@
       @cancel="clearInput"
     >
       <div class="class-input" v-if="!edited">
-        <label>*物料名稱:</label>
+        <label><span style="color: red;">*</span>物料名稱:</label>
         <a-input v-model="list.name" autoFocus placeholder="請輸入" />
       </div>
       <div class="class-input" v-else>
@@ -247,7 +247,7 @@ export default {
     onDelete(item) {
       this.$api.Materials.delMaterial(item.id)
         .then(() => {
-          this.$message.success(`刪除成功`)
+          this.$message.success(item.name + '刪除成功')
           this.onSearch()
         })
         .catch(err => {
