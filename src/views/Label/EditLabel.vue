@@ -341,7 +341,10 @@ export default {
       showModalVisible: false,
       imageDataUrl: '',
       loading: false,
-      logoImageUrl: ''
+      logoImageUrl: '',
+      nameTagFlag: false,
+      barcodeTagFlag: false,
+      productNoTagFlag: false
     }
   },
   computed: {
@@ -578,6 +581,7 @@ export default {
           this.$refs.textConfirm.visible = true
           return
         } else if (this.currentDragName === 'barcode') {
+          this.barcodeTagFlag = true
           this.hasTags.push(this.currentDragName)
           if (this.barcodeImageUrl) {
             let imgElement = document.getElementsByClassName('barcodeImg')[0]
@@ -614,6 +618,12 @@ export default {
             name: 'Logo'
           })
         } else {
+          if (this.currentDragName == 'productName') {
+            this.nameTagFlag = true
+          }
+          if (this.currentDragName == 'productNo') {
+            this.productNoTagFlag = true
+          }
           this.hasTags.push(this.currentDragName)
           element = new fabric.Textbox(
             this.previewed
@@ -680,6 +690,16 @@ export default {
     exportSVG() {
       if (this.tagName == null || this.tagName == '') {
         this.$message.warning('請輸入標籤名稱')
+        return
+      }
+      if (!this.nameTagFlag) {
+        this.$message.warning('請加入商品名稱標籤模塊')
+        return
+      } else if (!this.productNoTagFlag) {
+        this.$message.warning('請加入商品序號標籤模塊')
+        return
+      } else if (!this.barcodeTagFlag) {
+        this.$message.warning('請加入商品條碼標籤模塊')
         return
       }
 
@@ -852,6 +872,15 @@ export default {
         } else {
           str = 'TEXT: ' + tag.text
         }
+        if (tag.name == 'productName') {
+          this.nameTagFlag = false
+        }
+        if (tag.name == 'productNo') {
+          this.productNoTagFlag = false
+        }
+        if (tag.name == 'barcode') {
+          this.barcodeTagFlag = false
+        }
         this.canvas.remove(tag)
         this.objSelected = null
         this.delAlertMsg = str + ' 模塊已刪除'
@@ -958,6 +987,9 @@ export default {
       this.tagDrawWidth = this.$store.state.labelData.wide
       this.tagDrawHeight = this.$store.state.labelData.height
       this.svgJson = JSON.parse(this.$store.state.labelData.svgString)
+      this.nameTagFlag = true
+      this.productNoTagFlag = true
+      this.barcodeTagFlag = true
       this.showSVG()
     }
   }
