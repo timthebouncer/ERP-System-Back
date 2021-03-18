@@ -35,7 +35,6 @@
               >
                 <a-input v-model="list.barcode" placeholder="請輸入" />
               </a-form-model-item>
-
               <a-form-model-item
                 class="custom-form-commodity"
                 label="計價單位"
@@ -81,10 +80,10 @@
                   placeholder="請輸入"
                 />
               </a-form-model-item>
-
               <a-form-model-item
                 class="custom-form-commodity alone"
                 label="預設標籤"
+                prop="tagId"
               >
                 <a-select
                   v-model="list.tagId"
@@ -95,9 +94,6 @@
                     {{ item.tagName }}
                   </a-select-option>
                 </a-select>
-                <div class="tagMessage">
-                  *若未設定標籤資料，請先新增標籤
-                </div>
               </a-form-model-item>
             </div>
             <a-form-model-item class="desc-area" label="商品描述">
@@ -203,6 +199,7 @@ export default {
       rules: {
         barcode: [{ pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }],
         unit: [{ required: true, message: '請選擇', trigger: 'blur' }],
+        tagId: [{ required: true, message: '請選擇', trigger: 'blur' }],
         name: [{ required: true, message: '請輸入商品名稱', trigger: 'blur' }],
         listPrice: [
           {
@@ -366,7 +363,6 @@ export default {
       this.visible = true
       if (!record) {
         this.changeTitle = '新增商品'
-        this.list.tagId = this.defaultTagId
       } else {
         this.track = record.id
         this.changeTitle = '編輯商品'
@@ -503,7 +499,7 @@ export default {
               discountRequestList: this.salesTable.map(item => {
                 return {
                   clientId: item.clientName,
-                  price: item.discountPrice,
+                  price: parseInt(item.discountPrice),
                   remark: item.remark
                 }
               })
