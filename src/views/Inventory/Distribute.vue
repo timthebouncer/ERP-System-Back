@@ -598,7 +598,7 @@
   </div>
 </template>
 <script>
-// import inventoryExcel from './inventoryExcel'
+// import inventoryExcel from '../Inventory/Execel/package'
 import VueMask from 'v-mask'
 import { shippingRule } from '@/components/shippingFee'
 import ModalExample from './Execel/index'
@@ -606,7 +606,7 @@ import moment from 'moment'
 import { computedWeight } from '@/unit/dictionary/computed'
 import Fragment from '@/components/Fragment'
 export default {
-  components: { ModalExample },
+  components: { ModalExample},
   data() {
     let differentDate = [
       moment()
@@ -650,6 +650,7 @@ export default {
           dataIndex: 'productName',
           align: 'center',
           customRender: (value, row) => {
+            console.log(row,111)
             return {
               children: <div>{row.productName}</div>
             }
@@ -1174,7 +1175,7 @@ export default {
             row.productId = item.productId
             row.unit = computedWeight(undefined, item.unit)
             row.clientPrice = item.clientPrice
-            row.productName = item.productName
+            row.productName = item.alias === "" ? item.productName:item.alias
             row.price = item.price
             row.weight = item.weight
           }
@@ -1477,7 +1478,6 @@ export default {
           this.receiverList = { ...nonDefaultList[0] }
         }
         this.orderDetail = res.data
-        console.log(this.orderDetail)
         this.orderData = res.data.orderDetailItemResponseList
         this.orderList = res.data.orderDetailItemResponseList
         this.shipment = res.data.shipment
