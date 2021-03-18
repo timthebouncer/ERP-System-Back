@@ -151,64 +151,67 @@
         </div>
       </div>
     </div>
-    <div :title="templateType" class="package-wrapper" v-if="printable">
-      <div class="package-sticker">
-        <div class="package-top">
-          <div class="Brand-logo">
-            <span><img src="@/assets/brand_logo.jpg"/></span>
-          </div>
-          <div>
-            <h3>出貨日期{{ orderDetail.salesDay }}</h3>
-          </div>
-        </div>
-        <div class="package-content">
-          <div class="package-content-detail" v-if="list.receiver !== ''">
-            <h3>收件客戶</h3>
-            <h1>{{ receiverList.receiver }}</h1>
-          </div>
-          <div v-else>
-            <h3>收件客戶</h3>
-            {{ list.defaultReceiveInfo === 0 ? list.name : list.companyName }}
-          </div>
-          <div class="package-content-detail-order">
-            <h3>出貨單號</h3>
-            <div class="order-barcode">
-              <svg
-                id="ean-13"
-                :jsbarcode-format="skus.format"
-                :jsbarcode-value="orderDetail.orderNo"
-                jsbarcode-textmargin="0"
-                jsbarcode-fontoptions="bold"
-              ></svg>
-            </div>
-          </div>
-          <div
-            class="package-content-detail-package"
-            v-show="orderDetail.trackingNo"
-          >
-            <h3>物流編號</h3>
-            <div class="package-barcode">
-              <svg
-                id="trackNo"
-                :jsbarcode-format="skus2.format"
-                :jsbarcode-value="orderDetail.trackingNo"
-                jsbarcode-textmargin="0"
-                jsbarcode-fontoptions="bold"
-              ></svg>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+<!--    <div :title="templateType" class="package-wrapper" v-if="printable">-->
+<!--      <div class="package-sticker">-->
+<!--        <div class="package-top">-->
+<!--          <div class="Brand-logo">-->
+<!--            <span><img src="@/assets/brand_logo.jpg"/></span>-->
+<!--          </div>-->
+<!--          <div>-->
+<!--            <h3>出貨日期{{ orderDetail.salesDay }}</h3>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        <div class="package-content">-->
+<!--          <div class="package-content-detail" v-if="list.receiver !== ''">-->
+<!--            <h3>收件客戶</h3>-->
+<!--            <h1>{{ receiverList.receiver }}</h1>-->
+<!--          </div>-->
+<!--          <div v-else>-->
+<!--            <h3>收件客戶</h3>-->
+<!--            {{ list.defaultReceiveInfo === 0 ? list.name : list.companyName }}-->
+<!--          </div>-->
+<!--          <div class="package-content-detail-order">-->
+<!--            <h3>出貨單號</h3>-->
+<!--            <div class="order-barcode">-->
+<!--              <svg-->
+<!--                id="ean-13"-->
+<!--                :jsbarcode-format="skus.format"-->
+<!--                :jsbarcode-value="orderDetail.orderNo"-->
+<!--                jsbarcode-textmargin="0"-->
+<!--                jsbarcode-fontoptions="bold"-->
+<!--              ></svg>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <div-->
+<!--            class="package-content-detail-package"-->
+<!--            v-show="orderDetail.trackingNo"-->
+<!--          >-->
+<!--            <h3>物流編號</h3>-->
+<!--            <div class="package-barcode">-->
+<!--              <svg-->
+<!--                id="trackNo"-->
+<!--                :jsbarcode-format="skus2.format"-->
+<!--                :jsbarcode-value="orderDetail.trackingNo"-->
+<!--                jsbarcode-textmargin="0"-->
+<!--                jsbarcode-fontoptions="bold"-->
+<!--              ></svg>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--    <inventoryExcel :receiverList="receiverList" :orderDetail="orderDetail" />-->
     <div style="display: none" class="print-modal"></div>
   </div>
 </template>
 <script>
 import JsBarcode from 'jsbarcode'
+// import inventoryExcel from './package'
 import * as htmlToImage from 'html-to-image'
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image'
 export default {
   name: 'ModalExample',
+  // components:{inventoryExcel},
   props: [
     'distirbuteHandler',
     'orderData',
