@@ -41,10 +41,10 @@
         </a-select>
       </div>
       <template slot="footer">
+        <a-button key="back" @click="handleCancel"> 取消 </a-button>
         <a-button key="submit" type="primary" @click="handleOk">
           儲存
         </a-button>
-        <a-button key="back" @click="handleCancel"> 取消 </a-button>
       </template>
     </a-modal>
     <div class="itemMenu">
