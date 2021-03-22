@@ -29,10 +29,10 @@
         <a-input v-model="depotName" autoFocus placeholder="請輸入" />
       </div>
       <template slot="footer">
+        <a-button key="back" @click="handleCancel"> 取消 </a-button>
         <a-button key="submit" type="primary" @click="handleOk">
           儲存
         </a-button>
-        <a-button key="back" @click="handleCancel"> 取消 </a-button>
       </template>
     </a-modal>
     <div class="itemMenu">
@@ -186,7 +186,7 @@ export default {
     onDelete(item) {
       this.$api.Materials.deleteDepot(item.id)
         .then(() => {
-          this.$message.success(`刪除成功`)
+          this.$message.success(item.name + ' 刪除成功')
           this.onSearch()
         })
         .catch(err => {
