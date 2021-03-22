@@ -4,7 +4,8 @@
       <button @click="showModal1" class="print-btn">商用格式-有價格</button>
       <button @click="showModal2" class="print-btn">商用格式-無價格</button>
       <button @click="showModal3" class="print-btn">零售格式-有價格</button>
-      <button @click="showModal4" class="print-btn">貼箱標籤</button>
+      <inventoryExcel :receiverList="receiverList" :orderDetail="orderDetail" />
+<!--      <button @click="showModal4" class="print-btn">貼箱標籤</button>-->
     </div>
     <div :title="templateType" id="exampleWrapper" v-if="visible">
       <div class="table-content">
@@ -200,18 +201,17 @@
 <!--        </div>-->
 <!--      </div>-->
 <!--    </div>-->
-<!--    <inventoryExcel :receiverList="receiverList" :orderDetail="orderDetail" />-->
     <div style="display: none" class="print-modal"></div>
   </div>
 </template>
 <script>
 import JsBarcode from 'jsbarcode'
-// import inventoryExcel from './package'
+import inventoryExcel from './package'
 import * as htmlToImage from 'html-to-image'
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image'
 export default {
   name: 'ModalExample',
-  // components:{inventoryExcel},
+  components:{inventoryExcel},
   props: [
     'distirbuteHandler',
     'orderData',
