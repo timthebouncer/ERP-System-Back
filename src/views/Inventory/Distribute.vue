@@ -559,7 +559,7 @@
                     </template>
                     <template v-else>
                       <span> 總數量:{{ Calculate.count }} </span>
-                      <span> 總金額:{{ Calculate.total }} </span>
+                      <span> 總金額:{{ Calculate.totalPrice }} </span>
                     </template>
                   </a-form-model-item>
                 </div>
@@ -650,7 +650,6 @@ export default {
           dataIndex: 'productName',
           align: 'center',
           customRender: (value, row) => {
-            console.log(row,111)
             return {
               children: <div>{row.productName}</div>
             }
@@ -669,7 +668,6 @@ export default {
           align: 'center',
           width: '8%',
           customRender: (val, row) => {
-            console.log(row)
             return (row.unit === '件' || row.unit === '包') ? this.Quantity(val, row, 'amount') : row.weight
           },
           scopedSlots: { customRender: 'amount' }
@@ -886,7 +884,6 @@ export default {
       this.shippingFeeCaluelate()
     },
     editHandler(record) {
-      console.log(record,666)
       this.orderViewVisible = true
       this.orderModalTitle = '編輯出貨'
       this.orderId = record.orderId
@@ -1482,14 +1479,14 @@ export default {
         this.orderList = res.data.orderDetailItemResponseList
         this.shipment = res.data.shipment
         this.trackingNo = res.data.trackingNo
+        let count = 0;
+        let totalPrice = 0;
 
-        let count = 0
-        let total = 0
-        this.orderList.forEach(item => {
+       this.orderData.forEach(item => {
           count += item.amount
-          total += item.totalPrice
+          totalPrice += item.clientPrice > 0 ? item.clientPrice * item.amount - item.discount: item.price * item.amount - item.discount
         })
-        this.Calculate = { count, total }
+        this.Calculate = { count, totalPrice }
       })
     },
     cancelHandler(record) {
