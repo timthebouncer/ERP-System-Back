@@ -633,14 +633,14 @@ export default {
               fontSize: 30,
               fontFamily: '微軟正黑體',
               hasControls: true,
-              textAlign: 'center',
+              textAlign: 'left',
               editable: false,
               name: this.currentDragName
             }
           )
           element.setControlsVisibility({
             mt: false, // middle top disable
-            mb: false, // midle bottom
+            mb: false, // middle bottom
             mtr: false,
             bl: false,
             br: false,
