@@ -82,7 +82,7 @@ export default {
           scopedSlots: { customRender: 'warehouseName' },
         },
         {
-          title: '庫存量',
+          title: '庫存數量',
           dataIndex: 'count',
           width: '15%',
           align: 'center',

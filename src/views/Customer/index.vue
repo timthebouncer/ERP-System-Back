@@ -1245,6 +1245,9 @@ export default {
         rows.salesPrice = result.price
         rows.using = result.using
       })
+    },
+    receiveChange(){
+
     }
   }
 }
