@@ -135,6 +135,14 @@
             <template slot="spaceCol">
               <span>{{ '' }}</span>
             </template>
+            <template slot="unitAmount" slot-scope="text, record">
+              <div
+                v-if="record.unitAmount === '包' || record.unitAmount === '件'"
+              >
+                {{ text }}
+              </div>
+              <div v-else>{{ record.weight + ' ' + text }}</div>
+            </template>
             <template slot="amount" slot-scope="text, record">
               <editable-cell
                 :text="text + ''"
@@ -368,7 +376,8 @@ export default {
         {
           class: 'inner-unit-td',
           dataIndex: 'unitAmount',
-          align: 'center'
+          align: 'center',
+          scopedSlots: { customRender: 'unitAmount' }
         },
         {
           class: 'inner-list-price-td',
