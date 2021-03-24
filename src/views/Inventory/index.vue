@@ -161,12 +161,7 @@
                     >商品刪除後，所有資料將清空無法還原</span
                   >
                 </template>
-                <a-icon
-                  type="close-square"
-                  theme="twoTone"
-                  two-tone-color="#eb2f96"
-                  :style="{ fontSize: '15px' }"
-                />
+                  <a href="#">刪除</a>
               </a-popconfirm>
             </template>
           </a-table>
@@ -220,12 +215,7 @@
                 >商品刪除後，所有資料將清空無法還原</span
               >
             </template>
-            <a-icon
-              type="close-square"
-              theme="twoTone"
-              two-tone-color="#eb2f96"
-              :style="{ fontSize: '25px' }"
-            />
+            <a href="#">刪除</a>
           </a-popconfirm>
           <span v-else>{{ '' }}</span>
         </template>
@@ -690,9 +680,7 @@ export default {
                 this.$message.success('入庫成功')
               })
               .catch((err) => {
-                if (err) {
-                  this.$message.error('商品條碼有誤')
-                }
+                console.log(err)
               })
           } else {
             if (!/^\d+$/.test(this.addInventoryAmount)) return
@@ -714,9 +702,7 @@ export default {
                 this.$message.success('入庫成功')
               })
               .catch((err) => {
-                if (err) {
-                  this.$message.error('商品條碼有誤')
-                }
+                console.log(err)
               })
           }
         }
