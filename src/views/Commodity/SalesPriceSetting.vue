@@ -57,7 +57,7 @@
                     style="width: 550px"
                     placeholder="請輸入"
                   />
-                  <threeWeights v-model="list.weightUni" />
+                  <threeWeights v-model="list.weightUnit" />
                 </div>
                 <div v-else>
                   <a-input disabled style="width: 230px" />
@@ -194,7 +194,7 @@ export default {
         updateTime: '',
         tagId: '',
         alias: '',
-        weightUni: ''
+        weightUnit: ''
       },
       rules: {
         barcode: [{ pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }],
@@ -368,6 +368,7 @@ export default {
         this.changeTitle = '編輯商品'
         if (record.using === true) {
           if (record !== '') {
+            console.log(record.weightUnit, record.unit);
             ;(this.list.name = record.name),
               (this.list.barcode = record.barcode),
               (this.list.unit = record.unit),
@@ -376,7 +377,7 @@ export default {
             this.list.updateTime = record.updateTime
             this.list.alias = record.alias
             this.list.weight = record.fixedWeight
-            this.list.weightUni = record.weightUni
+            this.list.weightUnit = record.weightUnit
             this.list.tagId = record.tagId
             this.visible = true
             this.$api.Commodity.getCommodityDiscount({
@@ -410,7 +411,7 @@ export default {
               price: this.list.listPrice,
               description: this.list.description,
               fixedWeight: this.list.weight,
-              weightUni: this.list.weightUni,
+              weightUnit: this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
               using: true,
@@ -454,7 +455,7 @@ export default {
               price: this.list.listPrice,
               description: this.list.description,
               fixedWeight: this.list.weight,
-              weightUni: this.list.weightUni,
+              weightUnit: this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
               using: true,
@@ -492,7 +493,7 @@ export default {
               price: this.list.listPrice,
               description: this.list.description,
               fixedWeight: this.list.weight,
-              weightUni: this.list.weightUni,
+              weightUnit: this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
               using: true,
@@ -582,6 +583,7 @@ export default {
       return (val, row, key) => {
         let editKey =
           'isEdit' + key[0].toUpperCase() + key.substring(1, key.length)
+        console.log(key)
         return {
           children: (
             <div class="displayInput">
@@ -602,7 +604,7 @@ export default {
               ) : (
                 <Fragment>
                   <span onClick={() => this.inputORnot(row, editKey)}>
-                    {val}
+                    {key === "discountPrice" ? '$'+val:{val}}
                   </span>
                   <div class="displayEdit" />
                   <a-icon

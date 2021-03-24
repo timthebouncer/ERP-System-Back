@@ -72,10 +72,7 @@
                   <a-input v-model="list.address" placeholder="請輸入" />
                 </a-form-model-item>
 
-                <a-form-model-item
-                  class="custom-form-item"
-                  label="備註"
-                >
+                <a-form-model-item class="custom-form-item" label="備註">
                   <div>
                     <a-input
                       style="width: 825px"
@@ -301,7 +298,10 @@
                           >
                             <a-radio :value="(index += 2)">
                               設為預設收件地址
-                              <div class="custom-address" style="position: relative;margin-bottom: -32px;left: -10px;">
+                              <div
+                                class="custom-address"
+                                style="position: relative;margin-bottom: -32px;left: -10px;"
+                              >
                                 <a-form-model-item
                                   class="custom-form-item"
                                   label="*收件人"
@@ -409,10 +409,10 @@
               取消
             </a-button>
             <a-button
-                    key="submit"
-                    type="primary"
-                    :loading="loading"
-                    @click="handleOk()"
+              key="submit"
+              type="primary"
+              :loading="loading"
+              @click="handleOk()"
             >
               儲存
             </a-button>
@@ -832,7 +832,7 @@ export default {
                   row[editKey] ? (
                     <Fragment>
                       <span onClick={() => this.inputORnot(row, editKey)}>
-                        {val}
+                        {key === "discountPrice" ? '$'+val:val}
                       </span>
                       <div class="displayEdit" />
                       <a-icon
@@ -983,38 +983,47 @@ export default {
         reconciliationContactPersonTelExt: ''
       }
       this.discountTable = []
-      this.receiveInfo = ''
+      this.receiveInfo = 0
       this.resetForm()
     },
     submitNonstop() {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
           if (this.changeTitle === '新增客戶') {
-            this.$api.Customer.add({
-              ...this.list,
-              classesId: this.list.classes.id,
-              defaultReceiveInfo: this.receiveInfo,
-              discountList: this.discountTable.map(item => {
-                return {
-                  discountId: '',
-                  productId: item.productId,
-                  discountPrice: item.discountPrice,
-                  remark: item.remark,
-                  unit: item.unit
-                }
+            if (
+              this.receiveInfo > 1 &&
+              this.recipientList.some(item => item.receiver === '')
+            ) {
+              this.$message.error('請填寫收件人')
+            } else {
+              this.$api.Customer.add({
+                ...this.list,
+                classesId: this.list.classes.id,
+                defaultReceiveInfo: this.receiveInfo,
+                recipientList: this.recipientList.filter(
+                  item => item.receiver !== ''
+                ),
+                discountList: this.discountTable.map(item => {
+                  return {
+                    discountId: '',
+                    productId: item.productId,
+                    discountPrice: item.discountPrice,
+                    remark: item.remark,
+                    unit: item.unit
+                  }
+                })
               })
-            })
-              .then(() => {
-                this.getCustomerList()
-                this.keepSelection()
-                this.$message.success('新增客戶成功')
-              })
-              .catch(err => {
-                console.log(err)
-                this.$message.error('新增客戶失敗')
-              })
-            this.visible = true
-            this.clearInput()
+                .then(() => {
+                  this.getCustomerList()
+                  this.$message.success('新增客戶成功')
+                })
+                .catch(err => {
+                  console.log(err)
+                  this.$message.error('新增客戶失敗')
+                })
+              this.visible = true
+              this.clearInput()
+            }
           }
         }
       })
@@ -1125,7 +1134,7 @@ export default {
                   name: d.productName,
                   productId: d.productId,
                   unit: computedWeight(d.productUnit),
-                  salesPrice: d.price,
+                  salesPrice: `$${d.price}`,
                   discountPrice: d.clientPrice,
                   remark: d.remark,
                   isEditDiscountPrice: true,
@@ -1242,13 +1251,11 @@ export default {
         let rows = this.discountTable[index]
         rows.productId = result.id
         rows.unit = computedWeight(undefined, result.unit)
-        rows.salesPrice = result.price
+        rows.salesPrice = `$${result.price}`
         rows.using = result.using
       })
     },
-    receiveChange(){
-
-    }
+    receiveChange() {}
   }
 }
 </script>

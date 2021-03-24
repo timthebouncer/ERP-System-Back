@@ -555,7 +555,7 @@
                     <div v-else>{{ orderDetail.remark }}</div>
                     <template v-if="orderModalTitle !== '訂單詳情'">
                       <span> 總數量:{{ totalAmountPrice.count }} </span>
-                      <span> 總金額:{{ totalAmountPrice.total }} </span>
+                      <span> 總金額:${{ totalAmountPrice.total }} </span>
                     </template>
                     <template v-else>
                       <span> 總數量:{{ Calculate.count }} </span>
@@ -679,7 +679,7 @@ export default {
           width: '9.5%',
           customRender: (val, row) => {
             return {
-              children: <div>{row.price * row.amount}</div>
+              children: <div>${row.price * row.amount}</div>
             }
           }
         },
@@ -689,7 +689,7 @@ export default {
           align: 'center',
           width: '140px',
           customRender: (val, row) => {
-            return <div>{row.clientPrice * row.amount}</div>
+            return <div>${row.clientPrice * row.amount}</div>
           }
         },
         {
@@ -713,8 +713,8 @@ export default {
                 row,
                 'orderPrice',
                 row.clientPrice > 0
-                  ? row.clientPrice * row.amount - row.discount
-                  : row.price * row.amount - row.discount
+                  ?  `$${row.clientPrice * row.amount - row.discount}`
+                  : `$${row.price * row.amount - row.discount}`
               )
             }
           }
@@ -793,7 +793,13 @@ export default {
           title: '總金額',
           dataIndex: 'totalPrice',
           align: 'center',
-          scopedSlots: { customRender: 'totalPrice' }
+          customRender:(val,row)=>{
+            return{
+              children:(
+                 "$" + row.totalPrice
+              )
+            }
+          }
         },
         {
           title: '操作',
@@ -1172,7 +1178,7 @@ export default {
             row.productId = item.productId
             row.unit = computedWeight(undefined, item.unit)
             row.clientPrice = item.clientPrice
-            row.productName = item.alias === "" ? item.productName:item.alias
+            row.productName = (item.alias === "" || item.alias === null) ? item.productName:item.alias
             row.price = item.price
             row.weight = item.weight
           }
@@ -1528,8 +1534,10 @@ export default {
       let count = 0
       let total = 0
       this.orderData.forEach(item => {
+        console.log(item,6666)
         count += parseInt(item.amount)
-        total += item.orderPrice
+        total += item.clientPrice > 0 ? item.clientPrice * item.amount - item.discount: item.price * item.amount - item.discount
+        // total += item.orderPrice
       })
       return { count, total }
     },
@@ -1571,7 +1579,7 @@ export default {
               ) : this.orderModalTitle !== '訂單詳情' ? (
                 <Fragment>
                   <span onClick={() => this.inputORnot(row, editKey)}>
-                    {val}
+                    {key === 'discount' ? '$'+ val:{val}}
                   </span>
                   <div class="displayEdit" />
                   <a-icon
