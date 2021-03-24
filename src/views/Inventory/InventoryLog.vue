@@ -107,6 +107,12 @@ export default {
           align: 'center'
         },
         {
+          title: '庫存倉庫',
+          dataIndex: 'productDepot',
+          width: '10%',
+          align: 'center'
+        },
+        {
           title: '商品名稱',
           dataIndex: 'productName',
           width: '20%',
@@ -189,6 +195,7 @@ export default {
       this.onSearch()
     },
     onSelectActionChange(value) {
+      console.log(value)
       this.action = value == 'all' ? '' : value
       this.onSearch()
     },
