@@ -29,19 +29,24 @@
               </a-form-model-item>
               <a-form-model-item
                 class="custom-form-commodity"
-                style="margin-left: 11px"
                 label="商品條碼"
                 prop="barcode"
+                style="margin-left: 5px"
               >
-                <a-input v-model="list.barcode" placeholder="請輸入" />
+                <div v-if="list.unit === 'PACK' || list.unit === 'PIECE'">
+                  <a-input v-model="list.barcode" placeholder="請輸入" />
+                </div>
+                <div v-else style="margin-left: 6px">
+                  <a-input style="width: 348px" disabled />
+                </div>
               </a-form-model-item>
               <a-form-model-item
                 class="custom-form-commodity"
                 label="計價單位"
-                labelAlign="left"
                 prop="unit"
+                style="margin-left: 8px"
               >
-                <translate ref="qqq" v-model="list.unit" />
+                <translate v-model="list.unit" :barCodeVerify="barCodeVerify" />
               </a-form-model-item>
               <a-form-model-item
                 class="custom-form-commodity"
@@ -62,8 +67,8 @@
                 <div v-else>
                   <a-input disabled style="width: 230px" />
                   <a-select style="width: 120px" disabled>
-                    <a-select-option value="jack">
-                      Jack
+                    <a-select-option value="1">
+                      ""
                     </a-select-option>
                   </a-select>
                 </div>
@@ -72,10 +77,10 @@
                 class="custom-form-commodity"
                 label="單價"
                 prop="listPrice"
-                style="margin-left: -26px;position: relative;left: 27px;"
+                style="margin-left: -26px;position: relative;left: 29px;"
               >
                 <a-input
-                  v-model="list.listPrice"
+                  v-model="priceFormatting"
                   prefix="$"
                   placeholder="請輸入"
                 />
@@ -162,6 +167,7 @@
   </div>
 </template>
 <script>
+import formatPrice from '@/components/thousand'
 import translate from '@/components/translate'
 import threeWeights from '@/components/threeweightTrans'
 import Fragment from '@/components/Fragment.vue'
@@ -172,7 +178,7 @@ export default {
   props: ['getCommodity', 'tableData'],
   data() {
     return {
-      defaultTagId:'',
+      defaultTagId: '',
       selectedId: [],
       cusList: [],
       customerId: '',
@@ -197,7 +203,14 @@ export default {
         weightUnit: ''
       },
       rules: {
-        barcode: [{ pattern: /^\d+$/, message: '請輸入數字', trigger: 'blur' }],
+        barcode: [
+          {
+            required: true,
+            pattern: /^\d+$/,
+            message: '請輸入數字',
+            trigger: 'blur'
+          }
+        ],
         unit: [{ required: true, message: '請選擇', trigger: 'blur' }],
         tagId: [{ required: true, message: '請選擇', trigger: 'blur' }],
         name: [{ required: true, message: '請輸入商品名稱', trigger: 'blur' }],
@@ -323,6 +336,14 @@ export default {
     this.getCustomerList()
   },
   methods: {
+    barCodeVerify() {
+      if (this.list.unit === 'PACK' || this.list.unit === 'PIECE') {
+        this.rules.barcode[0].required = true
+      } else {
+        this.rules.barcode[0].required = false
+        this.$refs.ruleForm.clearValidate()
+      }
+    },
     getCustomerList() {
       this.$api.Inventory.onlyCustomerList().then(res => {
         this.customerList = res.data
@@ -335,7 +356,6 @@ export default {
       this.selectedId = id
     },
     handleAdd() {
-      console.log(this.$refs.qqq)
       const { salesTable } = this
       const self = this
       const newData = {
@@ -363,12 +383,13 @@ export default {
       this.visible = true
       if (!record) {
         this.changeTitle = '新增商品'
+        this.rules.barcode[0].required = false
       } else {
         this.track = record.id
         this.changeTitle = '編輯商品'
         if (record.using === true) {
           if (record !== '') {
-            console.log(record.weightUnit, record.unit);
+            console.log(record.weightUnit, record.unit)
             ;(this.list.name = record.name),
               (this.list.barcode = record.barcode),
               (this.list.unit = record.unit),
@@ -417,7 +438,7 @@ export default {
               using: true,
               discountRequestList: this.salesTable.map(item => {
                 return {
-                  clientId:item.clientName,
+                  clientId: item.clientName,
                   price: item.discountPrice,
                   remark: item.remark
                 }
@@ -450,9 +471,8 @@ export default {
             this.$api.Commodity.addCommodity({
               name: this.list.name,
               unit: this.list.unit,
-              unitType: this.list.unitType,
               barcode: this.list.barcode,
-              price: this.list.listPrice,
+              price: parseInt(this.list.listPrice),
               description: this.list.description,
               fixedWeight: this.list.weight,
               weightUnit: this.list.weightUnit,
@@ -461,7 +481,7 @@ export default {
               using: true,
               discountRequestList: this.salesTable.map(item => {
                 return {
-                  clientId:item.clientName,
+                  clientId: item.clientName,
                   price: item.discountPrice,
                   remark: item.remark
                 }
@@ -568,8 +588,8 @@ export default {
       this.$api.Label.getAllTag().then(res => {
         this.tagList = res.data
 
-        let oldestTime = res.data.reduce((p,c)=>{
-          return p.createTime > c.createTime ? c:p
+        let oldestTime = res.data.reduce((p, c) => {
+          return p.createTime > c.createTime ? c : p
         })
         this.defaultTagId = oldestTime.id
       })
@@ -579,11 +599,18 @@ export default {
     }
   },
   computed: {
+    priceFormatting: {
+      get: function() {
+        return formatPrice(this.list.listPrice)
+      },
+      set: function(newValue) {
+        this.list.listPrice = newValue.replace(/[^\d]/g, '')
+      }
+    },
     priceAndRemarkEditor() {
       return (val, row, key) => {
         let editKey =
           'isEdit' + key[0].toUpperCase() + key.substring(1, key.length)
-        console.log(key)
         return {
           children: (
             <div class="displayInput">
@@ -596,7 +623,7 @@ export default {
                     vModel={row[key]}
                     onKeyup={() =>
                       key === 'discountPrice' &&
-                      (row[key] = row[key].replace(/[^\d]/g, ''))
+                      (row[key] = formatPrice(row[key].replace(/[^\d]/g, '')))
                     }
                     vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
                   />
@@ -604,7 +631,7 @@ export default {
               ) : (
                 <Fragment>
                   <span onClick={() => this.inputORnot(row, editKey)}>
-                    {key === "discountPrice" ? '$'+val:{val}}
+                    {key === 'discountPrice' ? '$' + formatPrice(val) : { val }}
                   </span>
                   <div class="displayEdit" />
                   <a-icon

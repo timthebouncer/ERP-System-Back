@@ -523,6 +523,7 @@
 <script>
 import { computedWeight } from '@/unit/dictionary/computed'
 import Fragment from '@/components/Fragment'
+import formatPrice from '@/components/thousand'
 export default {
   name: 'Customer',
   data() {
@@ -832,7 +833,7 @@ export default {
                   row[editKey] ? (
                     <Fragment>
                       <span onClick={() => this.inputORnot(row, editKey)}>
-                        {key === "discountPrice" ? '$'+val:val}
+                        {key === "discountPrice" ? `$${formatPrice(val)}`:val}
                       </span>
                       <div class="displayEdit" />
                       <a-icon
@@ -1134,7 +1135,7 @@ export default {
                   name: d.productName,
                   productId: d.productId,
                   unit: computedWeight(d.productUnit),
-                  salesPrice: `$${d.price}`,
+                  salesPrice: `$${formatPrice(d.price)}`,
                   discountPrice: d.clientPrice,
                   remark: d.remark,
                   isEditDiscountPrice: true,
@@ -1229,7 +1230,7 @@ export default {
         name: '',
         unit: '',
         salesPrice: null,
-        discountPrice: undefined,
+        discountPrice: 0,
         remark: '',
         isEditDiscountPrice: true,
         isEditRemark: true
@@ -1245,13 +1246,12 @@ export default {
         searchKey: this.search,
         barcode: this.barcode
       }).then(res => {
-        console.log(res)
         let content = res.data
         let result = content.find(item => item.id === id)
         let rows = this.discountTable[index]
         rows.productId = result.id
         rows.unit = computedWeight(undefined, result.unit)
-        rows.salesPrice = `$${result.price}`
+        rows.salesPrice = `$${formatPrice(result.price)}`
         rows.using = result.using
       })
     },
