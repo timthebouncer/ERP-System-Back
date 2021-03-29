@@ -555,11 +555,11 @@
                     <div v-else>{{ orderDetail.remark }}</div>
                     <template v-if="orderModalTitle !== '訂單詳情'">
                       <span> 總數量:{{ totalAmountPrice.count }} </span>
-                      <span> 總金額:${{ totalAmountPrice.total }} </span>
+                      <span> 總金額:${{totalAmountPrice.total}} </span>
                     </template>
                     <template v-else>
                       <span> 總數量:{{ Calculate.count }} </span>
-                      <span> 總金額:{{ Calculate.totalPrice }} </span>
+                      <span> 總金額:{{Calculate.totalPrice}} </span>
                     </template>
                   </a-form-model-item>
                 </div>
@@ -598,7 +598,7 @@
   </div>
 </template>
 <script>
-// import inventoryExcel from '../Inventory/Execel/package'
+import formatPrice from '@/components/thousand'
 import VueMask from 'v-mask'
 import { shippingRule } from '@/components/shippingFee'
 import ModalExample from './Execel/index'
@@ -631,6 +631,8 @@ export default {
                 this.orderModalTitle !== '訂單詳情' ? (
                   <div>
                     <a-input
+                            class="aaa"
+                      ref="setOnblur"
                       autoFocus
                       style={{ width: '130px' }}
                       onChange={barCode => this.pushName(barCode, row)}
@@ -679,7 +681,7 @@ export default {
           width: '9.5%',
           customRender: (val, row) => {
             return {
-              children: <div>${row.price * row.amount}</div>
+              children: <div>${formatPrice(row.price * row.amount)}</div>
             }
           }
         },
@@ -689,7 +691,7 @@ export default {
           align: 'center',
           width: '140px',
           customRender: (val, row) => {
-            return <div>${row.clientPrice * row.amount}</div>
+            return <div>${formatPrice(row.clientPrice * row.amount)}</div>
           }
         },
         {
@@ -713,8 +715,8 @@ export default {
                 row,
                 'orderPrice',
                 row.clientPrice > 0
-                  ?  `$${row.clientPrice * row.amount - row.discount}`
-                  : `$${row.price * row.amount - row.discount}`
+                  ? formatPrice(`$${row.clientPrice * row.amount - row.discount}`)
+                  : formatPrice(`$${row.price * row.amount - row.discount}`)
               )
             }
           }
@@ -796,7 +798,7 @@ export default {
           customRender:(val,row)=>{
             return{
               children:(
-                 "$" + row.totalPrice
+                 "$" + formatPrice(row.totalPrice)
               )
             }
           }
@@ -1030,6 +1032,14 @@ export default {
     },
     addNewItem(row, editKey) {
       row[editKey] = false
+      console.log(row, editKey)
+      console.log(document.getElementsByClassName('bbb'))
+      if(editKey === "isEditAmount"){
+        console.log(1)
+        document.getElementsByClassName('bbb')[1].focus()
+      }else if(editKey === "isEditDiscount"){
+        document.getElementsByClassName('bbb')[1].focus()
+      }
     },
     inputORnot(row, editKey) {
       row[editKey] = true
@@ -1181,6 +1191,10 @@ export default {
             row.productName = (item.alias === "" || item.alias === null) ? item.productName:item.alias
             row.price = item.price
             row.weight = item.weight
+            setTimeout(()=>{
+              const ccc = document.getElementsByClassName('bbb')
+              ccc[0].focus()
+            },100)
           }
           return item.barcode === row.barCode
         })
@@ -1221,7 +1235,7 @@ export default {
                         barcode: item.barCode,
                         amount: item.amount,
                         discount: item.discount,
-                        price: item.orderPrice,
+                        price: this.totalAmountPrice.total,
                         remark: item.remark
                       }
                     })
@@ -1287,7 +1301,7 @@ export default {
                   barcode: item.barCode,
                   amount: item.amount,
                   discount: parseInt(item.discount),
-                  price: item.orderPrice,
+                  price: this.totalAmountPrice.total,
                   remark: item.remark
                 }
               })
@@ -1492,7 +1506,7 @@ export default {
           count += item.amount
           totalPrice += item.clientPrice > 0 ? item.clientPrice * item.amount - item.discount: item.price * item.amount - item.discount
         })
-        this.Calculate = { count, totalPrice }
+        this.Calculate =  { count, totalPrice }
       })
     },
     cancelHandler(record) {
@@ -1534,10 +1548,8 @@ export default {
       let count = 0
       let total = 0
       this.orderData.forEach(item => {
-        console.log(item,6666)
         count += parseInt(item.amount)
         total += item.clientPrice > 0 ? item.clientPrice * item.amount - item.discount: item.price * item.amount - item.discount
-        // total += item.orderPrice
       })
       return { count, total }
     },
@@ -1567,6 +1579,7 @@ export default {
               {row[editKey] ? (
                 <div>
                   <a-input
+                    class="bbb"
                     placeholder="請輸入"
                     value={row[key]}
                     vModel={row[key]}
@@ -1579,7 +1592,7 @@ export default {
               ) : this.orderModalTitle !== '訂單詳情' ? (
                 <Fragment>
                   <span onClick={() => this.inputORnot(row, editKey)}>
-                    {key === 'discount' ? '$'+ val:{val}}
+                    {key === 'discount' ? '$'+ formatPrice(val):val}
                   </span>
                   <div class="displayEdit" />
                   <a-icon

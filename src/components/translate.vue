@@ -25,6 +25,9 @@ export default {
       required: false,
       type: String,
       default: '請選擇'
+    },
+    barCodeVerify:{
+      type: Function
     }
   },
   data() {
@@ -35,6 +38,7 @@ export default {
   methods: {
     onSelect(v) {
       this.$emit('input', v)
+      this.barCodeVerify()
     }
   }
 }

@@ -276,6 +276,7 @@ import { fabric } from 'fabric'
 import TagsDetail from './component/TagsDetail'
 import TextConfirm from './component/TextConfirm'
 import { computedWeight } from '@/unit/dictionary/computed'
+import formatPrice from "../../components/thousand";
 function getBase64(img, callback) {
   const reader = new FileReader()
   reader.addEventListener('load', () => callback(reader.result))
@@ -419,7 +420,7 @@ export default {
       // this.costPriceTag = '成本價:' + item.costPrice + '元'
       // this.listPriceTag = '建議售價:' + item.listPrice + '元'
       // this.salesPriceTag = '出貨售價:' + item.salesPrice + '元'
-      this.priceTag = '價格:' + item.price + '元'
+      this.priceTag = '價格:$' + formatPrice(item.price) + '元'
       this.weightTag = '重量:100'
       this.unitTag = '計價單位:' + computedWeight(undefined, item.unit)
       this.logoTag = 'Logo'

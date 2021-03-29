@@ -195,6 +195,7 @@
 <script>
 import { computedWeight } from '@/unit/dictionary/computed'
 import CustomPrice from './SalesPriceSetting'
+import formatPrice from "../../components/thousand";
 
 export default {
   name: 'Merchant',
@@ -244,7 +245,9 @@ export default {
           dataIndex: 'price',
           width: '10%',
           align: 'center',
-          scopedSlots: { customRender: 'price' }
+          customRender:(_,row)=>{
+            return formatPrice(row.price)
+          }
         },
         {
           title: '庫存量',

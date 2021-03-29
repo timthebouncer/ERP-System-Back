@@ -245,7 +245,7 @@ import moment from 'moment'
 import EditableCell from '@/components/EditableCell'
 import Fragment from '@/components/Fragment'
 import { computedWeight } from '@/unit/dictionary/computed'
-
+import formatPrice from '@/components/thousand'
 function debounce(func, delay = 500) {
   let timer = null
 
@@ -324,7 +324,7 @@ export default {
             let count = 0;
             row.inventoryList.forEach(item => count += item.price)
             return {
-              children: <div>${count}</div>
+              children: <div>${formatPrice(count)}</div>
             }
           }
         },
@@ -375,7 +375,7 @@ export default {
           align: 'center',
           customRender: (val, row) => {
             return {
-              children: <div>${row.price}</div>
+              children: <div>${formatPrice(row.price)}</div>
             }
           }
         },
