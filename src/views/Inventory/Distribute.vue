@@ -631,6 +631,8 @@ export default {
                 this.orderModalTitle !== '訂單詳情' ? (
                   <div>
                     <a-input
+                            class="aaa"
+                      ref="setOnblur"
                       autoFocus
                       style={{ width: '130px' }}
                       onChange={barCode => this.pushName(barCode, row)}
@@ -1030,6 +1032,14 @@ export default {
     },
     addNewItem(row, editKey) {
       row[editKey] = false
+      console.log(row, editKey)
+      console.log(document.getElementsByClassName('bbb'))
+      if(editKey === "isEditAmount"){
+        console.log(1)
+        document.getElementsByClassName('bbb')[1].focus()
+      }else if(editKey === "isEditDiscount"){
+        document.getElementsByClassName('bbb')[1].focus()
+      }
     },
     inputORnot(row, editKey) {
       row[editKey] = true
@@ -1181,6 +1191,10 @@ export default {
             row.productName = (item.alias === "" || item.alias === null) ? item.productName:item.alias
             row.price = item.price
             row.weight = item.weight
+            setTimeout(()=>{
+              const ccc = document.getElementsByClassName('bbb')
+              ccc[0].focus()
+            },100)
           }
           return item.barcode === row.barCode
         })
@@ -1565,6 +1579,7 @@ export default {
               {row[editKey] ? (
                 <div>
                   <a-input
+                    class="bbb"
                     placeholder="請輸入"
                     value={row[key]}
                     vModel={row[key]}
@@ -1577,7 +1592,7 @@ export default {
               ) : this.orderModalTitle !== '訂單詳情' ? (
                 <Fragment>
                   <span onClick={() => this.inputORnot(row, editKey)}>
-                    {key === 'discount' ? '$'+ formatPrice(val):{val}}
+                    {key === 'discount' ? '$'+ formatPrice(val):val}
                   </span>
                   <div class="displayEdit" />
                   <a-icon

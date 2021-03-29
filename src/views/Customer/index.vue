@@ -21,9 +21,6 @@
             >
               <div class="firstPart">
                 <div class="firstPart-item">
-                  <!--                  <a-form-model-item class="custom-form-item" label="客戶編號">-->
-                  <!--                    <div>{{ list.id }}</div>-->
-                  <!--                  </a-form-model-item>-->
                   <a-form-model-item
                     class="custom-form-item"
                     label="客戶類別"
@@ -269,12 +266,11 @@
                       :model="list"
                       layout="horizontal"
                       ref="ruleForm"
-                      :rules="rules"
+                      :rules="receiverVerify"
                     >
                       <a-form-model-item>
                         <a-radio-group
                           v-model="receiveInfo"
-                          @change="receiveChange"
                         >
                           <a-form-model-item
                             label="同客戶資料"
@@ -304,7 +300,7 @@
                               >
                                 <a-form-model-item
                                   class="custom-form-item"
-                                  label="*收件人"
+                                  label="收件人"
                                   prop=""
                                 >
                                   <a-input
@@ -334,7 +330,7 @@
                                 <a-input
                                   style="width: 82px; margin-right: 5px"
                                   placeholder="郵遞區號"
-                                  v-model="item.postCode"
+                                  v-model="item.receiverPostCode"
                                 />
                                 <a-input
                                   style="width: 376px;"
@@ -568,9 +564,9 @@ export default {
         procurementContactPersonTelExt: '',
         reconciliationContactPerson: '',
         reconciliationContactPersonTel: '',
-        reconciliationContactPersonTelExt: '',
-        receiverPostCode: ''
+        reconciliationContactPersonTelExt: ''
       },
+      receiverList:{receiverPostCode: '',receiver: '',tel: '',address: '',},
       discountClass: [],
       columns: [
         {
@@ -677,11 +673,31 @@ export default {
             message: '請輸入正確傳真號碼格式',
             trigger: 'blur'
           }
-        ],
+        ]
+      },
+      receiverVerify:{
+        receiver:[{
+          required:false,
+          message: '請輸入',
+          trigger: 'blur'
+        }],
+        tel:[{
+          required:false,
+          message: '請輸入',
+          trigger: 'blur'
+        }],
         receiverPostCode: [
           {
+            required:false,
             pattern: /^\d+$/,
             message: '請輸入數字',
+            trigger: 'blur'
+          }
+        ],
+        address: [
+          {
+            required:false,
+            message: '請輸入',
             trigger: 'blur'
           }
         ]
@@ -1255,7 +1271,19 @@ export default {
         rows.using = result.using
       })
     },
-    receiveChange() {}
+  },
+  watch:{
+    recipientList: {
+      handler(val) {
+        if(val){
+          let receiverVerify = this.receiverVerify
+          val = Object.assign(val[0], {receiverVerify})
+
+          console.log(val)
+        }
+      },
+      deep: true
+    }
   }
 }
 </script>
