@@ -37,7 +37,7 @@
                   <a-input v-model="list.barcode" placeholder="請輸入" />
                 </div>
                 <div v-else style="margin-left: 6px">
-                  <a-input style="width: 348px" disabled />
+                  <a-input @change="abc" style="width: 348px" disabled />
                 </div>
               </a-form-model-item>
               <a-form-model-item
@@ -345,6 +345,9 @@ export default {
         this.$refs.ruleForm.clearValidate()
       }
     },
+    abc(){
+      this.$refs.ruleForm.clearValidate()
+    },
     getCustomerList() {
       this.$api.Inventory.onlyCustomerList().then(res => {
         this.customerList = res.data
@@ -390,6 +393,13 @@ export default {
         this.changeTitle = '編輯商品'
         if (record.using === true) {
           if (record !== '') {
+            console.log(record)
+            if (record.unit === 'PACK' || record.unit === 'PIECE') {
+              this.rules.barcode[0].required = true
+            } else {
+              this.rules.barcode[0].required = false
+              // this.$refs.ruleForm.clearValidate()
+            }
             ;(this.list.name = record.name),
               (this.list.barcode = record.barcode),
               (this.list.unit = record.unit),
@@ -596,11 +606,6 @@ export default {
     },
     passTagId(id) {
       this.list.tagId = id
-    }
-  },
-  watch:{
-    "list.weightUnit"(n,o){
-      console.log(n,1,o,2)
     }
   },
   computed: {
