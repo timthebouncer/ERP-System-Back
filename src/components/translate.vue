@@ -38,7 +38,6 @@ export default {
   methods: {
     onSelect(v) {
       this.$emit('input', v)
-      console.log(v)
       this.barCodeVerify()
     }
   }
