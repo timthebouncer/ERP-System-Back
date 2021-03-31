@@ -34,6 +34,7 @@
     methods: {
       onSelect(v) {
         this.$emit('input', v)
+        console.log(v)
       }
     },
   }

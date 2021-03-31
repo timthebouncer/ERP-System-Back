@@ -5,7 +5,6 @@
       <button @click="showModal2" class="print-btn">商用格式-無價格</button>
       <button @click="showModal3" class="print-btn">零售格式-有價格</button>
       <inventoryExcel :receiverList="receiverList" :orderDetail="orderDetail" />
-<!--      <button @click="showModal4" class="print-btn">貼箱標籤</button>-->
     </div>
     <div :title="templateType" id="exampleWrapper" v-if="visible">
       <div class="table-content">
@@ -125,7 +124,7 @@
         </div>
         <div class="footer">
           <div class="contact-wrapper" v-if="templateType !== '零售-有價格'">
-            <h2>總計 {{ Calculate.count }}</h2>
+            <span>總計 {{ Calculate.count }}</span>
             <span>藤舍牧業(何藤畜牧場) 農場牧登字第一一七四三三號</span>
             <span>業務聯絡人 : 0935-734982</span>
             <span>帳務聯絡人 : 0952-582050</span>
@@ -133,7 +132,7 @@
             <span>戶名: 張何男</span>
           </div>
           <div v-else class="contact-wrapper">
-            <h2>總計 {{ Calculate.count }}</h2>
+            <span>總計 {{ Calculate.count }}</span>
             <span>藤舍牧業(何藤畜牧場) 農場牧登字第一一七四三三號</span>
             <span>聯絡電話: 03-4760311</span>
             <span>匯款帳號: 中國信託-新竹分行 822-554540329807</span>
@@ -141,11 +140,11 @@
           </div>
           <div class="sign-wrapper">
             <div v-if="templateType === '商用-有價格'">
-              <h2>合計 {{ Calculate.total }}</h2>
+              <span>合計 {{ Calculate.totalPrice }}</span>
             </div>
             <div v-else></div>
             <div v-if="templateType !== '零售-有價格'" class="sign-block">
-              客戶簽收
+              <span>客戶簽收</span>
             </div>
             <div v-else></div>
           </div>
@@ -228,62 +227,97 @@ export default {
       skus2: { format: 'auto', title: '' },
       show: false,
       templateType: '',
-      visible: false,
+      visible: true,
       column: {
         type: {
-          title: '商品名稱',
+          title: () => (
+                  <h2>
+                    商品名稱
+                  </h2>
+          ),
           dataIndex: 'name',
           scopedSlots: {
             customRender: 'name'
           },
           customRender: (val, row) => {
-            return <div>{row.productName}</div>
+            return <h3>{row.productName}</h3>
           }
         },
         type2: {
-          title: '數量',
+          title: () => (
+                  <h2>
+                    數量
+                  </h2>
+          ),
           dataIndex: 'amount',
-          scopedSlots: { customRender: 'amount' }
+          customRender: (val, row) => {
+            return <h3>{row.amount}</h3>
+          }
         },
         type3: {
-          title: '單位',
+          title: () => (
+                  <h2>
+                    單位
+                  </h2>
+          ),
           dataIndex: 'unit',
-          scopedSlots: { customRender: 'unit' }
+          customRender: (val, row) => {
+            return <h3>{row.unit}</h3>
+          }
         },
         type4: {
-          title: '建議售價',
+          title: () => (
+                  <h2>
+                    建議售價
+                  </h2>
+          ),
           dataIndex: 'salesPrice',
           customRender: (val, row) => {
-            return <div>{row.price}</div>
+            return <h3>{row.price}</h3>
           }
         },
         type5: {
-          title: '出貨售價',
+          title: () => (
+                  <h2>
+                    出貨售價
+                  </h2>
+          ),
           dataIndex: 'sellsPrice',
           customRender: (val, row) => {
-            return <div>{row.clientPrice}</div>
+            return <h3>{row.clientPrice}</h3>
           }
         },
         type6: {
-          title: '折讓',
+          title: () => (
+                  <h2>
+                    折讓
+                  </h2>
+          ),
           dataIndex: 'discount',
           customRender: (val, row) => {
-            return <div>{row.discount}</div>
+            return <h3>{row.discount}</h3>
           }
         },
         type7: {
-          title: '總計',
+          title: () => (
+                  <h2>
+                    總計
+                  </h2>
+          ),
           dataIndex: 'orderPrice',
           customRender: (val, row) => {
-            console.log(row.orderPrice)
-            return <div>{row.orderPrice}</div>
+            return <h3>{row.orderPrice}</h3>
           }
         },
         type8: {
-          title: '備註',
+          title: () => (
+                  <h2>
+                    備註
+                  </h2>
+          ),
           dataIndex: 'reference',
           customRender: (val, row) => {
-            return <div>{row.remark}</div>
+            return <h3>{row.remark}</h3>
           }
         }
       },
@@ -293,6 +327,7 @@ export default {
   },
   created() {
     this.www()
+    console.log(this.Calculate.total);
   },
   methods: {
     www() {
@@ -376,21 +411,6 @@ export default {
       setTimeout(function() {
         _this.handleOk()
       }, 500)
-      this.$emit('passTemplateType', this.templateType)
-    },
-    async showModal4() {
-      if (this.orderTitle !== '訂單詳情') {
-        this.distirbuteHandler()
-      }
-      this.templateType = '貼箱標籤'
-      this.printable = true
-
-       await JsBarcode('#ean-13').init()
-       await JsBarcode('#trackNo').init()
-
-
-        this.handleOk()
-
       this.$emit('passTemplateType', this.templateType)
     },
     async handleOk() {
@@ -511,7 +531,7 @@ export default {
   }
   .title {
     position: relative;
-    right: 50px;
+    right: 45%;
   }
 }
 img {
@@ -524,7 +544,7 @@ img {
   opacity: 0;
 }
 .table-content {
-  padding: 0px 120px 0 75px;
+  padding: 0px 60px 0 10px;
 }
 .detail-wrapper {
   display: flex;
@@ -535,9 +555,9 @@ img {
     flex-direction: column;
     position: relative;
     line-height: 30px;
-    left: 50px;
+    left: 0;
     span {
-      font-weight: bold;
+      font-size: 20px;
     }
   }
   .barcode-wrapper {
@@ -546,13 +566,13 @@ img {
     position: relative;
     right: 30px;
     span {
-      font-weight: bold;
+      font-size: 20px;
     }
   }
 }
 .other3-order-barcode {
   svg {
-    width: 150px;
+    width: 200px;
   }
 }
 .content-wrapper {
@@ -571,17 +591,23 @@ img {
     display: flex;
     flex-direction: column;
     position: relative;
-    left: 60px;
+    left: 0;
+    span{
+      font-size: 17px;
+    }
   }
   .sign-wrapper {
     position: relative;
     right: 30px;
+    span{
+      font-size: 17px;
+    }
   }
   .sign-block {
     background-color: #f4f4f4;
-    width: 160px;
+    width: 230px;
     height: 50px;
-    line-height: 5;
+    line-height: 3;
     margin-top: 77px;
     padding: 0 0 0 12px;
   }
@@ -642,7 +668,7 @@ img {
 }
 .other3-package-barcode {
   svg {
-    width: 150px;
+    width: 200px;
   }
 }
 svg {
