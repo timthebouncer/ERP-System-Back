@@ -10,28 +10,27 @@
       <div class="vanish">
         <img class="brandLogo" src="@/assets/brand_logo.jpg" />
         <svg
-                id="ean-13"
-                :jsbarcode-format="skus.format"
-                :jsbarcode-value="orderDetail.orderNo"
-        >
-        </svg>
+          id="ean-13"
+          :jsbarcode-format="skus.format"
+          :jsbarcode-value="orderDetail.orderNo"
+        ></svg>
         <svg
-                id="trackNo"
-                :jsbarcode-format="skus2.format"
-                :jsbarcode-value="orderDetail.trackingNo"
-                jsbarcode-textmargin="0"
-                jsbarcode-fontoptions="bold"
+          id="trackNo"
+          :jsbarcode-format="skus2.format"
+          :jsbarcode-value="orderDetail.trackingNo"
+          jsbarcode-textmargin="0"
+          jsbarcode-fontoptions="bold"
         ></svg>
       </div>
-
     </a-modal>
   </div>
 </template>
 <script>
-  import axios from 'axios'
+import axios from 'axios'
 import { fabric } from 'fabric'
-import JsBarcode from "jsbarcode";
-  import * as htmlToImage from "html-to-image";
+import JsBarcode from 'jsbarcode'
+import * as htmlToImage from 'html-to-image'
+import https from 'https'
 export default {
   name: 'inventoryExcel',
   props: ['receiverList', 'orderDetail'],
@@ -40,31 +39,29 @@ export default {
       visible: false,
       svgJson: '',
       skus: { format: 'auto', title: '' },
-      skus2: { format: 'auto', title: '' },
+      skus2: { format: 'auto', title: '' }
     }
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     turnOn() {
       this.visible = true
       let _this = this
 
-      setTimeout(()=>{
+      setTimeout(() => {
         _this.draw()
-      },100)
-
+      }, 100)
     },
     async draw() {
       let canvas = new fabric.Canvas('art')
       let img = new Image()
       const dataUrl = await htmlToImage.toPng(
-              document.querySelector('.brandLogo')
+        document.querySelector('.brandLogo')
       )
 
       img.src = dataUrl
 
-      this.$nextTick(() =>{
+      this.$nextTick(() => {
         let image = new fabric.Image(img, {
           left: 100,
           top: 10,
@@ -76,7 +73,7 @@ export default {
       let placeholder = new fabric.Textbox('|', {
         left: 0,
         top: 0,
-        fontSize: 1,
+        fontSize: 1
       })
       canvas.add(placeholder)
 
@@ -85,28 +82,28 @@ export default {
         top: 140,
         name: 'species',
         fontSize: 25,
-        fontFamily:'微軟正黑體'
+        fontFamily: '微軟正黑體'
       })
       let text1 = new fabric.Textbox(`${this.receiverList.receiver}`, {
         left: 90,
         top: 170,
         name: 'species',
         fontSize: 25,
-        fontFamily:'微軟正黑體'
+        fontFamily: '微軟正黑體'
       })
       let line = new fabric.Textbox('|', {
         left: 170,
         top: 138,
         fontSize: 20,
-        fontWeight:5,
-        fontFamily:'微軟正黑體'
+        fontWeight: 5,
+        fontFamily: '微軟正黑體'
       })
       let line1 = new fabric.Textbox('|', {
         left: 170,
         top: 258,
         fontSize: 20,
-        fontWeight:5,
-        fontFamily:'微軟正黑體'
+        fontWeight: 5,
+        fontFamily: '微軟正黑體'
       })
       canvas.add(text)
       canvas.add(text1)
@@ -118,7 +115,7 @@ export default {
         top: 260,
         name: 'orderNo',
         fontSize: 25,
-        fontFamily:'微軟正黑體'
+        fontFamily: '微軟正黑體'
       })
       canvas.add(text2)
       await JsBarcode('#ean-13').init()
@@ -129,14 +126,13 @@ export default {
       // let img =  document.querySelector('#ean')
       // img.src = base64;
 
-
       const _dataUrl = await htmlToImage.toPng(
-              document.querySelector('#ean-13')
+        document.querySelector('#ean-13')
       )
       let _img = new Image()
       _img.src = _dataUrl
 
-      this.$nextTick(() =>{
+      this.$nextTick(() => {
         let _image = new fabric.Image(_img, {
           left: 415,
           top: 210,
@@ -146,20 +142,19 @@ export default {
         canvas.add(_image)
       })
 
-
-      if(this.orderDetail.trackingNo){
+      if (this.orderDetail.trackingNo) {
         let text3 = new fabric.Textbox('物流編號', {
           left: 70,
           top: 390,
           name: 'orderNo',
           fontSize: 25,
-          fontFamily:'微軟正黑體'
+          fontFamily: '微軟正黑體'
         })
         canvas.add(text3)
         await JsBarcode('#trackNo').init()
 
         const _dataUrl = await htmlToImage.toPng(
-                document.querySelector('#trackNo')
+          document.querySelector('#trackNo')
         )
         let __img = new Image()
         __img.src = _dataUrl
@@ -168,12 +163,12 @@ export default {
           left: 170,
           top: 387,
           fontSize: 20,
-          fontWeight:5,
-          fontFamily:'微軟正黑體'
+          fontWeight: 5,
+          fontFamily: '微軟正黑體'
         })
         canvas.add(line2)
 
-        this.$nextTick(() =>{
+        this.$nextTick(() => {
           let images2 = new fabric.Image(__img, {
             left: 350,
             top: 350,
@@ -189,15 +184,15 @@ export default {
         top: 48,
         name: 'workingDate',
         fontSize: 25,
-        fontFamily:'微軟正黑體'
+        fontFamily: '微軟正黑體'
       })
       let line3 = new fabric.Textbox('|', {
-        left:350,
-        top:45,
-        fontSize:20,
-        fontWeight:5,
-        fontFamily:'微軟正黑體'
-      });
+        left: 350,
+        top: 45,
+        fontSize: 20,
+        fontWeight: 5,
+        fontFamily: '微軟正黑體'
+      })
       let text8 = new fabric.Textbox(`${this.orderDetail.salesDay}`, {
         left: 370,
         top: 48,
@@ -209,23 +204,27 @@ export default {
       canvas.add(line3)
 
       // logo.outerHTML = ''
-      this.$nextTick(this.canvas = canvas)
+      this.$nextTick((this.canvas = canvas))
 
-      setTimeout(()=>{
+      setTimeout(() => {
         this.exportSVG()
-      },200)
+      }, 200)
     },
-    async exportSVG(){
+    async exportSVG() {
       let canvasJson = this.canvas.toJSON()
-      let file = await new File([JSON.stringify(canvasJson)], "foo.txt", {
-        type: "text/plain",
-      });
-      const formData = await new FormData()
-      formData.append("file",file)
-      axios.post('http://127.0.0.1:8099/print/printTag',formData)
-      .then(res =>{
-        console.log(res)
+      let file = await new File([JSON.stringify(canvasJson)], 'foo.txt', {
+        type: 'text/plain'
       })
+      const formData = await new FormData()
+      formData.append('file', file)
+      const agent = new https.Agent({ rejectUnauthorized: false })
+      axios
+        .post('https://192.168.168.234:8099/print/printTag', formData, {
+          httpsAgent: agent
+        })
+        .then(res => {
+          console.log(res)
+        })
     }
   }
 }
@@ -234,14 +233,14 @@ export default {
 canvas {
   border: 1px solid #000;
 }
-.print-btn{
+.print-btn {
   background-color: #fba129;
   color: #fcfcfc;
   font-size: large;
   border: unset;
   cursor: pointer;
 }
-.brandLogo{
+.brandLogo {
   /*opacity: 0;*/
 }
 .vanish {
