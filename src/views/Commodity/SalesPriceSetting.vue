@@ -201,7 +201,7 @@ export default {
         tagId: '',
         alias: '',
         weight:0,
-        weightUnit: null
+        weightUnit: ''
       },
       rules: {
         barcode: [
@@ -338,8 +338,6 @@ export default {
   },
   methods: {
     barCodeVerify() {
-      this.list.weight = 0
-      this.list.weightUnit = ""
       if (this.list.unit === 'PACK' || this.list.unit === 'PIECE') {
         this.rules.barcode[0].required = true
       } else {
@@ -392,7 +390,6 @@ export default {
         this.changeTitle = '編輯商品'
         if (record.using === true) {
           if (record !== '') {
-            console.log(record,655)
             ;(this.list.name = record.name),
               (this.list.barcode = record.barcode),
               (this.list.unit = record.unit),
@@ -401,7 +398,7 @@ export default {
             this.list.updateTime = record.updateTime
             this.list.alias = record.alias
             this.list.weight = record.fixedWeight
-            this.list.weightUnit = ""
+            this.list.weightUnit = record.weightUnit
             this.list.tagId = record.tagId
             this.visible = true
             this.$api.Commodity.getCommodityDiscount({
@@ -476,8 +473,8 @@ export default {
               barcode: this.list.barcode,
               price: parseInt(this.list.listPrice),
               description: this.list.description,
-              fixedWeight: parseInt(this.list.weight),
-              weightUnit: this.list.weightUnit,
+              fixedWeight: this.list.barcode === '' ? 0 : parseInt(this.list.weight),
+              weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
               using: true,
@@ -513,8 +510,8 @@ export default {
               barcode: this.list.barcode,
               price: this.list.listPrice,
               description: this.list.description,
-              fixedWeight: parseInt(this.list.weight),
-              weightUnit: this.list.weightUnit,
+              fixedWeight: this.list.barcode === '' ? 0 : parseInt(this.list.weight),
+              weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
               using: true,
@@ -566,7 +563,9 @@ export default {
         barcode: '',
         listPrice: '',
         description: '',
-        tagId: ''
+        tagId: '',
+        fixedWeight: 0,
+        weightUnit: ''
       }
       this.salesTable = []
       this.resetForm()
@@ -597,6 +596,11 @@ export default {
     },
     passTagId(id) {
       this.list.tagId = id
+    }
+  },
+  watch:{
+    "list.weightUnit"(n,o){
+      console.log(n,1,o,2)
     }
   },
   computed: {

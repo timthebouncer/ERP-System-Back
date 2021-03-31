@@ -301,7 +301,7 @@
                                 <a-form-model-item
                                   class="custom-form-item"
                                   label="收件人"
-                                  prop=""
+                                  prop="receiver"
                                 >
                                   <a-input
                                     v-model="item.receiver"
@@ -311,6 +311,7 @@
                                 <a-form-model-item
                                   class="custom-form-item"
                                   label="收件電話"
+                                  prop="tel"
                                 >
                                   <a-input
                                     v-model="item.tel"
@@ -330,7 +331,7 @@
                                 <a-input
                                   style="width: 82px; margin-right: 5px"
                                   placeholder="郵遞區號"
-                                  v-model="item.receiverPostCode"
+                                  v-model="item.postCode"
                                 />
                                 <a-input
                                   style="width: 376px;"
@@ -677,7 +678,7 @@ export default {
       },
       receiverVerify:{
         receiver:[{
-          required:false,
+          required:true,
           message: '請輸入',
           trigger: 'blur'
         }],
@@ -917,7 +918,7 @@ export default {
          * */
         return !this.productList[item.id]
       })
-    }
+    },
   },
   methods: {
     filterOption(input, option) {
@@ -1272,19 +1273,6 @@ export default {
       })
     },
   },
-  watch:{
-    recipientList: {
-      handler(val) {
-        if(val){
-          let receiverVerify = this.receiverVerify
-          val = Object.assign(val[0], {receiverVerify})
-
-          console.log(val)
-        }
-      },
-      deep: true
-    }
-  }
 }
 </script>
 
