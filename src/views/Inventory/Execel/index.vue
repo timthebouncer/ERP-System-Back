@@ -4,7 +4,7 @@
       <button @click="showModal1" class="print-btn">商用格式-有價格</button>
       <button @click="showModal2" class="print-btn">商用格式-無價格</button>
       <button @click="showModal3" class="print-btn">零售格式-有價格</button>
-      <inventoryExcel :receiverList="receiverList" :orderDetail="orderDetail" />
+      <inventoryExcel :receiverList="receiverList" :orderDetail="orderDetail" :distirbuteHandler="this.distirbuteHandler" :orderTitle="this.orderTitle" />
     </div>
     <div :title="templateType" id="exampleWrapper" v-if="visible">
       <div class="table-content">
@@ -151,55 +151,6 @@
         </div>
       </div>
     </div>
-<!--    <div :title="templateType" class="package-wrapper" v-if="printable">-->
-<!--      <div class="package-sticker">-->
-<!--        <div class="package-top">-->
-<!--          <div class="Brand-logo">-->
-<!--            <span><img src="@/assets/brand_logo.jpg"/></span>-->
-<!--          </div>-->
-<!--          <div>-->
-<!--            <h3>出貨日期{{ orderDetail.salesDay }}</h3>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--        <div class="package-content">-->
-<!--          <div class="package-content-detail" v-if="list.receiver !== ''">-->
-<!--            <h3>收件客戶</h3>-->
-<!--            <h1>{{ receiverList.receiver }}</h1>-->
-<!--          </div>-->
-<!--          <div v-else>-->
-<!--            <h3>收件客戶</h3>-->
-<!--            {{ list.defaultReceiveInfo === 0 ? list.name : list.companyName }}-->
-<!--          </div>-->
-<!--          <div class="package-content-detail-order">-->
-<!--            <h3>出貨單號</h3>-->
-<!--            <div class="order-barcode">-->
-<!--              <svg-->
-<!--                id="ean-13"-->
-<!--                :jsbarcode-format="skus.format"-->
-<!--                :jsbarcode-value="orderDetail.orderNo"-->
-<!--                jsbarcode-textmargin="0"-->
-<!--                jsbarcode-fontoptions="bold"-->
-<!--              ></svg>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--          <div-->
-<!--            class="package-content-detail-package"-->
-<!--            v-show="orderDetail.trackingNo"-->
-<!--          >-->
-<!--            <h3>物流編號</h3>-->
-<!--            <div class="package-barcode">-->
-<!--              <svg-->
-<!--                id="trackNo"-->
-<!--                :jsbarcode-format="skus2.format"-->
-<!--                :jsbarcode-value="orderDetail.trackingNo"-->
-<!--                jsbarcode-textmargin="0"-->
-<!--                jsbarcode-fontoptions="bold"-->
-<!--              ></svg>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
     <div style="display: none" class="print-modal"></div>
   </div>
 </template>
@@ -210,7 +161,7 @@ import * as htmlToImage from 'html-to-image'
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image'
 export default {
   name: 'ModalExample',
-  components:{inventoryExcel},
+  components: { inventoryExcel },
   props: [
     'distirbuteHandler',
     'orderData',
@@ -218,7 +169,8 @@ export default {
     'orderTitle',
     'list',
     'receiverList',
-    'Calculate'
+    'Calculate',
+    'parentHandleCancel'
   ],
   data() {
     return {
@@ -230,11 +182,7 @@ export default {
       visible: true,
       column: {
         type: {
-          title: () => (
-                  <h2>
-                    商品名稱
-                  </h2>
-          ),
+          title: () => <h2>商品名稱</h2>,
           dataIndex: 'name',
           scopedSlots: {
             customRender: 'name'
@@ -244,77 +192,49 @@ export default {
           }
         },
         type2: {
-          title: () => (
-                  <h2>
-                    數量
-                  </h2>
-          ),
+          title: () => <h2>數量</h2>,
           dataIndex: 'amount',
           customRender: (val, row) => {
-            return <h3>{row.amount}</h3>
+            return <h3>{(row.unit !== "件" && row.unit !== "包") ? row.weight:row.amount}</h3>
           }
         },
         type3: {
-          title: () => (
-                  <h2>
-                    單位
-                  </h2>
-          ),
+          title: () => <h2>單位</h2>,
           dataIndex: 'unit',
           customRender: (val, row) => {
             return <h3>{row.unit}</h3>
           }
         },
         type4: {
-          title: () => (
-                  <h2>
-                    建議售價
-                  </h2>
-          ),
+          title: () => <h2>建議售價</h2>,
           dataIndex: 'salesPrice',
           customRender: (val, row) => {
-            return <h3>{row.price}</h3>
+            return <h3>{row.price * row.amount}</h3>
           }
         },
         type5: {
-          title: () => (
-                  <h2>
-                    出貨售價
-                  </h2>
-          ),
+          title: () => <h2>出貨售價</h2>,
           dataIndex: 'sellsPrice',
           customRender: (val, row) => {
-            return <h3>{row.clientPrice}</h3>
+            return <h3>{row.clientPrice * row.amount}</h3>
           }
         },
         type6: {
-          title: () => (
-                  <h2>
-                    折讓
-                  </h2>
-          ),
+          title: () => <h2>折讓</h2>,
           dataIndex: 'discount',
           customRender: (val, row) => {
             return <h3>{row.discount}</h3>
           }
         },
         type7: {
-          title: () => (
-                  <h2>
-                    總計
-                  </h2>
-          ),
+          title: () => <h2>總計</h2>,
           dataIndex: 'orderPrice',
           customRender: (val, row) => {
             return <h3>{row.orderPrice}</h3>
           }
         },
         type8: {
-          title: () => (
-                  <h2>
-                    備註
-                  </h2>
-          ),
+          title: () => <h2>備註</h2>,
           dataIndex: 'reference',
           customRender: (val, row) => {
             return <h3>{row.remark}</h3>
@@ -327,7 +247,6 @@ export default {
   },
   created() {
     this.www()
-    console.log(this.Calculate.total);
   },
   methods: {
     www() {
@@ -345,73 +264,143 @@ export default {
       }
       this.tableData = [...tableData, newData]
     },
-   async showModal1() {
+    async showModal1() {
       if (this.orderTitle !== '訂單詳情') {
-        this.distirbuteHandler()
-      }
-      this.templateType = '商用-有價格'
-      this.visible = true
-      this.columnList = await this.getColumn([
-        'type',
-        'type2',
-        'type3',
-        'type4',
-        'type5',
-        'type6',
-        'type7',
-        'type8'
-      ])
+        this.templateType = '商用-有價格'
+        await this.$emit('passTemplateType', this.templateType)
+        await this.distirbuteHandler()
+        this.visible = true
+        this.columnList = await this.getColumn([
+          'type',
+          'type2',
+          'type3',
+          'type4',
+          'type5',
+          'type6',
+          'type7',
+          'type8'
+        ])
+
         JsBarcode('#ean-13').init()
         JsBarcode('#trackNo').init()
 
-      let _this = this
-      setTimeout(function() {
-        _this.handleOk()
-      }, 500)
-
-      this.$emit('passTemplateType', this.templateType)
+        let _this = this
+        setTimeout(function() {
+          _this.handleOk()
+        }, 1000)
+      } else {
+        this.templateType = '商用-有價格'
+        this.visible = true
+        this.columnList = await this.getColumn([
+          'type',
+          'type2',
+          'type3',
+          'type4',
+          'type5',
+          'type6',
+          'type7',
+          'type8'
+        ])
+        JsBarcode('#ean-13').init()
+        JsBarcode('#trackNo').init()
+        let _this = this
+        setTimeout(function() {
+          _this.handleOk()
+        }, 500)
+        setTimeout(function() {
+          _this.parentHandleCancel()
+        }, 1000)
+      }
     },
     async showModal2() {
       if (this.orderTitle !== '訂單詳情') {
-        this.distirbuteHandler()
-      }
-      this.templateType = '商用-無價格'
-      this.visible = true
-      this.columnList = await this.getColumn(['type', 'type2', 'type3', 'type8'])
+        this.templateType = '商用-無價格'
+        await this.$emit('passTemplateType', this.templateType)
+        await this.distirbuteHandler()
+        this.visible = true
+        this.columnList = await this.getColumn([
+          'type',
+          'type2',
+          'type3',
+          'type8'
+        ])
 
         JsBarcode('#ean-13').init()
         JsBarcode('#trackNo').init()
 
-      let _this = this
-      setTimeout(function() {
-        _this.handleOk()
-      }, 500)
-      this.$emit('passTemplateType', this.templateType)
+        let _this = this
+        setTimeout(function() {
+          _this.handleOk()
+        }, 1000)
+      }else {
+        this.templateType = '商用-無價格'
+        this.visible = true
+        this.columnList = await this.getColumn([
+          'type',
+          'type2',
+          'type3',
+          'type8'
+        ])
+
+        JsBarcode('#ean-13').init()
+        JsBarcode('#trackNo').init()
+
+        let _this = this
+        setTimeout(function() {
+          _this.handleOk()
+        }, 500)
+        setTimeout(function() {
+          _this.parentHandleCancel()
+        }, 1000)
+      }
     },
     async showModal3() {
       if (this.orderTitle !== '訂單詳情') {
-        this.distirbuteHandler()
-      }
-      this.templateType = '零售-有價格'
-      this.visible = true
-      this.columnList = await this.getColumn([
-        'type',
-        'type2',
-        'type3',
-        'type4',
-        'type5',
-        'type6',
-        'type7',
-        'type8'
-      ])
+        this.templateType = '零售-有價格'
+        this.$emit('passTemplateType', this.templateType)
+        await this.distirbuteHandler()
+        this.visible = true
+        this.columnList = await this.getColumn([
+          'type',
+          'type2',
+          'type3',
+          'type4',
+          'type5',
+          'type6',
+          'type7',
+          'type8'
+        ])
         JsBarcode('#ean-13').init()
         JsBarcode('#trackNo').init()
 
-      let _this = this
-      setTimeout(function() {
-        _this.handleOk()
-      }, 500)
-      this.$emit('passTemplateType', this.templateType)
+        let _this = this
+        setTimeout(function() {
+          _this.handleOk()
+        }, 1000)
+      }else {
+        this.templateType = '零售-有價格'
+        this.visible = true
+        this.columnList = await this.getColumn([
+          'type',
+          'type2',
+          'type3',
+          'type4',
+          'type5',
+          'type6',
+          'type7',
+          'type8'
+        ])
+        JsBarcode('#ean-13').init()
+        JsBarcode('#trackNo').init()
+
+        let _this = this
+        setTimeout(function() {
+          _this.handleOk()
+        }, 500)
+        setTimeout(function() {
+          _this.parentHandleCancel()
+        }, 1000)
+      }
     },
     async handleOk() {
       if (this.templateType !== '貼箱標籤') {
@@ -421,6 +410,7 @@ export default {
 
         let img = new Image()
         img.src = dataUrl
+
 
         let printPage = document.body.appendChild(img)
         printPage.classList.add('printImage')
@@ -436,31 +426,31 @@ export default {
         this.visible = false
         this.handleCancel()
       } else {
-        const dataUrl = await htmlToImage.toPng(
-          document.querySelector('.package-sticker')
-        )
-
-        let img = new Image()
-        img.src = dataUrl
-
-        let printPage = document.body.appendChild(img)
-        printPage.classList.add('printImage')
-
-        let myWindow = await window.open('', '', 'width=2000,height=1000')
-        myWindow.document.write(printPage.outerHTML)
-
-        myWindow.document.close()
-        myWindow.focus()
-        myWindow.print()
-        myWindow.close()
-
-        this.printable = false
-        this.handleCancel()
+        // const dataUrl = await htmlToImage.toPng(
+        //   document.querySelector('.package-sticker')
+        // )
+        //
+        // let img = new Image()
+        // img.src = dataUrl
+        //
+        // let printPage = document.body.appendChild(img)
+        // printPage.classList.add('printImage')
+        //
+        // let myWindow = await window.open('', '', 'width=2000,height=1000')
+        // myWindow.document.write(printPage.outerHTML)
+        //
+        // myWindow.document.close()
+        // myWindow.focus()
+        // myWindow.print()
+        // myWindow.close()
+        //
+        // this.printable = false
+        // this.handleCancel()
       }
     },
     handleCancel() {
-        let printPage = document.querySelector('.printImage')
-        printPage.parentNode.removeChild(printPage)
+      let printPage = document.querySelector('.printImage')
+      printPage.parentNode.removeChild(printPage)
     },
     getColumn(columns) {
       return columns === null
@@ -522,8 +512,10 @@ export default {
   cursor: pointer;
 }
 .top-wrapper {
+  flex: 1;
   display: flex;
-  justify-content: space-between;
+  width: 100%;
+  /*justify-content: space-between;*/
   align-items: center;
   height: 120px;
   .black-cat-logo {
@@ -531,7 +523,11 @@ export default {
   }
   .title {
     position: relative;
-    right: 45%;
+    right: -30%;
+  }
+  .logo2 {
+    position: relative;
+    right: -65%;
   }
 }
 img {
@@ -592,14 +588,21 @@ img {
     flex-direction: column;
     position: relative;
     left: 0;
-    span{
+    span:nth-child(1) {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    span {
       font-size: 17px;
     }
   }
   .sign-wrapper {
     position: relative;
     right: 30px;
-    span{
+    span:nth-child(1) {
+      font-size: 20px;
+    }
+    span {
       font-size: 17px;
     }
   }
@@ -608,7 +611,7 @@ img {
     width: 230px;
     height: 50px;
     line-height: 3;
-    margin-top: 77px;
+    margin-top: 70px;
     padding: 0 0 0 12px;
   }
 }
