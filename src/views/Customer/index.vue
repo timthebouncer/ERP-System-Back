@@ -261,17 +261,9 @@
                         <a-icon type="plus" />
                       </a-button>
                     </div>
-                    <a-form-model
-                      class="option-wrapper"
-                      :model="list"
-                      layout="horizontal"
-                      ref="ruleForm"
-                      :rules="receiverVerify"
-                    >
+                    <div class="option-wrapper">
                       <a-form-model-item>
-                        <a-radio-group
-                          v-model="receiveInfo"
-                        >
+                        <a-radio-group v-model="receiveInfo">
                           <a-form-model-item
                             label="同客戶資料"
                             class="option-content"
@@ -288,64 +280,76 @@
                               設為預設收件地址
                             </a-radio>
                           </a-form-model-item>
-                          <a-form-model-item
-                            v-for="(item, index) in recipientList"
-                            :key="item.id"
-                          >
-                            <a-radio :value="(index += 2)">
-                              設為預設收件地址
-                              <div
-                                class="custom-address"
-                                style="position: relative;margin-bottom: -32px;left: -10px;"
-                              >
-                                <a-form-model-item
-                                  class="custom-form-item"
-                                  label="收件人"
-                                  prop="receiver"
-                                >
-                                  <a-input
-                                    v-model="item.receiver"
-                                    placeholder="請輸入"
-                                  />
-                                </a-form-model-item>
-                                <a-form-model-item
-                                  class="custom-form-item"
-                                  label="收件電話"
-                                  prop="tel"
-                                >
-                                  <a-input
-                                    v-model="item.tel"
-                                    style="width: 200px"
-                                    placeholder="請輸入"
-                                  />
-                                </a-form-model-item>
-                              </div>
-                            </a-radio>
+                          <div style="margin-bottom: -40px;">
                             <a-form-model-item
-                              class="custom-form-item"
-                              label="收件地址"
-                              prop="receiverPostCode"
-                              style="position: relative; left: -10px"
+                                    v-for="(item, index) in recipientList"
+                                    :key="item.id"
                             >
-                              <div style="display: flex;">
-                                <a-input
-                                  style="width: 82px; margin-right: 5px"
-                                  placeholder="郵遞區號"
-                                  v-model="item.postCode"
-                                />
-                                <a-input
-                                  style="width: 376px;"
-                                  v-model="item.address"
-                                  placeholder="請輸入"
-                                />
-                              </div>
+                              <a-form-model
+                                      :model="recipientList[index]"
+                                      layout="horizontal"
+                                      ref="ruleForReceiver"
+                                      :rules="receiverVerify[index]"
+                              >
+                                <a-radio :value="(index += 2)">
+                                  設為預設收件地址
+                                  <div
+                                          class="custom-address"
+                                          style="position: relative;margin-bottom: -25px;left: -10px;"
+                                  >
+                                    <a-form-model-item
+                                            class="custom-form-item"
+                                            label="收件人"
+                                            prop="receiver"
+                                    >
+                                      <a-input
+                                              @change="receiverInputVerify"
+                                              name="receiver"
+                                              v-model="item.receiver"
+                                              placeholder="請輸入"
+                                      />
+                                    </a-form-model-item>
+                                    <a-form-model-item
+                                            class="custom-form-item"
+                                            label="收件電話"
+                                            prop="tel"
+                                    >
+                                      <a-input
+                                              v-model="item.tel"
+                                              style="width: 200px"
+                                              placeholder="請輸入"
+                                      />
+                                    </a-form-model-item>
+                                  </div>
+                                </a-radio>
+                                <div style="display: flex;">
+                                  <a-form-model-item
+                                          class="custom-form-item"
+                                          label="收件地址"
+                                          prop="postCode"
+                                          style="position: relative; left: -10px"
+                                  >
+                                    <a-input
+                                            style="width: 82px"
+                                            placeholder="郵遞區號"
+                                            v-model="item.postCode"
+                                    />
+                                  </a-form-model-item>
+                                  <a-form-model-item prop="address">
+                                    <a-input
+                                            style="width: 362px;"
+                                            v-model="item.address"
+                                            placeholder="請輸入"
+                                    />
+                                  </a-form-model-item>
+                                </div>
+                              </a-form-model>
                             </a-form-model-item>
-                          </a-form-model-item>
+                          </div>
                         </a-radio-group>
                       </a-form-model-item>
-                    </a-form-model>
+                    </div>
                   </div>
-
                   <div>
                     商品折扣
                     <a-button
@@ -567,7 +571,6 @@ export default {
         reconciliationContactPersonTel: '',
         reconciliationContactPersonTelExt: ''
       },
-      receiverList:{receiverPostCode: '',receiver: '',tel: '',address: '',},
       discountClass: [],
       columns: [
         {
@@ -676,33 +679,31 @@ export default {
           }
         ]
       },
-      receiverVerify:{
-        receiver:[{
-          required:true,
-          message: '請輸入',
-          trigger: 'blur'
-        }],
-        tel:[{
-          required:false,
-          message: '請輸入',
-          trigger: 'blur'
-        }],
-        receiverPostCode: [
-          {
-            required:false,
+      receiverVerify: [
+        {
+          receiver: {
+            required: false,
+            message: '請輸入',
+            trigger: 'blur'
+          },
+          tel: {
+            required: false,
+            message: '請輸入',
+            trigger: 'blur'
+          },
+          postCode: {
+            required: false,
             pattern: /^\d+$/,
             message: '請輸入數字',
             trigger: 'blur'
-          }
-        ],
-        address: [
-          {
-            required:false,
+          },
+          address: {
+            required: false,
             message: '請輸入',
             trigger: 'blur'
           }
-        ]
-      },
+        }
+      ],
       discountTable: [],
       columns2: [
         {
@@ -832,7 +833,6 @@ export default {
     }).then(res => {
       this.discountClass = res.data
     })
-    // }
   },
   computed: {
     priceAndRemarkEditor() {
@@ -850,7 +850,7 @@ export default {
                   row[editKey] ? (
                     <Fragment>
                       <span onClick={() => this.inputORnot(row, editKey)}>
-                        {key === "discountPrice" ? `$${formatPrice(val)}`:val}
+                        {key === 'discountPrice' ? `$${formatPrice(val)}` : val}
                       </span>
                       <div class="displayEdit" />
                       <a-icon
@@ -918,9 +918,24 @@ export default {
          * */
         return !this.productList[item.id]
       })
-    },
+    }
   },
   methods: {
+    receiverInputVerify() {
+      this.recipientList.forEach((item, idx) => {
+        if (this.recipientList[idx].receiver !== '') {
+          this.receiverVerify[idx].receiver.required = true
+          this.receiverVerify[idx].tel.required = true
+          this.receiverVerify[idx].postCode.required = true
+          this.receiverVerify[idx].address.required = true
+        } else {
+          this.receiverVerify[idx].receiver.required = false
+          this.receiverVerify[idx].tel.required = false
+          this.receiverVerify[idx].postCode.required = false
+          this.receiverVerify[idx].address.required = false
+        }
+      })
+    },
     filterOption(input, option) {
       return (
         option.componentOptions.children[0].text
@@ -974,6 +989,7 @@ export default {
           tel: ''
         }
       ]
+      this.receiverInputVerify()
     },
     clearInput() {
       this.list = {
@@ -1048,7 +1064,17 @@ export default {
     },
     handleOk() {
       this.$refs.ruleForm.validate(valid => {
-        if (valid) {
+        const verify = this.$refs.ruleForReceiver.reduce((p, e) => {
+          //P初始值:true
+          let success //存放驗證結果
+          e.validate(v => (success = v))
+          //初始值為true如果驗證為false，P就返回false
+          if (p && !success) {
+            return false
+          }
+          return p
+        }, true)
+        if (valid && verify) {
           if (this.changeTitle === '新增客戶') {
             if (
               this.receiveInfo > 1 &&
@@ -1130,17 +1156,8 @@ export default {
         .then(res => {
           this.discountTable = []
           if (res.data !== '') {
-            // if(record.defaultReceiveInfo > 1){
             this.recipientList = res.data.recipientList
-            // }else {
-            //   this.recipientList = [{
-            //     address: "",
-            //     id: "",
-            //     postCode: "",
-            //     receiver: "",
-            //     tel: "",
-            //   }]
-            // }
+            this.receiverInputVerify()
             this.list = res.data
             this.receiveInfo = res.data.defaultReceiveInfo
             this.$api.Customer.discountNoPages({
@@ -1238,6 +1255,29 @@ export default {
           receiver: '',
           tel: ''
         })
+        this.receiverVerify.push({
+          receiver: {
+            required: false,
+            message: '請輸入',
+            trigger: 'blur'
+          },
+          tel: {
+            required: false,
+            message: '請輸入',
+            trigger: 'blur'
+          },
+          postCode: {
+            required: false,
+            pattern: /^\d+$/,
+            message: '請輸入數字',
+            trigger: 'blur'
+          },
+          address: {
+            required: false,
+            message: '請輸入',
+            trigger: 'blur'
+          }
+        })
       }
     },
     handleAdd() {
@@ -1271,8 +1311,8 @@ export default {
         rows.salesPrice = `$${formatPrice(result.price)}`
         rows.using = result.using
       })
-    },
-  },
+    }
+  }
 }
 </script>
 

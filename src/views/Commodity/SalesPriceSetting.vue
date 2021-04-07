@@ -256,6 +256,7 @@ export default {
           dataIndex: 'clientName',
           align: 'center',
           customRender: (val, row) => {
+            console.log(row.storeClient,123)
             return {
               children: (
                 <div>
@@ -405,7 +406,7 @@ export default {
               (this.list.description = record.description)
             this.list.updateTime = record.updateTime
             this.list.alias = record.alias
-            this.list.weight = record.fixedWeight
+            this.list.weight = record.fixedWeight.toFixed(2)
             this.list.weightUnit = record.weightUnit
             this.list.tagId = record.tagId
             this.visible = true
@@ -438,7 +439,7 @@ export default {
               barcode: this.list.barcode,
               price: parseInt(this.list.listPrice),
               description: this.list.description,
-              fixedWeight: parseInt(this.list.weight),
+              fixedWeight: parseInt(this.list.weight).toFixed(2),
               weightUnit: this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
@@ -481,7 +482,7 @@ export default {
               barcode: this.list.barcode,
               price: parseInt(this.list.listPrice),
               description: this.list.description,
-              fixedWeight: this.list.barcode === '' ? 0 : parseInt(this.list.weight),
+              fixedWeight: this.list.barcode === '' ? 0 : parseInt(this.list.weight).toFixed(2),
               weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
@@ -518,7 +519,7 @@ export default {
               barcode: this.list.barcode,
               price: this.list.listPrice,
               description: this.list.description,
-              fixedWeight: this.list.barcode === '' ? 0 : parseInt(this.list.weight),
+              fixedWeight: this.list.barcode === '' ? 0 : parseInt(this.list.weight).toFixed(2),
               weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
