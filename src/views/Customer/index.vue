@@ -1433,8 +1433,9 @@ export default {
 }
 .option-wrapper {
   background-color: #f5f5f5;
-  padding: 10px 0px 0px 60px;
+  padding: 10px 0px 1px 60px;
   line-height: 2;
+  margin-bottom: 11px;
 }
 .option-content {
   display: flex;

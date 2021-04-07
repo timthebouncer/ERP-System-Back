@@ -519,7 +519,7 @@ export default {
               barcode: this.list.barcode,
               price: this.list.listPrice,
               description: this.list.description,
-              fixedWeight: this.list.barcode === '' ? 0 : parseInt(this.list.weight).toFixed(2),
+              fixedWeight: this.list.barcode === '' ? 0 : this.list.weight,
               weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,

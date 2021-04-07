@@ -74,7 +74,7 @@ export default {
       this.$nextTick(() => {
         let image = new fabric.Image(img, {
           left: 70,
-          top: 10,
+          top: 40,
           scaleX: 0.7,
           scaleY: 0.7
         })
@@ -82,21 +82,21 @@ export default {
       })
       let placeholder = new fabric.Textbox('|', {
         left: 0,
-        top: 0,
+        top: 30,
         fontSize: 1
       })
       canvas.add(placeholder)
 
       let text = new fabric.Textbox('收件客戶', {
         left: 70,
-        top: 140,
+        top: 170,
         name: 'species',
         fontSize: 25,
         fontFamily: '微軟正黑體'
       })
       let text1 = new fabric.Textbox(`${this.receiverList.receiver}`, {
         left: 90,
-        top: 170,
+        top: 200,
         name: 'species',
         fontSize: 25,
         fontFamily: '微軟正黑體'
@@ -106,14 +106,14 @@ export default {
       })
       let line = new fabric.Textbox('|', {
         left: 170,
-        top: 138,
+        top: 160,
         fontSize: 20,
         fontWeight: 5,
         fontFamily: '微軟正黑體'
       })
       let line1 = new fabric.Textbox('|', {
         left: 170,
-        top: 258,
+        top: 280,
         fontSize: 20,
         fontWeight: 5,
         fontFamily: '微軟正黑體'
@@ -125,7 +125,7 @@ export default {
 
       let text2 = new fabric.Textbox('出貨單號', {
         left: 70,
-        top: 260,
+        top: 280,
         name: 'orderNo',
         fontSize: 25,
         fontFamily: '微軟正黑體'
@@ -143,7 +143,7 @@ export default {
       this.$nextTick(() => {
         let _image = new fabric.Image(_img, {
           left: 200,
-          top: 215,
+          top: 230,
           scaleX: 0.8,
           scaleY: 0.8
         })
@@ -154,7 +154,7 @@ export default {
       if (this.orderDetail.trackingNo) {
         let text3 = new fabric.Textbox('物流編號', {
           left: 70,
-          top: 390,
+          top: 410,
           name: 'orderNo',
           fontSize: 25,
           fontFamily: '微軟正黑體'
@@ -163,7 +163,7 @@ export default {
 
         let line2 = new fabric.Textbox('|', {
           left: 170,
-          top: 387,
+          top: 407,
           fontSize: 20,
           fontWeight: 5,
           fontFamily: '微軟正黑體'
@@ -179,7 +179,7 @@ export default {
         this.$nextTick(()=>{
           let images3 = new fabric.Image(___img, {
             left: 180,
-            top: 325,
+            top: 345,
             scaleX: 0.8,
             scaleY: 0.8
           })
@@ -189,21 +189,21 @@ export default {
 
       let text7 = new fabric.Textbox('出貨日期', {
         left: 250,
-        top: 48,
+        top: 58,
         name: 'workingDate',
         fontSize: 25,
         fontFamily: '微軟正黑體'
       })
       let line3 = new fabric.Textbox('|', {
         left: 350,
-        top: 45,
+        top: 55,
         fontSize: 20,
         fontWeight: 5,
         fontFamily: '微軟正黑體'
       })
       let text8 = new fabric.Textbox(`${this.orderDetail.salesDay}`, {
         left: 370,
-        top: 48,
+        top: 58,
         name: 'species',
         fontSize: 25
       })
