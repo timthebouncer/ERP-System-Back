@@ -367,7 +367,11 @@ export default {
           class: 'inner-unit-td',
           dataIndex: 'unitAmount',
           align: 'center',
-          scopedSlots: { customRender: 'unitAmount' }
+          customRender: (val, row) => {
+            return {
+              children: <div>{row.weight.toFixed(2)}{row.unitAmount}</div>
+            }
+          }
         },
         {
           class: 'inner-list-price-td',
