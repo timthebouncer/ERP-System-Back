@@ -788,7 +788,7 @@ export default {
       cusList: [],
       inventoryList: [],
       searchBarcode: '',
-      filterBarcode: '',
+      filterBarcode: {},
       currentPage: 1,
       pageSizes: 10,
       totalPages: 10,
@@ -1061,6 +1061,7 @@ export default {
         this.orderData = res.data.orderDetailItemResponseList.map(item => {
           return {
             id: item.id,
+            alias:item.alias,
             amount: item.amount,
             barCode: item.barcode,
             price: item.price,
@@ -1251,32 +1252,35 @@ export default {
         //     return v.barCode ? { ...p, [v.barCode]: true } : p
         //   },{})
         //   return self.selectList.filter((item) => {
-        //     return item.barcode !== selected[item.barcode]
+        //     return !selected[item.barcode]
         //   })
         // }
       }
       this.orderData = [...orderData, newData]
     },
     pushName(barCode, row) {
-      // console.log(row.storeClient)
+      console.log(this.storeClient,1111);
       if (row.barCode !== '') {
         this.selectList.filter(item => {
-          if (item.barcode === row.barCode) {
-            this.filterBarcode = row.barCode
-            row.productId = item.productId
-            row.unit = computedWeight(undefined, item.unit)
-            row.clientPrice = item.clientPrice
-            row.productName =
-              item.alias === '' || item.alias === null
-                ? item.productName
-                : item.alias
-            row.price = item.price
-            row.weight = item.weight
-            setTimeout(() => {
-              const ccc = document.getElementsByClassName('bbb')
-              ccc[0].focus()
-            }, 100)
-          }
+            if (item.barcode === row.barCode) {
+              row.productId = item.productId
+              row.unit = computedWeight(undefined, item.unit)
+              row.clientPrice = item.clientPrice
+              row.productName =
+                      item.alias === '' || item.alias === null
+                              ? item.productName
+                              : item.alias
+              row.price = item.price
+              row.weight = item.weight
+              this.filterBarcode = row.barCode
+              console.log(this.filterBarcode)
+
+              setTimeout(() => {
+                const ccc = document.getElementsByClassName('bbb')
+                ccc[0].focus()
+              }, 100)
+            }
+
           return item.barcode === row.barCode
         })
       } else {
@@ -1329,15 +1333,26 @@ export default {
                           this.$api.Distribute.getDistributeDetail({
                             orderId: res.data.orderId
                           }).then(response => {
+                            this.orderData = response.data.orderDetailItemResponseList
+                            let count =0;
+                            let totalPrice = 0;
+                            this.orderData.forEach(item => {
+                              count += (item.unit === "件" || item.unit === "包") ? parseInt(item.amount):parseFloat(item.weight.toFixed(2))
+                              totalPrice +=
+                                      item.clientPrice > 0
+                                              ? item.clientPrice * item.amount - item.discount
+                                              : item.price * item.amount - item.discount
+                            })
+                            this.Calculate = { count, totalPrice }
                             this.existId = res.data.orderId
                             this.orderDetail = response.data
                             this.printed = true
                             this.templateType = ''
                             resolve()
                           })
-
                           setTimeout(()=>{
                             this.orderViewVisible = false
+                            this.handleCancel()
                           },3000)
 
                         } else {
@@ -1411,11 +1426,23 @@ export default {
                       orderId: this.orderId
                     }).then(response => {
                       this.orderDetail = response.data
+                      this.orderData = response.data.orderDetailItemResponseList
+                      let count =0;
+                      let totalPrice = 0;
+                      this.orderData.forEach(item => {
+                        count += (item.unit === "件" || item.unit === "包") ? parseInt(item.amount):parseFloat(item.weight.toFixed(2))
+                        totalPrice +=
+                                item.clientPrice > 0
+                                        ? item.clientPrice * item.amount - item.discount
+                                        : item.price * item.amount - item.discount
+                      })
+                      this.Calculate = { count, totalPrice }
                       resolve()
                     })
                     this.templateType = ''
                     setTimeout(()=>{
                       this.orderViewVisible = false
+                      this.handleCancel()
                     },3000)
                   } else {
                     this.orderViewVisible = false
@@ -1607,7 +1634,7 @@ export default {
         let totalPrice = 0
 
         this.orderData.forEach(item => {
-          count += (item.unit === "件" || item.unit === "包") ? parseInt(item.amount):parseInt(item.weight)
+          count += (item.unit === "件" || item.unit === "包") ? parseInt(item.amount):parseFloat(item.weight.toFixed(2))
           totalPrice +=
             item.clientPrice > 0
               ? item.clientPrice * item.amount - item.discount
@@ -1652,11 +1679,19 @@ export default {
     }
   },
   computed: {
+    storeClient() {
+      let selected = this.orderData.reduce((p,v) => {
+        return v.barCode ? { ...p, [v.barCode]: true } : p
+      },{})
+      return this.selectList.filter((item,i) => {
+        return !selected[item.barcode]
+      })
+    },
     totalAmountPrice() {
       let count = 0
       let total = 0
       this.orderData.forEach(item => {
-        count += (item.unit === "件" || item.unit === "包") ? parseInt(item.amount):parseInt(item.weight)
+        count += (item.unit === "件" || item.unit === "包") ? parseInt(item.amount):parseFloat(item.weight.toFixed(2))
         total +=
           item.clientPrice > 0
             ? item.clientPrice * item.amount - item.discount

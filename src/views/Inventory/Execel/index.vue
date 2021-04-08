@@ -188,7 +188,8 @@ export default {
             customRender: 'name'
           },
           customRender: (val, row) => {
-            return <h3>{row.productName}</h3>
+            console.log(row,333)
+            return <h3>{row.alias === "" ? row.productName:row.alias}</h3>
           }
         },
         type2: {
@@ -265,6 +266,7 @@ export default {
       this.tableData = [...tableData, newData]
     },
     async showModal1() {
+      console.log(this.Calculate,747);
       if (this.orderTitle !== '訂單詳情') {
         this.templateType = '商用-有價格'
         await this.$emit('passTemplateType', this.templateType)
