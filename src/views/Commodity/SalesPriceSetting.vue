@@ -61,6 +61,7 @@
                     v-model="list.weight"
                     style="width: 550px"
                     placeholder="請輸入"
+                    v-mask="decimalFormat"
                   />
                   <threeWeights v-model="list.weightUnit" />
                 </div>
@@ -167,6 +168,7 @@
   </div>
 </template>
 <script>
+  import VueMask from 'v-mask'
 import formatPrice from '@/components/thousand'
 import translate from '@/components/translate'
 import threeWeights from '@/components/threeweightTrans'
@@ -519,7 +521,7 @@ export default {
               barcode: this.list.barcode,
               price: this.list.listPrice,
               description: this.list.description,
-              fixedWeight: this.list.barcode === '' ? 0 : this.list.weight,
+              fixedWeight: this.list.barcode === '' ? 0 : parseFloat(this.list.weight).toFixed(2),
               weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
@@ -608,6 +610,9 @@ export default {
     }
   },
   computed: {
+    decimalFormat(){
+      return this.list.weight.replace(/\.\d{2,}$/,this.list.weight.substr(this.list.weight.indexOf('.'),3))
+    },
     priceFormatting: {
       get: function() {
         return formatPrice(this.list.listPrice)
