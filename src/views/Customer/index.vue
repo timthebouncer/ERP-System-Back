@@ -1150,7 +1150,7 @@ export default {
                   discountId: item.id,
                   productId: item.productId,
                   discountPrice: item.discountPrice,
-                  remark: item.remark
+                  remark: item.remark,
                 }
               })
             })
