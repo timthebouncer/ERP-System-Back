@@ -539,9 +539,10 @@ export default {
               alias: this.list.alias,
               using: true,
               discountRequestList: this.salesTable.map(item => {
+                console.log(item,3)
                 return {
                   clientId: item.clientName,
-                  price: parseInt(item.discountPrice),
+                  price: item.discountPrice,
                   remark: item.remark
                 }
               })
@@ -658,7 +659,7 @@ export default {
                     vModel={row[key]}
                     onKeyup={() =>
                       key === 'discountPrice' &&
-                      (row[key] = formatPrice(row[key].replace(/[^\d]/g, '')))
+                      (row[key] = row[key].replace(/[^\d]/g, ''))
                     }
                     vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
                   />
