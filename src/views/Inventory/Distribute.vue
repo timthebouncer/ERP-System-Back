@@ -1328,12 +1328,16 @@ export default {
                       shippingFee: this.shipment === 3 ? 0 : this.shippingFee,
                       defaultReceiveInfo: this.defaultReceiver,
                       orderItemRequestList: this.orderData.map(item => {
+                        console.log(item)
                         return {
                           barcode: item.barCode,
                           amount: item.amount,
                           weight: item.weight,
-                          discount: item.discount,
-                          price: item.price,
+                          discount: parseInt(item.discount),
+                          price: item.clientPrice > 0
+                                  ? item.clientPrice * item.amount -
+                                  item.discount
+                                  : item.price * item.amount - item.discount,
                           remark: item.remark
                         }
                       })
@@ -1423,13 +1427,17 @@ export default {
                 shippingFee: this.shipment === 3 ? 0 : this.shippingFee,
                 defaultReceiveInfo: this.defaultReceiver,
                 orderItemRequestList: this.orderData.map(item => {
+                  console.log(item,2)
                   return {
                     id: item.id,
                     barcode: item.barCode,
                     amount: item.amount,
                     weight: item.weight,
                     discount: parseInt(item.discount),
-                    price: item.price,
+                    price: item.clientPrice > 0
+                            ? item.clientPrice * item.amount -
+                            item.discount
+                            : item.price * item.amount - item.discount,
                     remark: item.remark
                   }
                 })
