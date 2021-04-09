@@ -644,7 +644,7 @@ export default {
           dataIndex: 'barCode',
           align: 'center',
           width: '12%',
-          customRender: (value, row) => {
+          customRender: (value, row,index) => {
             return {
               children:
                 this.orderModalTitle !== '訂單詳情' ? (
@@ -652,7 +652,7 @@ export default {
                     <a-input
                       autoFocus
                       style={{ width: '130px' }}
-                      onChange={barCode => this.pushName(barCode, row)}
+                      onChange={barCode => this.pushName(barCode, row,index)}
                       vModel={row.barCode}
                       placeholder="請手動輸入商品條碼"
                     ></a-input>
@@ -1061,7 +1061,7 @@ export default {
         this.orderData = res.data.orderDetailItemResponseList.map(item => {
           return {
             id: item.id,
-            alias:item.alias,
+            alias: item.alias,
             amount: item.amount,
             barCode: item.barcode,
             price: item.price,
@@ -1183,7 +1183,19 @@ export default {
       //   return item.id === id
       // })))
       this.specificId = id
-      this.SalesProduct()
+      this.$api.Commodity.getSalesProduct({
+        searchKey: '',
+        barcode: '',
+        clientId: this.specificId
+      }).then(res => {
+        this.selectList = [].concat.apply([], res.data)
+
+        this.orderData.map((item,idx) => {
+          if(item.barCode === this.selectList[idx].barcode){
+            return item.clientPrice = this.selectList[idx].clientPrice
+          }
+        })
+      })
     },
     recipientChange(id) {
       this.recipientId = id
@@ -1246,44 +1258,43 @@ export default {
         weight: 0,
         isEditAmount: true,
         isEditRemark: true,
-        isEditDiscount: true,
-        // get storeClient() {
-        //   let selected = self.orderData.reduce((p,v) => {
-        //     return v.barCode ? { ...p, [v.barCode]: true } : p
-        //   },{})
-        //   return self.selectList.filter((item) => {
-        //     return !selected[item.barcode]
-        //   })
-        // }
+        isEditDiscount: true
       }
       this.orderData = [...orderData, newData]
     },
-    pushName(barCode, row) {
-      console.log(this.storeClient,1111);
+    pushName(barCode, row, index) {
       if (row.barCode !== '') {
-        this.selectList.filter(item => {
-            if (item.barcode === row.barCode) {
-              row.productId = item.productId
-              row.unit = computedWeight(undefined, item.unit)
-              row.clientPrice = item.clientPrice
-              row.productName =
-                      item.alias === '' || item.alias === null
-                              ? item.productName
-                              : item.alias
-              row.price = item.price
-              row.weight = item.weight
-              this.filterBarcode = row.barCode
-              console.log(this.filterBarcode)
-
-              setTimeout(() => {
-                const ccc = document.getElementsByClassName('bbb')
-                ccc[0].focus()
-              }, 100)
+        let result = this.selectList.filter(item => item.barcode === row.barCode)
+        console.log(result)
+        //輸入條碼會拿到符合的值
+        if(result.length > 0){
+          let hasBarcode = false
+          this.orderData.map((item,idx) => {
+            //判斷現在在哪一個欄位輸入
+            //如果是當前欄位就跳出
+            if (idx !== index){
+              //非當前欄位且取回來的條碼已經存在
+              if(item.barCode === result[0].barcode){
+                //取得條碼狀態改為true
+                hasBarcode = true
+              }
             }
-
-          return item.barcode === row.barCode
-        })
+          })
+          //如果沒有拿過條碼就來這塞值
+          if(!hasBarcode){
+            row.productId = result[0].productId
+            row.unit = computedWeight(undefined, result[0].unit)
+            row.clientPrice = result[0].clientPrice
+            row.productName =
+                    result[0].alias === '' || result[0].alias === null
+                            ? result[0].productName
+                            : result[0].alias
+            row.price = result[0].price
+            row.weight = result[0].weight
+          }
+        }
       } else {
+        row.alias = ''
         row.productId = ''
         row.productName = ''
         row.unit = '-'
@@ -1320,7 +1331,7 @@ export default {
                         return {
                           barcode: item.barCode,
                           amount: item.amount,
-                          weight:item.weight,
+                          weight: item.weight,
                           discount: item.discount,
                           price: this.totalAmountPrice.total,
                           remark: item.remark
@@ -1333,15 +1344,20 @@ export default {
                           this.$api.Distribute.getDistributeDetail({
                             orderId: res.data.orderId
                           }).then(response => {
-                            this.orderData = response.data.orderDetailItemResponseList
-                            let count =0;
-                            let totalPrice = 0;
+                            this.orderData =
+                              response.data.orderDetailItemResponseList
+                            let count = 0
+                            let totalPrice = 0
                             this.orderData.forEach(item => {
-                              count += (item.unit === "件" || item.unit === "包") ? parseInt(item.amount):parseFloat(item.weight.toFixed(2))
+                              count +=
+                                item.unit === '件' || item.unit === '包'
+                                  ? parseInt(item.amount)
+                                  : parseFloat(item.weight.toFixed(2))
                               totalPrice +=
-                                      item.clientPrice > 0
-                                              ? item.clientPrice * item.amount - item.discount
-                                              : item.price * item.amount - item.discount
+                                item.clientPrice > 0
+                                  ? item.clientPrice * item.amount -
+                                    item.discount
+                                  : item.price * item.amount - item.discount
                             })
                             this.Calculate = { count, totalPrice }
                             this.existId = res.data.orderId
@@ -1350,11 +1366,10 @@ export default {
                             this.templateType = ''
                             resolve()
                           })
-                          setTimeout(()=>{
+                          setTimeout(() => {
                             this.orderViewVisible = false
                             this.handleCancel()
-                          },3000)
-
+                          }, 3000)
                         } else {
                           this.orderViewVisible = false
                           this.existId = ''
@@ -1412,7 +1427,7 @@ export default {
                     id: item.id,
                     barcode: item.barCode,
                     amount: item.amount,
-                    weight:item.weight,
+                    weight: item.weight,
                     discount: parseInt(item.discount),
                     price: item.price,
                     remark: item.remark
@@ -1421,29 +1436,32 @@ export default {
               })
                 .then(() => {
                   this.$message.success('編輯出貨成功')
-                  if (this.templateType || e === "貼箱標籤") {
+                  if (this.templateType || e === '貼箱標籤') {
                     this.$api.Distribute.getDistributeDetail({
                       orderId: this.orderId
                     }).then(response => {
                       this.orderDetail = response.data
                       this.orderData = response.data.orderDetailItemResponseList
-                      let count =0;
-                      let totalPrice = 0;
+                      let count = 0
+                      let totalPrice = 0
                       this.orderData.forEach(item => {
-                        count += (item.unit === "件" || item.unit === "包") ? parseInt(item.amount):parseFloat(item.weight.toFixed(2))
+                        count +=
+                          item.unit === '件' || item.unit === '包'
+                            ? parseInt(item.amount)
+                            : parseFloat(item.weight.toFixed(2))
                         totalPrice +=
-                                item.clientPrice > 0
-                                        ? item.clientPrice * item.amount - item.discount
-                                        : item.price * item.amount - item.discount
+                          item.clientPrice > 0
+                            ? item.clientPrice * item.amount - item.discount
+                            : item.price * item.amount - item.discount
                       })
                       this.Calculate = { count, totalPrice }
                       resolve()
                     })
                     this.templateType = ''
-                    setTimeout(()=>{
+                    setTimeout(() => {
                       this.orderViewVisible = false
                       this.handleCancel()
-                    },3000)
+                    }, 3000)
                   } else {
                     this.orderViewVisible = false
                     this.handleCancel()
@@ -1634,7 +1652,10 @@ export default {
         let totalPrice = 0
 
         this.orderData.forEach(item => {
-          count += (item.unit === "件" || item.unit === "包") ? parseInt(item.amount):parseFloat(item.weight.toFixed(2))
+          count +=
+            item.unit === '件' || item.unit === '包'
+              ? parseInt(item.amount)
+              : parseFloat(item.weight.toFixed(2))
           totalPrice +=
             item.clientPrice > 0
               ? item.clientPrice * item.amount - item.discount
@@ -1679,19 +1700,14 @@ export default {
     }
   },
   computed: {
-    storeClient() {
-      let selected = this.orderData.reduce((p,v) => {
-        return v.barCode ? { ...p, [v.barCode]: true } : p
-      },{})
-      return this.selectList.filter((item,i) => {
-        return !selected[item.barcode]
-      })
-    },
     totalAmountPrice() {
       let count = 0
       let total = 0
       this.orderData.forEach(item => {
-        count += (item.unit === "件" || item.unit === "包") ? parseInt(item.amount):parseFloat(item.weight.toFixed(2))
+        count +=
+          item.unit === '件' || item.unit === '包'
+            ? parseInt(item.amount)
+            : parseFloat(item.weight.toFixed(2))
         total +=
           item.clientPrice > 0
             ? item.clientPrice * item.amount - item.discount
