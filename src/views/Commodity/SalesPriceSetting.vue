@@ -168,7 +168,7 @@
   </div>
 </template>
 <script>
-  import VueMask from 'v-mask'
+import VueMask from 'v-mask'
 import formatPrice from '@/components/thousand'
 import translate from '@/components/translate'
 import threeWeights from '@/components/threeweightTrans'
@@ -202,7 +202,7 @@ export default {
         updateTime: '',
         tagId: '',
         alias: '',
-        weight:0,
+        weight: 0,
         weightUnit: ''
       },
       rules: {
@@ -258,7 +258,7 @@ export default {
           dataIndex: 'clientName',
           align: 'center',
           customRender: (val, row) => {
-            console.log(row.storeClient,123)
+            console.log(row.storeClient, 123)
             return {
               children: (
                 <div>
@@ -398,7 +398,6 @@ export default {
           if (record !== '') {
             if (record.unit === 'PACK' || record.unit === 'PIECE') {
               this.rules.barcode[0].required = true
-
             } else {
               this.rules.barcode[0].required = false
               this.list.barcode = ''
@@ -412,7 +411,8 @@ export default {
             this.list.updateTime = record.updateTime
             this.list.alias = record.alias
             this.list.weight = record.fixedWeight.toFixed(2)
-            this.list.weightUnit = record.weightUnit === null ? '' :record.weightUnit
+            this.list.weightUnit =
+              record.weightUnit === null ? '' : record.weightUnit
             this.list.tagId = record.tagId
             this.visible = true
             this.$api.Commodity.getCommodityDiscount({
@@ -444,8 +444,11 @@ export default {
               barcode: this.list.barcode,
               price: parseInt(this.list.listPrice),
               description: this.list.description,
-              fixedWeight: parseInt(this.list.weight).toFixed(2),
-              weightUnit: this.list.weightUnit,
+              fixedWeight:
+                this.list.barcode === ''
+                  ? 0
+                  : parseFloat(this.list.weight).toFixed(2),
+              weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
               using: true,
@@ -487,7 +490,10 @@ export default {
               barcode: this.list.barcode,
               price: parseInt(this.list.listPrice),
               description: this.list.description,
-              fixedWeight: this.list.barcode === '' ? 0 : parseFloat(this.list.weight).toFixed(2),
+              fixedWeight:
+                this.list.barcode === ''
+                  ? 0
+                  : parseFloat(this.list.weight).toFixed(2),
               weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
@@ -524,7 +530,10 @@ export default {
               barcode: this.list.barcode,
               price: this.list.listPrice,
               description: this.list.description,
-              fixedWeight: this.list.barcode === '' ? 0 : parseFloat(this.list.weight).toFixed(2),
+              fixedWeight:
+                this.list.barcode === ''
+                  ? 0
+                  : parseFloat(this.list.weight).toFixed(2),
               weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
@@ -614,9 +623,16 @@ export default {
     }
   },
   computed: {
-    decimalFormat(){
-      console.log(this.list.weight,333);
-      return this.list.weight.toString().replace(/\.\d{2,}$/,this.list.weight.toString().substr(this.list.weight.toString().indexOf('.'),3))
+    decimalFormat() {
+      console.log(this.list.weight, 333)
+      return this.list.weight
+        .toString()
+        .replace(
+          /\.\d{2,}$/,
+          this.list.weight
+            .toString()
+            .substr(this.list.weight.toString().indexOf('.'), 3)
+        )
     },
     priceFormatting: {
       get: function() {

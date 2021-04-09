@@ -282,64 +282,64 @@
                           </a-form-model-item>
                           <div style="margin-bottom: -40px;">
                             <a-form-model-item
-                                    v-for="(item, index) in recipientList"
-                                    :key="item.id"
+                              v-for="(item, index) in recipientList"
+                              :key="item.id"
                             >
                               <a-form-model
-                                      :model="recipientList[index]"
-                                      layout="horizontal"
-                                      ref="ruleForReceiver"
-                                      :rules="receiverVerify[index]"
+                                :model="recipientList[index]"
+                                layout="horizontal"
+                                ref="ruleForReceiver"
+                                :rules="receiverVerify[index]"
                               >
                                 <a-radio :value="(index += 2)">
                                   設為預設收件地址
                                   <div
-                                          class="custom-address"
-                                          style="position: relative;margin-bottom: -25px;left: -10px;"
+                                    class="custom-address"
+                                    style="position: relative;margin-bottom: -25px;left: -10px;"
                                   >
                                     <a-form-model-item
-                                            class="custom-form-item"
-                                            label="收件人"
-                                            prop="receiver"
+                                      class="custom-form-item"
+                                      label="收件人"
+                                      prop="receiver"
                                     >
                                       <a-input
-                                              @change="receiverInputVerify"
-                                              name="receiver"
-                                              v-model="item.receiver"
-                                              placeholder="請輸入"
+                                        @change="receiverInputVerify"
+                                        name="receiver"
+                                        v-model="item.receiver"
+                                        placeholder="請輸入"
                                       />
                                     </a-form-model-item>
                                     <a-form-model-item
-                                            class="custom-form-item"
-                                            label="收件電話"
-                                            prop="tel"
+                                      class="custom-form-item"
+                                      label="收件電話"
+                                      prop="tel"
                                     >
                                       <a-input
-                                              v-model="item.tel"
-                                              style="width: 200px"
-                                              placeholder="請輸入"
+                                        v-model="item.tel"
+                                        style="width: 200px"
+                                        placeholder="請輸入"
                                       />
                                     </a-form-model-item>
                                   </div>
                                 </a-radio>
                                 <div style="display: flex;">
                                   <a-form-model-item
-                                          class="custom-form-item"
-                                          label="收件地址"
-                                          prop="postCode"
-                                          style="position: relative; left: -10px"
+                                    class="custom-form-item"
+                                    label="收件地址"
+                                    prop="postCode"
+                                    style="position: relative; left: -10px"
                                   >
                                     <a-input
-                                            style="width: 82px"
-                                            placeholder="郵遞區號"
-                                            v-model="item.postCode"
+                                      style="width: 82px"
+                                      placeholder="郵遞區號"
+                                      v-model="item.postCode"
                                     />
                                   </a-form-model-item>
                                   <a-form-model-item prop="address">
                                     <a-input
-                                            style="width: 362px;"
-                                            v-model="item.address"
-                                            placeholder="請輸入"
+                                      style="width: 362px;"
+                                      v-model="item.address"
+                                      placeholder="請輸入"
                                     />
                                   </a-form-model-item>
                                 </div>
@@ -1022,7 +1022,17 @@ export default {
     },
     submitNonstop() {
       this.$refs.ruleForm.validate(valid => {
-        if (valid) {
+        const verify = this.$refs.ruleForReceiver.reduce((p, e) => {
+          //P初始值:true
+          let success //存放驗證結果
+          e.validate(v => (success = v))
+          //初始值為true如果驗證為false，P就返回false
+          if (p && !success) {
+            return false
+          }
+          return p
+        }, true)
+        if (valid && verify) {
           if (this.changeTitle === '新增客戶') {
             if (
               this.receiveInfo > 1 &&
@@ -1050,6 +1060,15 @@ export default {
                 .then(() => {
                   this.getCustomerList()
                   this.$message.success('新增客戶成功')
+                  this.recipientList = [
+                    {
+                      address: '',
+                      id: '',
+                      postCode: '',
+                      receiver: '',
+                      tel: ''
+                    }
+                  ]
                 })
                 .catch(err => {
                   console.log(err)
@@ -1102,6 +1121,15 @@ export default {
                 .then(() => {
                   this.getCustomerList()
                   this.$message.success('新增客戶成功')
+                  this.recipientList = [
+                    {
+                      address: '',
+                      id: '',
+                      postCode: '',
+                      receiver: '',
+                      tel: ''
+                    }
+                  ]
                 })
                 .catch(err => {
                   console.log(err)
