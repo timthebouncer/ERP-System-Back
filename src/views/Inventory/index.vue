@@ -369,7 +369,7 @@ export default {
           align: 'center',
           customRender: (val, row) => {
             return {
-              children: <div>{row.weight.toFixed(2)}{row.unitAmount}</div>
+              children: <div>{(row.unitAmount === '包') ||( row.unitAmount === "件")? row.unitAmount:row.weight.toFixed(2) + row.unitAmount  }</div>
             }
           }
         },
