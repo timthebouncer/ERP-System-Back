@@ -897,7 +897,7 @@ export default {
                     <a-icon
                       class="editable-cell-icon"
                       type="edit"
-                      onClick={() => this.inputORnot(row, editKey)}
+                      onClick={() => this.inputORnot2(row, editKey)}
                     />
                   </Fragment>
                 )}

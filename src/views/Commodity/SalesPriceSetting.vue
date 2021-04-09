@@ -396,13 +396,6 @@ export default {
         this.changeTitle = '編輯商品'
         if (record.using === true) {
           if (record !== '') {
-            if (record.unit === 'PACK' || record.unit === 'PIECE') {
-              this.rules.barcode[0].required = true
-            } else {
-              this.rules.barcode[0].required = false
-              this.list.barcode = ''
-              this.$refs.ruleForm.clearValidate()
-            }
             ;(this.list.name = record.name),
               (this.list.barcode = record.barcode),
               (this.list.unit = record.unit),
@@ -415,6 +408,7 @@ export default {
               record.weightUnit === null ? '' : record.weightUnit
             this.list.tagId = record.tagId
             this.visible = true
+
             this.$api.Commodity.getCommodityDiscount({
               productId: this.track
             }).then(res => {
@@ -430,6 +424,13 @@ export default {
                 )
               }))
             })
+            if (record.unit === 'PACK' || record.unit === 'PIECE') {
+              this.rules.barcode[0].required = true
+            } else {
+              this.rules.barcode[0].required = false
+              this.list.barcode = ''
+              this.$refs.ruleForm.clearValidate()
+            }
           }
         }
       }
