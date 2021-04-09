@@ -86,6 +86,7 @@
         </a-sub-menu>
       </a-menu>
     </div>
+<!--    <div class="ipSetting">666</div>-->
   </div>
 </template>
 
@@ -153,4 +154,13 @@ export default {
   left: 50%;
   margin-left: -15px;
 }
+.sidebarColor{
+  position: relative;
+  .ipSetting{
+    color: white;
+    position: absolute;
+    bottom: 0;
+  }
+}
+
 </style>

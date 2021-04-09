@@ -228,7 +228,7 @@ export default {
       formData.append('printerName', 'Sbarco T4ES 203 dpi')
       const agent = new https.Agent({ rejectUnauthorized: false })
       await axios
-        .post('https://192.168.168.233:8099/print/printTag', formData, {
+        .post('https://192.168.0.125:8099/print/printTag', formData, {
           httpsAgent: agent
         })
         .then(res => {

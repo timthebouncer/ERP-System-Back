@@ -264,7 +264,7 @@
                     style="display: flex"
                     v-if="orderModalTitle !== '訂單詳情'"
                   >
-                    <div style="width: 13%">
+                    <div>
                       {{ receiverList.postCode }}
                     </div>
                     <div>
@@ -572,7 +572,7 @@
                     <div v-else>{{ orderDetail.remark }}</div>
                     <template v-if="orderModalTitle !== '訂單詳情'">
                       <span> 總計:{{ totalAmountPrice.count }} </span>
-                      <span> 總金額:${{ totalAmountPrice.total }} </span>
+                      <span> 總金額:${{ totalAmountPrice.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",") }} </span>
                     </template>
                     <template v-else>
                       <span> 總計:{{ Calculate.count }} </span>
@@ -1274,7 +1274,7 @@ export default {
             //如果是當前欄位就跳出
             if (idx !== index){
               //非當前欄位且取回來的條碼已經存在
-              if(item.barCode === result[0].barcode){
+              if((item.barCode === result[0].barcode) && (result[0].unit === "PACK" || result[0].unit === "PIECE")){
                 //取得條碼狀態改為true
                 hasBarcode = true
               }
@@ -1333,14 +1333,14 @@ export default {
                           amount: item.amount,
                           weight: item.weight,
                           discount: item.discount,
-                          price: this.totalAmountPrice.total,
+                          price: item.price,
                           remark: item.remark
                         }
                       })
                     })
                       .then(res => {
                         this.$message.success('出貨確認成功')
-                        if (this.templateType || e) {
+                        if (this.templateType || e==='貼箱標籤') {
                           this.$api.Distribute.getDistributeDetail({
                             orderId: res.data.orderId
                           }).then(response => {
@@ -1699,6 +1699,14 @@ export default {
       this.findDefaultInfo[1].tel = this.list.companyTel
     }
   },
+  watch:{
+    temperatureCategory: function (val) {
+      if(val === 1 || val === 2){
+        this.volume = 1
+        this.shippingFeeCaluelate()
+      }
+    }
+  },
   computed: {
     totalAmountPrice() {
       let count = 0
@@ -1726,11 +1734,6 @@ export default {
     //     this.shippingFee = newValue
     //   }
     // },
-    filterName() {
-      return this.selectList.map(item => {
-        return { value: item.productId, text: item.productName }
-      })
-    },
     Quantity() {
       return (val, row, key) => {
         let editKey =

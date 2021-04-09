@@ -346,6 +346,8 @@ export default {
       } else {
         this.rules.barcode[0].required = false
         this.list.barcode = ''
+        this.list.weight = 0
+        this.list.weightUnit = ''
         this.$refs.ruleForm.clearValidate()
       }
     },
@@ -396,6 +398,7 @@ export default {
           if (record !== '') {
             if (record.unit === 'PACK' || record.unit === 'PIECE') {
               this.rules.barcode[0].required = true
+
             } else {
               this.rules.barcode[0].required = false
               this.list.barcode = ''
@@ -409,7 +412,7 @@ export default {
             this.list.updateTime = record.updateTime
             this.list.alias = record.alias
             this.list.weight = record.fixedWeight.toFixed(2)
-            this.list.weightUnit = record.weightUnit
+            this.list.weightUnit = record.weightUnit === null ? '' :record.weightUnit
             this.list.tagId = record.tagId
             this.visible = true
             this.$api.Commodity.getCommodityDiscount({
@@ -484,7 +487,7 @@ export default {
               barcode: this.list.barcode,
               price: parseInt(this.list.listPrice),
               description: this.list.description,
-              fixedWeight: this.list.barcode === '' ? 0 : parseInt(this.list.weight).toFixed(2),
+              fixedWeight: this.list.barcode === '' ? 0 : parseFloat(this.list.weight).toFixed(2),
               weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
@@ -576,7 +579,8 @@ export default {
         description: '',
         tagId: '',
         fixedWeight: 0,
-        weightUnit: ''
+        weightUnit: '',
+        weight: 0
       }
       this.salesTable = []
       this.resetForm()
@@ -611,7 +615,8 @@ export default {
   },
   computed: {
     decimalFormat(){
-      return this.list.weight.replace(/\.\d{2,}$/,this.list.weight.substr(this.list.weight.indexOf('.'),3))
+      console.log(this.list.weight,333);
+      return this.list.weight.toString().replace(/\.\d{2,}$/,this.list.weight.toString().substr(this.list.weight.toString().indexOf('.'),3))
     },
     priceFormatting: {
       get: function() {
