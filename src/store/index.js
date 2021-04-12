@@ -13,7 +13,8 @@ export default new Vuex.Store({
       tagName: '',
       updateDate: '',
       showFront: false,
-      svgString: ''
+      svgString: '',
+      ip:''
     }
   },
   mutations: {},

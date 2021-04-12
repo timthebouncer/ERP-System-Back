@@ -45,9 +45,11 @@ export default {
       packageType:""
     }
   },
-  mounted() {},
+  mounted() {
+  },
   methods: {
     async turnOn() {
+      console.log(this.$store.state.labelData.ip);
       this.packageType = "貼箱標籤"
       this.visible = true
       let _this = this
@@ -228,11 +230,13 @@ export default {
       formData.append('printerName', 'Sbarco T4ES 203 dpi')
       const agent = new https.Agent({ rejectUnauthorized: false })
       await axios
-        .post('https://192.168.0.125:8099/print/printTag', formData, {
+        .post(`https://${this.$store.state.labelData.ip}:8099/print/printTag`, formData, {
           httpsAgent: agent
         })
         .then(res => {
           console.log(res)
+        }).catch(()=>{
+          console.log(`https://${this.$store.state.labelData.ip}:8099/print/printTag`)
         })
     }
   }

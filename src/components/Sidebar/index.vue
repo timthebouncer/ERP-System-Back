@@ -86,7 +86,23 @@
         </a-sub-menu>
       </a-menu>
     </div>
-<!--    <div class="ipSetting">666</div>-->
+    <a-modal
+            v-model="visible"
+            :title="'IP設定'"
+            width="500px"
+            @ok="handleOk"
+            @cancel="handleCancel"
+    >
+      <div>
+        <a-input v-model="enterIp" />
+      </div>
+    </a-modal>
+    <div v-if="!$store.state.collapsed" class="ipSetting">
+      <a-button @click="ipSetting"><a-icon type="setting" />設定IP位址</a-button>
+    </div>
+    <div class="ipSetting" v-else>
+      <a-button><a-icon type="setting" /></a-button>
+    </div>
   </div>
 </template>
 
@@ -97,7 +113,9 @@ export default {
       storeKey: '',
       theme: 'dark',
       openKeys: [],
-      selectedKeys: []
+      selectedKeys: [],
+      visible:false,
+      enterIp:''
     }
   },
   created() {
@@ -124,6 +142,16 @@ export default {
   methods: {
     goHome(){
       this.$router.push('/')
+    },
+    ipSetting(){
+      this.visible = true
+    },
+    handleOk(){
+      this.$store.state.labelData.ip = this.enterIp
+      this.visible = false
+    },
+    handleCancel(){
+      this.visible = false
     }
     },
 };
@@ -155,11 +183,12 @@ export default {
   margin-left: -15px;
 }
 .sidebarColor{
-  position: relative;
   .ipSetting{
     color: white;
     position: absolute;
     bottom: 0;
+    left: 18%;
+    cursor:pointer
   }
 }
 
