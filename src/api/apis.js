@@ -139,6 +139,9 @@ const api = {
     },
     deleteCommodityDiscount(row) {
       return request.delete('/deliveryOrderDetail/deleteDetail/' + row.id)
+    },
+    printTag(data){
+      return request.post('/printTag',data)
     }
   },
   Label: {

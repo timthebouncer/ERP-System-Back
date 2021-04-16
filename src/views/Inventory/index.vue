@@ -325,6 +325,7 @@ export default {
           dataIndex: 'totalListPrice',
           align: 'center',
           customRender: (val, row) => {
+            console.log(row,3232)
             let count = 0
             row.inventoryList.forEach(item => (count += item.price))
             return {

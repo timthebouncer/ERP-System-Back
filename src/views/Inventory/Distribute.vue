@@ -557,6 +557,7 @@
                     :columns="orderColumns"
                     :data-source="orderData"
                     :pagination="orderModalTitle !== '訂單詳情' ? true : false"
+                    @change="distributeChange"
                   >
                   </a-table>
 
@@ -571,11 +572,11 @@
                     </div>
                     <div v-else>{{ orderDetail.remark }}</div>
                     <template v-if="orderModalTitle !== '訂單詳情'">
-                      <span> 總計:{{ totalAmountPrice.count }} </span>
+                      <span> 總計:{{ parseFloat(totalAmountPrice.count).toFixed(2) }} </span>
                       <span> 總金額:${{ totalAmountPrice.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",") }} </span>
                     </template>
                     <template v-else>
-                      <span> 總計:{{ Calculate.count }} </span>
+                      <span> 總計:{{ parseFloat(Calculate.count).toFixed(2) }} </span>
                       <span> 總金額:{{ Calculate.totalPrice }} </span>
                     </template>
                   </a-form-model-item>
@@ -652,7 +653,7 @@ export default {
                     <a-input
                       autoFocus
                       style={{ width: '130px' }}
-                      onChange={barCode => this.pushName(barCode, row,index)}
+                      onChange={barCode => this.pushName(barCode, row,(index = (this.currentPage - 1) * this.pageSizes + index))}
                       vModel={row.barCode}
                       placeholder="請手動輸入商品條碼"
                     ></a-input>
@@ -770,7 +771,9 @@ export default {
                   <div>
                     <a-popconfirm
                       title="確定要刪除嗎?"
-                      onConfirm={() => this.deleteOrder(row, index)}
+                      onConfirm={() => this.deleteOrder(row,(index = (this.currentPage - 1) * this.pageSizes + index)
+                      )
+                      }
                     >
                       <a>刪除</a>
                     </a-popconfirm>
@@ -865,7 +868,6 @@ export default {
       findDefaultInfo: [],
       templateType: '',
       printed: false,
-      existId: '',
       ruleList: {
         customerClass: '',
         optionId: ''
@@ -926,7 +928,9 @@ export default {
                   <div>
                     <a-popconfirm
                       title="確定要刪除嗎?"
-                      onConfirm={() => this.deleteOrder(row, index)}
+                      onConfirm={() => this.deleteOrder(row,(index = (this.currentPage - 1) * this.pageSizes + index)
+                      )
+                      }
                     >
                       <a>刪除</a>
                     </a-popconfirm>
@@ -957,7 +961,9 @@ export default {
                   <div>
                     <a-popconfirm
                       title="確定要刪除嗎?"
-                      onConfirm={() => this.deleteOrder(row, index)}
+                      onConfirm={() => this.deleteOrder(row,(index = (this.currentPage - 1) * this.pageSizes + index)
+                      )
+                      }
                     >
                       <a>刪除</a>
                     </a-popconfirm>
@@ -1061,6 +1067,7 @@ export default {
         this.orderData = res.data.orderDetailItemResponseList.map(item => {
           return {
             id: item.id,
+            productId:item.productId,
             alias: item.alias,
             amount: item.amount,
             barCode: item.barcode,
@@ -1242,13 +1249,13 @@ export default {
     },
     handleAdd() {
       const { orderData } = this
-      let self = this
       const newData = {
         order: 0,
         barCode: '',
         productName: '',
         unit: '-',
-        productId: undefined,
+        id: undefined,
+        productId:undefined,
         clientPrice: 0,
         price: 0,
         amount: 1,
@@ -1263,9 +1270,9 @@ export default {
       this.orderData = [...orderData, newData]
     },
     pushName(barCode, row, index) {
+      console.log(index)
       if (row.barCode !== '') {
         let result = this.selectList.filter(item => item.barcode === row.barCode)
-        console.log(result)
         //輸入條碼會拿到符合的值
         if(result.length > 0){
           let hasBarcode = false
@@ -1328,7 +1335,6 @@ export default {
                       shippingFee: this.shipment === 3 ? 0 : this.shippingFee,
                       defaultReceiveInfo: this.defaultReceiver,
                       orderItemRequestList: this.orderData.map(item => {
-                        console.log(item)
                         return {
                           barcode: item.barCode,
                           amount: item.amount,
@@ -1343,65 +1349,71 @@ export default {
                       })
                     })
                       .then(res => {
-                        this.$message.success('出貨確認成功')
-                        if (this.templateType || e==='貼箱標籤') {
-                          this.$api.Distribute.getDistributeDetail({
-                            orderId: res.data.orderId
-                          }).then(response => {
-                            this.orderData =
-                              response.data.orderDetailItemResponseList
-                            let count = 0
-                            let totalPrice = 0
-                            this.orderData.forEach(item => {
-                              count +=
-                                item.unit === '件' || item.unit === '包'
-                                  ? parseInt(item.amount)
-                                  : parseFloat(item.weight.toFixed(2))
-                              totalPrice +=
-                                item.clientPrice > 0
-                                  ? item.clientPrice * item.amount -
-                                    item.discount
-                                  : item.price * item.amount - item.discount
+                        const stock = this.orderData.reduce((p,c)=>{
+                          p[c.productId] = parseInt(c.amount)
+                          return p
+                        },{})
+                        const quantity = this.selectList.some(
+                                (item) => {
+                                  return item.amount < stock[item.productId]
+                                }
+                        )
+                        if (quantity) {
+                          this.$message.error('出貨量大於庫存量')
+                        }else {
+                          this.$message.success('出貨確認成功')
+                          if (this.templateType || e==='貼箱標籤') {
+                            this.$api.Distribute.getDistributeDetail({
+                              orderId: res.data.orderId
+                            }).then(response => {
+                              this.orderData =
+                                      response.data.orderDetailItemResponseList
+                              let count = 0
+                              let totalPrice = 0
+                              this.orderData.forEach(item => {
+                                count +=
+                                        item.unit === '件' || item.unit === '包'
+                                                ? parseInt(item.amount)
+                                                : parseFloat(item.weight.toFixed(2))
+                                totalPrice +=
+                                        item.clientPrice > 0
+                                                ? item.clientPrice * item.amount -
+                                                item.discount
+                                                : item.price * item.amount - item.discount
+                              })
+                              this.Calculate = { count, totalPrice }
+                              this.orderDetail = response.data
+                              this.printed = true
+                              this.templateType = ''
+                              resolve()
                             })
-                            this.Calculate = { count, totalPrice }
-                            this.existId = res.data.orderId
-                            this.orderDetail = response.data
-                            this.printed = true
-                            this.templateType = ''
-                            resolve()
-                          })
-                          setTimeout(() => {
+                            setTimeout(() => {
+                              this.orderViewVisible = false
+                            }, 3000)
+                            setTimeout(() => {
+                              this.handleCancel()
+                            }, 5000)
+                          } else {
                             this.orderViewVisible = false
                             this.handleCancel()
-                          }, 3000)
-                        } else {
-                          this.orderViewVisible = false
-                          this.existId = ''
-                          this.handleCancel()
-                          this.templateType = ''
+                            this.templateType = ''
+                          }
+                          this.resetPage()
                         }
-                        this.resetPage()
                       })
                       .catch(() => {
-                        if (this.$refs.IdentifyBtn.templateType) {
-                          this.$refs.IdentifyBtn.templateType = ''
-                          this.$message.error('訂單編號已存在')
-                        } else {
-                          this.orderViewVisible = false
-                          this.existId = ''
-                          this.handleCancel()
-                          this.templateType = ''
-                        }
-                        const stock = this.orderData.map(item => {
-                          return item.amount
-                        })
+                        const stock = this.orderData.reduce((p,c)=>{
+                          p[c.productId] = parseInt(c.amount)
+                          return p
+                        },{})
                         const quantity = this.selectList.some(
-                          (item, i) => item.amount < stock[i]
+                                (item) => {
+                                  return item.amount < stock[item.productId]
+                                }
                         )
                         if (quantity) {
                           this.$message.error('出貨量大於庫存量')
                         }
-                        reject()
                       })
                   } else {
                     this.$message.error('請選擇商品')
@@ -1427,7 +1439,6 @@ export default {
                 shippingFee: this.shipment === 3 ? 0 : this.shippingFee,
                 defaultReceiveInfo: this.defaultReceiver,
                 orderItemRequestList: this.orderData.map(item => {
-                  console.log(item,2)
                   return {
                     id: item.id,
                     barcode: item.barCode,
@@ -1443,47 +1454,65 @@ export default {
                 })
               })
                 .then(() => {
-                  this.$message.success('編輯出貨成功')
-                  if (this.templateType || e === '貼箱標籤') {
-                    this.$api.Distribute.getDistributeDetail({
-                      orderId: this.orderId
-                    }).then(response => {
-                      this.orderDetail = response.data
-                      this.orderData = response.data.orderDetailItemResponseList
-                      let count = 0
-                      let totalPrice = 0
-                      this.orderData.forEach(item => {
-                        count +=
-                          item.unit === '件' || item.unit === '包'
-                            ? parseInt(item.amount)
-                            : parseFloat(item.weight.toFixed(2))
-                        totalPrice +=
-                          item.clientPrice > 0
-                            ? item.clientPrice * item.amount - item.discount
-                            : item.price * item.amount - item.discount
+                  const stock = this.orderData.reduce((p,c)=>{
+                    p[c.productId] = parseInt(c.amount)
+                    return p
+                  },{})
+                  const quantity = this.selectList.some(
+                          (item) => {
+                            return item.amount < stock[item.productId]
+                          }
+                  )
+                  if (quantity) {
+                    this.$message.error('出貨量大於庫存量')
+                  }else {
+                    this.$message.success('編輯出貨成功')
+                    if (this.templateType || e === '貼箱標籤') {
+                      this.$api.Distribute.getDistributeDetail({
+                        orderId: this.orderId
+                      }).then(response => {
+                        this.orderDetail = response.data
+                        this.orderData = response.data.orderDetailItemResponseList
+                        let count = 0
+                        let totalPrice = 0
+                        this.orderData.forEach(item => {
+                          count +=
+                                  item.unit === '件' || item.unit === '包'
+                                          ? parseInt(item.amount)
+                                          : parseFloat(item.weight.toFixed(2))
+                          totalPrice +=
+                                  item.clientPrice > 0
+                                          ? item.clientPrice * item.amount - item.discount
+                                          : item.price * item.amount - item.discount
+                        })
+                        this.Calculate = { count, totalPrice }
+                        resolve()
                       })
-                      this.Calculate = { count, totalPrice }
-                      resolve()
-                    })
-                    this.templateType = ''
-                    setTimeout(() => {
+                      this.templateType = ''
+                      setTimeout(() => {
+                        this.orderViewVisible = false
+                      }, 3000)
+                      setTimeout(() => {
+                        this.handleCancel()
+                      }, 5000)
+                    } else {
                       this.orderViewVisible = false
                       this.handleCancel()
-                    }, 3000)
-                  } else {
-                    this.orderViewVisible = false
-                    this.handleCancel()
+                      this.templateType = ''
+                    }
                     this.templateType = ''
+                    this.resetPage()
                   }
-                  this.templateType = ''
-                  this.resetPage()
                 })
                 .catch(() => {
-                  const stock = this.orderData.map(item => {
-                    return item.amount
-                  })
+                  const stock = this.orderData.reduce((p,c)=>{
+                    p[c.productId] = parseInt(c.amount)
+                    return p
+                  },{})
                   const quantity = this.selectList.some(
-                    (item, i) => item.amount < stock[i]
+                          (item) => {
+                            return item.amount < stock[item.productId]
+                          }
                   )
                   if (quantity) {
                     this.$message.error('出貨量大於庫存量')
@@ -1614,7 +1643,7 @@ export default {
       this.pageSize = pageSize
       this.distributeList(this.search)
     },
-    onPageChange(current) {
+    onPageChange() {
       this.distributeList(this.search)
     },
     showDetail(record) {
@@ -1683,6 +1712,10 @@ export default {
       this.pageNumber = 1
       this.distributeList()
     },
+    distributeChange({ current, pageSize }){
+      this.currentPage = current
+      this.pageSizes = pageSize
+    },
     resetForm() {
       this.$refs.ruleForm.resetFields()
     },
@@ -1723,7 +1756,7 @@ export default {
         count +=
           item.unit === '件' || item.unit === '包'
             ? parseInt(item.amount)
-            : parseFloat(item.weight.toFixed(2))
+            : item.weight
         total +=
           item.clientPrice > 0
             ? item.clientPrice * item.amount - item.discount

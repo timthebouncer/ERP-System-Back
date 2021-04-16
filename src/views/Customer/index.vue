@@ -792,8 +792,7 @@ export default {
                       title="確定要刪除嗎?"
                       onConfirm={() =>
                         this.deleteDiscount(
-                          row,
-                          (index = (this.current - 1) * this.pageSize + index)
+                          row,(index = (this.current - 1) * this.pageSize + index)
                         )
                       }
                     >

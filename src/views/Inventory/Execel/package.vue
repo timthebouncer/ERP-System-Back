@@ -35,7 +35,7 @@ import * as htmlToImage from 'html-to-image'
 import https from 'https'
 export default {
   name: 'inventoryExcel',
-  props: ['receiverList', 'orderDetail','distirbuteHandler','orderTitle'],
+  props: ['receiverList', 'orderDetail','distirbuteHandler','orderTitle','parentHandleCancel'],
   data() {
     return {
       visible: false,
@@ -49,7 +49,6 @@ export default {
   },
   methods: {
     async turnOn() {
-      console.log(this.$store.state.labelData.ip);
       this.packageType = "貼箱標籤"
       this.visible = true
       let _this = this
@@ -220,24 +219,39 @@ export default {
     },
     async exportSVG() {
       let canvasJson = this.canvas.toJSON()
-      let file = await new File([JSON.stringify(canvasJson)], 'foo.txt', {
-        type: 'text/plain'
+
+      let data = {
+        width: "100",
+        height: "80",
+        printerName: "Sbarco T4ES 203 dpi",
+        content: JSON.stringify(canvasJson)
+      }
+      this.$api.Distribute.printTag(data).then((res)=>{
+        console.log(res)
       })
-      const formData = await new FormData()
-      formData.append('file', file)
-      formData.append('width', '100')
-      formData.append('height', '80')
-      formData.append('printerName', 'Sbarco T4ES 203 dpi')
-      const agent = new https.Agent({ rejectUnauthorized: false })
-      await axios
-        .post(`https://${this.$store.state.labelData.ip}:8099/print/printTag`, formData, {
-          httpsAgent: agent
-        })
-        .then(res => {
-          console.log(res)
-        }).catch(()=>{
-          console.log(`https://${this.$store.state.labelData.ip}:8099/print/printTag`)
-        })
+
+
+
+      // let file = await new File([JSON.stringify(canvasJson)], 'foo.txt', {
+      //   type: 'text/plain'
+      // })
+      // const formData = await new FormData()
+      // formData.append('file', file)
+      // formData.append('width', '100')
+      // formData.append('height', '80')
+      // formData.append('printerName', 'Sbarco T4ES 203 dpi')
+      // const agent = new https.Agent({ rejectUnauthorized: false })
+      // await axios
+      //   .post(`https://${this.$store.state.labelData.ip}:8099/print/printTag`, formData, {
+      //     httpsAgent: agent
+      //   })
+      //   .then(() => {
+      //     this.$message.success('列印成功')
+      //     this.parentHandleCancel()
+      //   }).catch(()=>{
+      //     this.$message.error('列印失敗')
+      //     console.log(`https://${this.$store.state.labelData.ip}:8099/print/printTag`)
+      //   })
     }
   }
 }
