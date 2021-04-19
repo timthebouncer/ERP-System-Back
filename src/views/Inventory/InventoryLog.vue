@@ -195,7 +195,6 @@ export default {
       this.onSearch()
     },
     onSelectActionChange(value) {
-      console.log(value)
       this.action = value == 'all' ? '' : value
       this.onSearch()
     },
@@ -206,7 +205,6 @@ export default {
     },
     onPageChange(current, pageSize) {
       console.log(pageSize)
-      // console.log(this.total);
       this.current = current
       this.getInventoryLogList()
     },
@@ -240,11 +238,6 @@ export default {
     moment
   },
   created() {
-    // const res = await this.$api.Login.loginIdentify()
-    // console.log(res)
-    // if(res.data === false){
-    //   this.$router.push('/')
-    // }else{
     this.today = moment(new Date()).format(this.dateFormat)
     this.firstThisWeekDay = moment(moment(new Date()).startOf('week'))
       .add(1, 'd')
@@ -272,7 +265,6 @@ export default {
     this.endDate = this.endThisMonthDay
     this.dateRange = [this.startDate, this.endDate]
     this.onSearch()
-    // }
   }
 }
 </script>

@@ -224,7 +224,8 @@ export default {
         width: "100",
         height: "80",
         printerName: "Sbarco T4ES 203 dpi",
-        content: JSON.stringify(canvasJson)
+        content: JSON.stringify(canvasJson),
+        action:'tag'
       }
       this.$api.Distribute.printTag(data).then((res)=>{
         console.log(res)

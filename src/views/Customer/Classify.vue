@@ -145,7 +145,6 @@ export default {
   },
   async created() {
     const res = await this.$api.Login.loginIdentify()
-    console.log(res)
     if(res.data === false){
       this.$router.push('/')
     }else{

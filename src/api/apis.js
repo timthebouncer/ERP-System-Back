@@ -141,7 +141,7 @@ const api = {
       return request.delete('/deliveryOrderDetail/deleteDetail/' + row.id)
     },
     printTag(data){
-      return request.post('/printTag',data)
+      return request.post('/printTask',data)
     }
   },
   Label: {

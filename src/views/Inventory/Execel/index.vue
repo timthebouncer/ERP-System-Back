@@ -137,7 +137,7 @@
           </div>
           <div class="footer" v-if="!disableFooter[index]">
             <div class="contact-wrapper" v-if="templateType !== '零售-有價格'">
-              <span>總計 {{ Calculate.count }}</span>
+              <span>總計 {{ parseFloat(Calculate.count).toFixed(2) }}</span>
               <span>藤舍牧業(何藤畜牧場) 農場牧登字第一一七四三三號</span>
               <span>業務聯絡人 : 0935-734982</span>
               <span>帳務聯絡人 : 0952-582050</span>
@@ -145,7 +145,7 @@
               <span>戶名: 張何男</span>
             </div>
             <div v-else class="contact-wrapper">
-              <span>總計 {{ Calculate.count }}</span>
+              <span>總計 {{ parseFloat(Calculate.count).toFixed(2) }}</span>
               <span>藤舍牧業(何藤畜牧場) 農場牧登字第一一七四三三號</span>
               <span>聯絡電話: 03-4760311</span>
               <span>匯款帳號: 中國信託-新竹分行 822-554540329807</span>
@@ -266,7 +266,9 @@ export default {
         }
       },
       tableData: [],
-      columnList: []
+      columnList: [],
+      reportImage:[],
+      reportImage2:[],
     }
   },
   created() {
@@ -332,7 +334,7 @@ export default {
         }, 500)
         setTimeout(function() {
           _this.parentHandleCancel()
-        }, 2500)
+        }, 3000)
       }
     },
     async showModal2() {
@@ -420,16 +422,37 @@ export default {
         }, 2000)
       }
     },
+    async addReportImg(value, page) {
+      let pageClass = "page" + page;
+
+      const dataUrl = await htmlToImage.toPng(
+              document.getElementsByClassName(pageClass)[0]
+      );
+      if (value == 1) {
+        let img = new Image();
+
+        img.src = dataUrl;
+        img.width = 1110;
+
+        this.reportImage.push(dataUrl);
+
+      } else if (value == 2) {
+        let img = new Image();
+
+        img.src = dataUrl;
+        img.width = 1110;
+        this.reportImage2.push(dataUrl);
+
+      }
+    },
     async handleOk() {
       if (this.templateType !== '貼箱標籤') {
         this.$nextTick(() => {
           if (this.orderData.length > 15) {
             let pages = 0;
-            if (
-              this.orderData.length / 15 >
-              parseInt(this.orderData.length / 15)
-            ) {
+            if (this.orderData.length / 15 >parseInt(this.orderData.length / 15)) {
               pages = parseInt(this.orderData.length / 15) + 1
+              console.log(pages)
             } else {
               pages = this.orderData.length / 15
             }
@@ -464,32 +487,57 @@ export default {
 
 
         setTimeout(async () => {
-          const dataUrl = await htmlToImage.toPng(
-            document.querySelector('.table-content')
-          )
-          let img = new Image()
-          img.src = dataUrl
+          for (let item of this.tableList) {
+            let index = this.tableList.indexOf(item);
+            await this.addReportImg(1, index + 1);
+          }
 
-          img.width = 1110
-          let printPage = document.body.appendChild(img)
-          printPage.classList.add('printImage')
+
+          // const dataUrl = await htmlToImage.toPng(
+          //   document.querySelector('.table-content')
+          // )
+          // let img = new Image()
+          // img.src = dataUrl
+          // img.width = 1110
+          // let printPage = document.body.appendChild(img)
+          // printPage.classList.add('printImage')
+
+        }, 700)
+
+        setTimeout(async()=>{
+
           let myWindow = await window.open('', '', 'width=2000,height=1000')
-          myWindow.document.write(printPage.outerHTML)
+          this.reportImage.forEach((value, index) => {
+            let img = new Image();
+
+            img.src = value;
+            img.width = 1110;
+            myWindow.document.write(img.outerHTML);
+          });
+          this.reportImage2.forEach((value, index) => {
+            let img = new Image();
+
+            img.src = value;
+            img.width = 1110;
+            myWindow.document.write(img.outerHTML);
+          });
+          // myWindow.document.write(printPage.outerHTML)
 
           myWindow.document.close()
           myWindow.focus()
           myWindow.print()
           myWindow.close()
-        }, 1000)
+
+        },2800)
 
         this.visible = false
-        this.handleCancel()
+        // this.handleCancel()
       }
     },
-    handleCancel() {
-      let printPage = document.querySelector('.printImage')
-      printPage.parentNode.removeChild(printPage)
-    },
+    // handleCancel() {
+    //   let printPage = document.querySelector('.printImage')
+    //   printPage.parentNode.removeChild(printPage)
+    // },
     getColumn(columns) {
       return columns === null
         ? Object.values(this.column)

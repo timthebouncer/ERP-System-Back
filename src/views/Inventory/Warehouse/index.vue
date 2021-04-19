@@ -114,7 +114,6 @@ export default {
       this.getDepotList(this.search)
     },
     editHandler(record){
-      console.log(this.$refs.ModalObject)
       this.$refs.ModalObject.showModal(record)
     },
     onDelete(record){

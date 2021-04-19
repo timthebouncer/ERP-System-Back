@@ -321,8 +321,6 @@ export default {
     },
     onPageChange(current) {
       console.log(current)
-      // console.log(pageSize);
-      // console.log(this.total);
       this.getCommodity()
     },
     onChange(checked, record) {

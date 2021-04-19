@@ -130,6 +130,11 @@
             :data-source="salesTable"
             :columns="columns"
             :rowKey="record => record.id"
+            :pagination="{
+                          newCurrent,
+                          newPageSize,
+                          newPageSizeOptions
+                        }"
             @change="salesTableChange"
           >
           </a-table>
@@ -180,6 +185,9 @@ export default {
   props: ['getCommodity', 'tableData'],
   data() {
     return {
+      newCurrent:1,
+      newPageSize:10,
+      newPageSizeOptions: ['10', '30', '50', '100'],
       defaultTagId: '',
       selectedId: [],
       cusList: [],
@@ -258,7 +266,6 @@ export default {
           dataIndex: 'clientName',
           align: 'center',
           customRender: (val, row) => {
-            console.log(row.storeClient, 123)
             return {
               children: (
                 <div>
@@ -303,7 +310,6 @@ export default {
         {
           title: '操作',
           dataIndex: 'operation',
-          // width: "2%",
           align: 'center',
           customRender: (value, row, index) => ({
             children: (
@@ -314,9 +320,7 @@ export default {
                       title="確定要刪除嗎?"
                       onConfirm={() =>
                         this.deleteSalesTable(
-                          row,
-                          index
-                          // (index = (this.current - 1) * this.pageSize + index)
+                          row,(index = (this.newCurrent - 1) * this.newPageSize + index)
                         )
                       }
                     >
@@ -385,7 +389,10 @@ export default {
       }
       this.salesTable = [...salesTable, newData]
     },
-    salesTableChange() {},
+    salesTableChange({ current, pageSize }) {
+      this.newCurrent = current
+      this.newPageSize = pageSize
+    },
     showModal(record) {
       this.visible = true
       if (!record) {
@@ -540,7 +547,6 @@ export default {
               alias: this.list.alias,
               using: true,
               discountRequestList: this.salesTable.map(item => {
-                console.log(item,3)
                 return {
                   clientId: item.clientName,
                   price: item.discountPrice,
@@ -568,12 +574,29 @@ export default {
         }
       })
     },
-    deleteSalesTable(index) {
-      this.salesTable.splice(index, 1)
+   async deleteSalesTable(row,index) {
+      if (this.changeTitle === '新增商品') {
+        this.salesTable.splice(index, 1)
+      } else {
+        if (row.id) {
+          try {
+            await this.$api.Customer.discountRemove(row)
+            this.salesTable.splice(index, 1)
+            this.$message.success('刪除折扣成功')
+          } catch (err) {
+            this.$message.error('刪除折扣失敗')
+            console.log(err)
+          }
+        } else {
+          this.salesTable.splice(index, 1)
+        }
+      }
+      // if ((index % 10) + 1 === 1 && index !== 0) {
+      //   this.newCurrent--
+      // }
     },
     keepSelection() {
       this.salesTable.reduce((p, v) => {
-        console.log(p, v)
         return v.classes ? { ...p, [v.classes]: true } : p
       }, {})
     },
@@ -626,7 +649,6 @@ export default {
   },
   computed: {
     decimalFormat() {
-      console.log(this.list.weight, 333)
       return this.list.weight
         .toString()
         .replace(

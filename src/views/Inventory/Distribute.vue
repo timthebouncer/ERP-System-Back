@@ -572,12 +572,23 @@
                     </div>
                     <div v-else>{{ orderDetail.remark }}</div>
                     <template v-if="orderModalTitle !== '訂單詳情'">
-                      <span> 總計:{{ parseFloat(totalAmountPrice.count).toFixed(2) }} </span>
-                      <span> 總金額:${{ totalAmountPrice.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",") }} </span>
+                      <span>
+                        總計:{{ parseFloat(totalAmountPrice.count).toFixed(2) }}
+                      </span>
+                      <span>
+                        總金額:${{
+                          totalAmountPrice.total
+                            .toString()
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                        }}
+                      </span>
                     </template>
                     <template v-else>
-                      <span> 總計:{{ parseFloat(Calculate.count).toFixed(2) }} </span>
-                      <span> 總金額:{{ Calculate.totalPrice }} </span>
+                      <span>
+                        總計:{{ parseFloat(Calculate.count).toFixed(2) }}
+                      </span>
+                      <span> 總金額:{{ Calculate.totalPrice.toString()
+                            .replace(/\B(?=(\d{3})+(?!\d))/g, ',') }} </span>
                     </template>
                   </a-form-model-item>
                 </div>
@@ -645,7 +656,7 @@ export default {
           dataIndex: 'barCode',
           align: 'center',
           width: '12%',
-          customRender: (value, row,index) => {
+          customRender: (value, row, index) => {
             return {
               children:
                 this.orderModalTitle !== '訂單詳情' ? (
@@ -653,7 +664,14 @@ export default {
                     <a-input
                       autoFocus
                       style={{ width: '130px' }}
-                      onChange={barCode => this.pushName(barCode, row,(index = (this.currentPage - 1) * this.pageSizes + index))}
+                      onChange={barCode =>
+                        this.pushName(
+                          barCode,
+                          row,
+                          (index =
+                            (this.currentPage - 1) * this.pageSizes + index)
+                        )
+                      }
                       vModel={row.barCode}
                       placeholder="請手動輸入商品條碼"
                     ></a-input>
@@ -771,8 +789,12 @@ export default {
                   <div>
                     <a-popconfirm
                       title="確定要刪除嗎?"
-                      onConfirm={() => this.deleteOrder(row,(index = (this.currentPage - 1) * this.pageSizes + index)
-                      )
+                      onConfirm={() =>
+                        this.deleteOrder(
+                          row,
+                          (index =
+                            (this.currentPage - 1) * this.pageSizes + index)
+                        )
                       }
                     >
                       <a>刪除</a>
@@ -928,8 +950,12 @@ export default {
                   <div>
                     <a-popconfirm
                       title="確定要刪除嗎?"
-                      onConfirm={() => this.deleteOrder(row,(index = (this.currentPage - 1) * this.pageSizes + index)
-                      )
+                      onConfirm={() =>
+                        this.deleteOrder(
+                          row,
+                          (index =
+                            (this.currentPage - 1) * this.pageSizes + index)
+                        )
                       }
                     >
                       <a>刪除</a>
@@ -961,8 +987,12 @@ export default {
                   <div>
                     <a-popconfirm
                       title="確定要刪除嗎?"
-                      onConfirm={() => this.deleteOrder(row,(index = (this.currentPage - 1) * this.pageSizes + index)
-                      )
+                      onConfirm={() =>
+                        this.deleteOrder(
+                          row,
+                          (index =
+                            (this.currentPage - 1) * this.pageSizes + index)
+                        )
                       }
                     >
                       <a>刪除</a>
@@ -1067,7 +1097,7 @@ export default {
         this.orderData = res.data.orderDetailItemResponseList.map(item => {
           return {
             id: item.id,
-            productId:item.productId,
+            productId: item.productId,
             alias: item.alias,
             amount: item.amount,
             barCode: item.barcode,
@@ -1197,9 +1227,9 @@ export default {
       }).then(res => {
         this.selectList = [].concat.apply([], res.data)
 
-        this.orderData.map((item,idx) => {
-          if(item.barCode === this.selectList[idx].barcode){
-            return item.clientPrice = this.selectList[idx].clientPrice
+        this.orderData.map((item, idx) => {
+          if (item.barCode === this.selectList[idx].barcode) {
+            return (item.clientPrice = this.selectList[idx].clientPrice)
           }
         })
       })
@@ -1255,7 +1285,7 @@ export default {
         productName: '',
         unit: '-',
         id: undefined,
-        productId:undefined,
+        productId: undefined,
         clientPrice: 0,
         price: 0,
         amount: 1,
@@ -1270,34 +1300,59 @@ export default {
       this.orderData = [...orderData, newData]
     },
     pushName(barCode, row, index) {
-      console.log(index)
       if (row.barCode !== '') {
-        let result = this.selectList.filter(item => item.barcode === row.barCode)
+        let result = this.selectList.filter(
+          item => item.barcode === row.barCode
+        )
         //輸入條碼會拿到符合的值
-        if(result.length > 0){
+        if (result.length > 0) {
           let hasBarcode = false
-          this.orderData.map((item,idx) => {
+          let accmulate = false
+          this.orderData.map((item, idx) => {
             //判斷現在在哪一個欄位輸入
             //如果是當前欄位就跳出
-            if (idx !== index){
+            if (idx !== index) {
               //非當前欄位且取回來的條碼已經存在
-              if((item.barCode === result[0].barcode) && (result[0].unit === "PACK" || result[0].unit === "PIECE")){
+              if (item.barCode === result[0].barcode) {
                 //取得條碼狀態改為true
                 hasBarcode = true
               }
             }
           })
           //如果沒有拿過條碼就來這塞值
-          if(!hasBarcode){
-            row.productId = result[0].productId
-            row.unit = computedWeight(undefined, result[0].unit)
-            row.clientPrice = result[0].clientPrice
-            row.productName =
-                    result[0].alias === '' || result[0].alias === null
-                            ? result[0].productName
-                            : result[0].alias
-            row.price = result[0].price
-            row.weight = result[0].weight
+          if (!hasBarcode) {
+            if (result[0].unit === 'PIECE' || result[0].unit === 'PACK') {
+              console.log('第一次')
+              row.productId = result[0].productId
+              row.unit = computedWeight(undefined, result[0].unit)
+              row.clientPrice = result[0].clientPrice
+              row.productName =
+                result[0].alias === '' || result[0].alias === null
+                  ? result[0].productName
+                  : result[0].alias
+              row.price = result[0].price
+              row.weight = result[0].weight
+            } else {
+              console.log('第一次')
+              row.productId = result[0].productId
+              row.unit = computedWeight(undefined, result[0].unit)
+              row.clientPrice = result[0].clientPrice
+              row.productName =
+                result[0].alias === '' || result[0].alias === null
+                  ? result[0].productName
+                  : result[0].alias
+              row.price = result[0].price
+              row.weight = result[0].weight
+              accmulate = true
+            }
+          }else {
+            if(result[0].unit !== 'PIECE' && result[0].unit !== 'PACK'){
+              let idx = this.orderData.findIndex(item => item.barCode === result[0].barcode)
+                this.orderData[idx].amount += 1
+                this.orderData[idx].weight += result[0].weight
+              this.$message.success(`已合併${this.orderData[idx].alias ? this.orderData[idx].alias:this.orderData[idx].productName}`)
+              row.barCode = ''
+            }
           }
         }
       } else {
@@ -1340,46 +1395,44 @@ export default {
                           amount: item.amount,
                           weight: item.weight,
                           discount: parseInt(item.discount),
-                          price: item.clientPrice > 0
-                                  ? item.clientPrice * item.amount -
-                                  item.discount
-                                  : item.price * item.amount - item.discount,
+                          price:
+                            item.clientPrice > 0
+                              ? item.clientPrice * item.amount - item.discount
+                              : item.price * item.amount - item.discount,
                           remark: item.remark
                         }
                       })
                     })
                       .then(res => {
-                        const stock = this.orderData.reduce((p,c)=>{
+                        const stock = this.orderData.reduce((p, c) => {
                           p[c.productId] = parseInt(c.amount)
                           return p
-                        },{})
-                        const quantity = this.selectList.some(
-                                (item) => {
-                                  return item.amount < stock[item.productId]
-                                }
-                        )
+                        }, {})
+                        const quantity = this.selectList.some(item => {
+                          return item.amount < stock[item.productId]
+                        })
                         if (quantity) {
                           this.$message.error('出貨量大於庫存量')
-                        }else {
+                        } else {
                           this.$message.success('出貨確認成功')
-                          if (this.templateType || e==='貼箱標籤') {
+                          if (this.templateType || e === '貼箱標籤') {
                             this.$api.Distribute.getDistributeDetail({
                               orderId: res.data.orderId
                             }).then(response => {
                               this.orderData =
-                                      response.data.orderDetailItemResponseList
+                                response.data.orderDetailItemResponseList
                               let count = 0
                               let totalPrice = 0
                               this.orderData.forEach(item => {
                                 count +=
-                                        item.unit === '件' || item.unit === '包'
-                                                ? parseInt(item.amount)
-                                                : parseFloat(item.weight.toFixed(2))
+                                  item.unit === '件' || item.unit === '包'
+                                    ? parseInt(item.amount)
+                                    : parseFloat(item.weight.toFixed(2))
                                 totalPrice +=
-                                        item.clientPrice > 0
-                                                ? item.clientPrice * item.amount -
-                                                item.discount
-                                                : item.price * item.amount - item.discount
+                                  item.clientPrice > 0
+                                    ? item.clientPrice * item.amount -
+                                      item.discount
+                                    : item.price * item.amount - item.discount
                               })
                               this.Calculate = { count, totalPrice }
                               this.orderDetail = response.data
@@ -1402,15 +1455,13 @@ export default {
                         }
                       })
                       .catch(() => {
-                        const stock = this.orderData.reduce((p,c)=>{
+                        const stock = this.orderData.reduce((p, c) => {
                           p[c.productId] = parseInt(c.amount)
                           return p
-                        },{})
-                        const quantity = this.selectList.some(
-                                (item) => {
-                                  return item.amount < stock[item.productId]
-                                }
-                        )
+                        }, {})
+                        const quantity = this.selectList.some(item => {
+                          return item.amount < stock[item.productId]
+                        })
                         if (quantity) {
                           this.$message.error('出貨量大於庫存量')
                         }
@@ -1445,45 +1496,44 @@ export default {
                     amount: item.amount,
                     weight: item.weight,
                     discount: parseInt(item.discount),
-                    price: item.clientPrice > 0
-                            ? item.clientPrice * item.amount -
-                            item.discount
-                            : item.price * item.amount - item.discount,
+                    price:
+                      item.clientPrice > 0
+                        ? item.clientPrice * item.amount - item.discount
+                        : item.price * item.amount - item.discount,
                     remark: item.remark
                   }
                 })
               })
                 .then(() => {
-                  const stock = this.orderData.reduce((p,c)=>{
+                  const stock = this.orderData.reduce((p, c) => {
                     p[c.productId] = parseInt(c.amount)
                     return p
-                  },{})
-                  const quantity = this.selectList.some(
-                          (item) => {
-                            return item.amount < stock[item.productId]
-                          }
-                  )
+                  }, {})
+                  const quantity = this.selectList.some(item => {
+                    return item.amount < stock[item.productId]
+                  })
                   if (quantity) {
                     this.$message.error('出貨量大於庫存量')
-                  }else {
+                  } else {
                     this.$message.success('編輯出貨成功')
                     if (this.templateType || e === '貼箱標籤') {
                       this.$api.Distribute.getDistributeDetail({
                         orderId: this.orderId
                       }).then(response => {
                         this.orderDetail = response.data
-                        this.orderData = response.data.orderDetailItemResponseList
+                        this.orderData =
+                          response.data.orderDetailItemResponseList
                         let count = 0
                         let totalPrice = 0
                         this.orderData.forEach(item => {
                           count +=
-                                  item.unit === '件' || item.unit === '包'
-                                          ? parseInt(item.amount)
-                                          : parseFloat(item.weight.toFixed(2))
+                            item.unit === '件' || item.unit === '包'
+                              ? parseInt(item.amount)
+                              : parseFloat(item.weight.toFixed(2))
                           totalPrice +=
-                                  item.clientPrice > 0
-                                          ? item.clientPrice * item.amount - item.discount
-                                          : item.price * item.amount - item.discount
+                            item.clientPrice > 0
+                              ? item.clientPrice * item.amount - item.discount
+                              : item.price * item.amount - item.discount
                         })
                         this.Calculate = { count, totalPrice }
                         resolve()
@@ -1505,15 +1555,13 @@ export default {
                   }
                 })
                 .catch(() => {
-                  const stock = this.orderData.reduce((p,c)=>{
+                  const stock = this.orderData.reduce((p, c) => {
                     p[c.productId] = parseInt(c.amount)
                     return p
-                  },{})
-                  const quantity = this.selectList.some(
-                          (item) => {
-                            return item.amount < stock[item.productId]
-                          }
-                  )
+                  }, {})
+                  const quantity = this.selectList.some(item => {
+                    return item.amount < stock[item.productId]
+                  })
                   if (quantity) {
                     this.$message.error('出貨量大於庫存量')
                   }
@@ -1712,7 +1760,7 @@ export default {
       this.pageNumber = 1
       this.distributeList()
     },
-    distributeChange({ current, pageSize }){
+    distributeChange({ current, pageSize }) {
       this.currentPage = current
       this.pageSizes = pageSize
     },
@@ -1740,9 +1788,9 @@ export default {
       this.findDefaultInfo[1].tel = this.list.companyTel
     }
   },
-  watch:{
-    temperatureCategory: function (val) {
-      if(val === 1 || val === 2){
+  watch: {
+    temperatureCategory: function(val) {
+      if (val === 2 || val === 3) {
         this.volume = 1
         this.shippingFeeCaluelate()
       }
@@ -1809,7 +1857,8 @@ export default {
                   />
                 </Fragment>
               ) : (
-                <span>{val}</span>
+                <span>${val.toString()
+                        .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</span>
               )}
             </div>
           )

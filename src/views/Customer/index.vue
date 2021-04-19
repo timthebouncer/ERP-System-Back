@@ -781,7 +781,6 @@ export default {
         {
           title: '操作',
           dataIndex: 'operation',
-          // width: "2%",
           align: 'center',
           customRender: (value, row, index) => ({
             children: (
@@ -792,7 +791,7 @@ export default {
                       title="確定要刪除嗎?"
                       onConfirm={() =>
                         this.deleteDiscount(
-                          row,(index = (this.current - 1) * this.pageSize + index)
+                          row,(index = (this.newCurrent - 1) * this.newPageSize + index)
                         )
                       }
                     >
@@ -1233,7 +1232,7 @@ export default {
       this.pageSize = pageSize
       this.getCustomerList(this.search)
     },
-    onPageChange(current) {
+    onPageChange() {
       this.getCustomerList(this.search)
     },
     discountTableChange({ current, pageSize }) {
@@ -1259,6 +1258,7 @@ export default {
             console.log(err)
           }
         } else {
+          console.log(index)
           this.discountTable.splice(index, 1)
           this.keepSelection()
         }
