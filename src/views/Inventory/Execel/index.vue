@@ -131,7 +131,6 @@
               :columns="columnList"
               :data-source="item"
               :pagination="false"
-              style="text-align: center"
             >
             </a-table>
           </div>
@@ -216,7 +215,7 @@ export default {
             return (
               <h3>
                 {row.unit !== '件' && row.unit !== '包'
-                  ? row.weight
+                  ? parseFloat(row.weight).toFixed(3)
                   : row.amount}
               </h3>
             )
@@ -332,6 +331,7 @@ export default {
         setTimeout(function() {
           _this.parentHandleCancel()
         }, 3000)
+
       }
     },
     async showModal2() {
@@ -645,7 +645,8 @@ img {
     line-height: 30px;
     left: 0;
     span {
-      font-size: 20px;
+      font-size: 25px;
+      margin-bottom: 10px;
     }
   }
   .barcode-wrapper {
@@ -654,7 +655,7 @@ img {
     position: relative;
     right: 30px;
     span {
-      font-size: 20px;
+      font-size: 25px;
     }
   }
 }
@@ -681,27 +682,27 @@ img {
     position: relative;
     left: 0;
     span:nth-child(1) {
-      font-size: 20px;
+      font-size: 25px;
       margin-bottom: 20px;
     }
     span {
-      font-size: 17px;
+      font-size: 22px;
     }
   }
   .sign-wrapper {
     position: relative;
     right: 30px;
     span:nth-child(1) {
-      font-size: 20px;
+      font-size: 25px;
     }
     span {
-      font-size: 17px;
+      font-size: 22px;
     }
   }
   .sign-block {
-    background-color: #f4f4f4;
-    width: 230px;
-    height: 50px;
+    background-color: #e6e3d1;
+    width: 235px;
+    height: 55px;
     line-height: 3;
     margin-top: 70px;
     padding: 0 0 0 12px;
