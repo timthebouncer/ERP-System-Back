@@ -378,7 +378,7 @@ export default {
                 <div>
                   {row.unitAmount === '包' || row.unitAmount === '件'
                     ? row.unitAmount
-                    : row.weight.toFixed(2) + row.unitAmount}
+                    : row.weight.toFixed(3) + row.unitAmount}
                 </div>
               )
             }

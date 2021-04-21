@@ -573,7 +573,7 @@
                     <div v-else>{{ orderDetail.remark }}</div>
                     <template v-if="orderModalTitle !== '訂單詳情'">
                       <span>
-                        總計:{{ parseFloat(totalAmountPrice.count).toFixed(2) }}
+                        總計:{{ parseFloat(totalAmountPrice.count).toFixed(3) }}
                       </span>
                       <span>
                         總金額:${{
@@ -585,7 +585,7 @@
                     </template>
                     <template v-else>
                       <span>
-                        總計:{{ parseFloat(Calculate.count).toFixed(2) }}
+                        總計:{{ parseFloat(Calculate.count).toFixed(3) }}
                       </span>
                       <span> 總金額:{{ Calculate.totalPrice.toString()
                             .replace(/\B(?=(\d{3})+(?!\d))/g, ',') }} </span>
@@ -605,7 +605,6 @@
                 :orderDetail="orderDetail"
                 :orderTitle="orderModalTitle"
                 :list="list"
-                :receiverList="receiverList"
                 :Calculate="Calculate"
                 :parentHandleCancel="handleCancel"
                 @passTemplateType="getTemplateType"
@@ -708,7 +707,7 @@ export default {
           customRender: (val, row) => {
             return row.unit === '件' || row.unit === '包'
               ? this.Quantity(val, row, 'amount')
-              : row.weight
+              : parseFloat(row.weight).toFixed(3)
           },
           scopedSlots: { customRender: 'amount' }
         },
@@ -1102,7 +1101,7 @@ export default {
             amount: item.amount,
             barCode: item.barcode,
             price: item.price,
-            productName: item.alias === '' ? item.productName : item.alias,
+            productName: item.alias === ''||item.alias === null ? item.productName : item.alias,
             remark: item.remark,
             clientPrice: item.clientPrice,
             unit: item.unit,
@@ -1427,7 +1426,7 @@ export default {
                                 count +=
                                   item.unit === '件' || item.unit === '包'
                                     ? parseInt(item.amount)
-                                    : parseFloat(item.weight.toFixed(2))
+                                    : parseFloat(item.weight.toFixed(3))
                                 totalPrice +=
                                   item.clientPrice > 0
                                     ? item.clientPrice * item.amount -
@@ -1505,18 +1504,10 @@ export default {
                 })
               })
                 .then(() => {
-                  const stock = this.orderData.reduce((p, c) => {
-                    p[c.productId] = parseInt(c.amount)
-                    return p
-                  }, {})
-                  const quantity = this.selectList.some(item => {
-                    return item.amount < stock[item.productId]
-                  })
-                  if (quantity) {
-                    this.$message.error('出貨量大於庫存量')
-                  } else {
                     this.$message.success('編輯出貨成功')
+                  console.log(this.templateType)
                     if (this.templateType || e === '貼箱標籤') {
+                      console.log(1)
                       this.$api.Distribute.getDistributeDetail({
                         orderId: this.orderId
                       }).then(response => {
@@ -1529,7 +1520,7 @@ export default {
                           count +=
                             item.unit === '件' || item.unit === '包'
                               ? parseInt(item.amount)
-                              : parseFloat(item.weight.toFixed(2))
+                              : parseFloat(item.weight.toFixed(3))
                           totalPrice +=
                             item.clientPrice > 0
                               ? item.clientPrice * item.amount - item.discount
@@ -1539,20 +1530,23 @@ export default {
                         resolve()
                       })
                       this.templateType = ''
+                      // setTimeout(() => {
+                      //   console.log(3)
+                      //   this.orderViewVisible = false
+                      // }, 4000)
                       setTimeout(() => {
-                        this.orderViewVisible = false
-                      }, 3000)
-                      setTimeout(() => {
+                        console.log('關彈窗')
                         this.handleCancel()
-                      }, 5000)
+                      }, 4000)
                     } else {
+                      console.log(2)
                       this.orderViewVisible = false
                       this.handleCancel()
                       this.templateType = ''
                     }
                     this.templateType = ''
                     this.resetPage()
-                  }
+
                 })
                 .catch(() => {
                   const stock = this.orderData.reduce((p, c) => {
@@ -1740,7 +1734,7 @@ export default {
           count +=
             item.unit === '件' || item.unit === '包'
               ? parseInt(item.amount)
-              : parseFloat(item.weight.toFixed(2))
+              : parseFloat(item.weight.toFixed(3))
           totalPrice +=
             item.clientPrice > 0
               ? item.clientPrice * item.amount - item.discount
@@ -1857,8 +1851,7 @@ export default {
                   />
                 </Fragment>
               ) : (
-                <span>${val.toString()
-                        .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</span>
+                <span>{key === 'discount'? '$'+val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','):val}</span>
               )}
             </div>
           )

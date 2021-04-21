@@ -1,5 +1,6 @@
 <template>
     <a-select
+            style="width: 120px"
             :value="value"
             :placeholder="placeholder"
             @change="onSelect"
@@ -24,6 +25,9 @@
         required: false,
         type: String,
         default: '請選擇'
+      },
+      weightUnitVerify:{
+        type: Function
       }
     },
     data() {
@@ -35,6 +39,7 @@
       onSelect(v) {
         this.$emit('input', v)
         console.log(v)
+        this.weightUnitVerify()
       }
     },
   }

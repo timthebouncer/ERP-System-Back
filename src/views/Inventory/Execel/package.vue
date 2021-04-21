@@ -35,7 +35,7 @@ import * as htmlToImage from 'html-to-image'
 import https from 'https'
 export default {
   name: 'inventoryExcel',
-  props: ['receiverList', 'orderDetail','distirbuteHandler','orderTitle','parentHandleCancel'],
+  props: ['orderDetail','distirbuteHandler','orderTitle','parentHandleCancel'],
   data() {
     return {
       visible: false,
@@ -95,7 +95,7 @@ export default {
         fontSize: 25,
         fontFamily: '微軟正黑體'
       })
-      let text1 = new fabric.Textbox(`${this.receiverList.receiver}`, {
+      let text1 = new fabric.Textbox(`${this.orderDetail.receiver}`, {
         left: 90,
         top: 200,
         name: 'species',
@@ -227,11 +227,13 @@ export default {
         content: JSON.stringify(canvasJson),
         action:'tag'
       }
-      this.$api.Distribute.printTag(data).then((res)=>{
-        console.log(res)
-      })
+      // this.$api.Distribute.printTag(data).then((res)=>{
+      //   console.log(res)
+      // })
 
-
+      setTimeout(()=>{
+        this.parentHandleCancel()
+      },1000)
 
       // let file = await new File([JSON.stringify(canvasJson)], 'foo.txt', {
       //   type: 'text/plain'

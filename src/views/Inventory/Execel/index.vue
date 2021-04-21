@@ -137,7 +137,7 @@
           </div>
           <div class="footer" v-if="!disableFooter[index]">
             <div class="contact-wrapper" v-if="templateType !== '零售-有價格'">
-              <span>總計 {{ parseFloat(Calculate.count).toFixed(2) }}</span>
+              <span>總計 {{ parseFloat(Calculate.count).toFixed(3) }}</span>
               <span>藤舍牧業(何藤畜牧場) 農場牧登字第一一七四三三號</span>
               <span>業務聯絡人 : 0935-734982</span>
               <span>帳務聯絡人 : 0952-582050</span>
@@ -145,7 +145,7 @@
               <span>戶名: 張何男</span>
             </div>
             <div v-else class="contact-wrapper">
-              <span>總計 {{ parseFloat(Calculate.count).toFixed(2) }}</span>
+              <span>總計 {{ parseFloat(Calculate.count).toFixed(3) }}</span>
               <span>藤舍牧業(何藤畜牧場) 農場牧登字第一一七四三三號</span>
               <span>聯絡電話: 03-4760311</span>
               <span>匯款帳號: 中國信託-新竹分行 822-554540329807</span>
@@ -206,7 +206,7 @@ export default {
             customRender: 'name'
           },
           customRender: (val, row) => {
-            return <h3>{row.alias === '' ? row.productName : row.alias}</h3>
+            return <h3>{row.alias === ''||row.alias === null ? row.productName : row.alias}</h3>
           }
         },
         type2: {
@@ -295,6 +295,7 @@ export default {
         this.templateType = '商用-有價格'
         await this.$emit('passTemplateType', this.templateType)
         await this.distirbuteHandler()
+
         this.visible = true
         this.columnList = await this.getColumn([
           'type',
@@ -306,14 +307,10 @@ export default {
           'type7',
           'type8'
         ])
-
-        // JsBarcode('#ean-13').init()
-        // JsBarcode('#trackNo').init()
-
         let _this = this
         setTimeout(function() {
           _this.handleOk()
-        }, 1000)
+        }, 700)
       } else {
         this.templateType = '商用-有價格'
         this.visible = true
@@ -350,13 +347,10 @@ export default {
           'type8'
         ])
 
-        // JsBarcode('#ean-13').init()
-        // JsBarcode('#trackNo').init()
-
         let _this = this
         setTimeout(function() {
           _this.handleOk()
-        }, 1000)
+        }, 100)
       } else {
         this.templateType = '商用-無價格'
         this.visible = true
@@ -392,13 +386,10 @@ export default {
           'type7',
           'type8'
         ])
-        // JsBarcode('#ean-13').init()
-        // JsBarcode('#trackNo').init()
-
         let _this = this
         setTimeout(function() {
           _this.handleOk()
-        }, 1000)
+        }, 100)
       } else {
         this.templateType = '零售-有價格'
         this.visible = true
@@ -447,12 +438,12 @@ export default {
     },
     async handleOk() {
       if (this.templateType !== '貼箱標籤') {
+        console.log('執行列印')
         this.$nextTick(() => {
           if (this.orderData.length > 15) {
             let pages = 0;
             if (this.orderData.length / 15 >parseInt(this.orderData.length / 15)) {
               pages = parseInt(this.orderData.length / 15) + 1
-              console.log(pages)
             } else {
               pages = this.orderData.length / 15
             }
@@ -491,6 +482,7 @@ export default {
             let index = this.tableList.indexOf(item);
             await this.addReportImg(1, index + 1);
           }
+          console.log(this.reportImage)
 
 
           // const dataUrl = await htmlToImage.toPng(
@@ -502,33 +494,44 @@ export default {
           // let printPage = document.body.appendChild(img)
           // printPage.classList.add('printImage')
 
-        }, 700)
+        }, 1000)
+        console.log('開啟列印')
 
         setTimeout(async()=>{
 
           let myWindow = await window.open('', '', 'width=2000,height=1000')
-          this.reportImage.forEach((value, index) => {
+
+          for (let value of this.reportImage) {
+           await postPdf(value)
+          }
+
+          function postPdf(value){
             let img = new Image();
 
             img.src = value;
             img.width = 1110;
             myWindow.document.write(img.outerHTML);
-          });
-          this.reportImage2.forEach((value, index) => {
-            let img = new Image();
+          }
 
-            img.src = value;
-            img.width = 1110;
-            myWindow.document.write(img.outerHTML);
-          });
-          // myWindow.document.write(printPage.outerHTML)
+          // this.reportImage.forEach((value, index) => {
 
-          myWindow.document.close()
+          // });
+
+          // this.reportImage2.forEach((value, index) => {
+          //   let img = new Image();
+          //
+          //   img.src = value;
+          //   img.width = 1110;
+          //   myWindow.document.write(img.outerHTML);
+          // });
+
+
+          // myWindow.document.close()
           myWindow.focus()
           myWindow.print()
           myWindow.close()
 
-        },2800)
+        },2000)
 
         this.visible = false
         // this.handleCancel()

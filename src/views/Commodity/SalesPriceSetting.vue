@@ -50,7 +50,7 @@
               </a-form-model-item>
               <a-form-model-item
                 class="custom-form-commodity"
-                style="margin-left: -16px"
+                style="margin:5px 0 -10px -17px"
                 label="定重重量"
               >
                 <div
@@ -63,7 +63,12 @@
                     placeholder="請輸入"
                     v-mask="decimalFormat"
                   />
-                  <threeWeights v-model="list.weightUnit" />
+                    <a-form-model-item
+                      prop="weightUnit"
+                      style="margin-top: -4px;width: 120px;"
+                    >
+                      <threeWeights v-model="list.weightUnit" :weightUnitVerify="weightUnitVerify" />
+                    </a-form-model-item>
                 </div>
                 <div v-else>
                   <a-input disabled style="width: 230px" />
@@ -223,6 +228,7 @@ export default {
           }
         ],
         unit: [{ required: true, message: '請選擇', trigger: 'blur' }],
+        weightUnit: [{ required: false, message: '請選擇', trigger: 'blur' }],
         tagId: [{ required: true, message: '請選擇', trigger: 'blur' }],
         name: [{ required: true, message: '請輸入商品名稱', trigger: 'blur' }],
         listPrice: [
@@ -343,6 +349,16 @@ export default {
     this.getClassesList()
     this.getCustomerList()
   },
+  watch:{
+    'list.weight'(val){
+      if(parseFloat(val).toFixed(3)  > 0){
+        this.rules.weightUnit[0].required = true
+      }else {
+        this.rules.weightUnit[0].required = false
+        this.$refs.ruleForm.clearValidate()
+      }
+}
+  },
   methods: {
     barCodeVerify() {
       if (this.list.unit === 'PACK' || this.list.unit === 'PIECE') {
@@ -354,6 +370,10 @@ export default {
         this.list.weightUnit = ''
         this.$refs.ruleForm.clearValidate()
       }
+    },
+    weightUnitVerify(){
+      console.log(parseFloat(this.list.weight).toFixed(3) > 0)
+      this.$refs.ruleForm.clearValidate()
     },
     getCustomerList() {
       this.$api.Inventory.onlyCustomerList().then(res => {
@@ -410,7 +430,7 @@ export default {
               (this.list.description = record.description)
             this.list.updateTime = record.updateTime
             this.list.alias = record.alias
-            this.list.weight = record.fixedWeight.toFixed(2)
+            this.list.weight = record.fixedWeight.toFixed(3)
             this.list.weightUnit =
               record.weightUnit === null ? '' : record.weightUnit
             this.list.tagId = record.tagId
@@ -455,7 +475,7 @@ export default {
               fixedWeight:
                 this.list.barcode === ''
                   ? 0
-                  : parseFloat(this.list.weight).toFixed(2),
+                  : parseFloat(this.list.weight).toFixed(3),
               weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
@@ -501,7 +521,7 @@ export default {
               fixedWeight:
                 this.list.barcode === ''
                   ? 0
-                  : parseFloat(this.list.weight).toFixed(2),
+                  : this.list.weight?parseFloat(this.list.weight).toFixed(3):0,
               weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
@@ -539,9 +559,7 @@ export default {
               price: this.list.listPrice,
               description: this.list.description,
               fixedWeight:
-                this.list.barcode === ''
-                  ? 0
-                  : parseFloat(this.list.weight).toFixed(2),
+                this.list.barcode === ''? 0: this.list.weight?parseFloat(this.list.weight).toFixed(3):0,
               weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
               tagId: this.list.tagId,
               alias: this.list.alias,
