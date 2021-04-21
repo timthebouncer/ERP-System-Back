@@ -1403,16 +1403,6 @@ export default {
                       })
                     })
                       .then(res => {
-                        const stock = this.orderData.reduce((p, c) => {
-                          p[c.productId] = parseInt(c.amount)
-                          return p
-                        }, {})
-                        const quantity = this.selectList.some(item => {
-                          return item.amount < stock[item.productId]
-                        })
-                        if (quantity) {
-                          this.$message.error('出貨量大於庫存量')
-                        } else {
                           this.$message.success('出貨確認成功')
                           if (this.templateType || e === '貼箱標籤') {
                             this.$api.Distribute.getDistributeDetail({
@@ -1451,9 +1441,9 @@ export default {
                             this.templateType = ''
                           }
                           this.resetPage()
-                        }
                       })
-                      .catch(() => {
+                      .catch((err) => {
+                        console.log(err.response.data.message)
                         const stock = this.orderData.reduce((p, c) => {
                           p[c.productId] = parseInt(c.amount)
                           return p
@@ -1462,7 +1452,7 @@ export default {
                           return item.amount < stock[item.productId]
                         })
                         if (quantity) {
-                          this.$message.error('出貨量大於庫存量')
+                          this.$message.error(`${err.response.data.message}`,3)
                         }
                       })
                   } else {
@@ -1505,9 +1495,7 @@ export default {
               })
                 .then(() => {
                     this.$message.success('編輯出貨成功')
-                  console.log(this.templateType)
                     if (this.templateType || e === '貼箱標籤') {
-                      console.log(1)
                       this.$api.Distribute.getDistributeDetail({
                         orderId: this.orderId
                       }).then(response => {
@@ -1539,7 +1527,6 @@ export default {
                         this.handleCancel()
                       }, 4000)
                     } else {
-                      console.log(2)
                       this.orderViewVisible = false
                       this.handleCancel()
                       this.templateType = ''
@@ -1548,7 +1535,8 @@ export default {
                     this.resetPage()
 
                 })
-                .catch(() => {
+                .catch((err) => {
+                  console.log(err.response.data.message)
                   const stock = this.orderData.reduce((p, c) => {
                     p[c.productId] = parseInt(c.amount)
                     return p
@@ -1557,7 +1545,7 @@ export default {
                     return item.amount < stock[item.productId]
                   })
                   if (quantity) {
-                    this.$message.error('出貨量大於庫存量')
+                    this.$message.error(`${err.response.data.message}`,3)
                   }
                 })
             }
@@ -1780,7 +1768,22 @@ export default {
       this.findDefaultInfo[1].address = this.list.companyAddress
       this.findDefaultInfo[1].postCode = this.list.companyPostCode
       this.findDefaultInfo[1].tel = this.list.companyTel
-    }
+    },
+    amountChecking(row){
+      const stock = this.orderData.reduce((p, c) => {
+        p[c.productId] = parseInt(c.amount)
+        return p
+      }, {})
+      const quantity = this.selectList.some(item => {
+        return item.amount < stock[item.productId] && item.barcode === row.barCode
+      })
+      const name = this.orderData.findIndex(item => {
+        return item.barCode === row.barCode
+      })
+      if (quantity) {
+        this.$message.error(`${this.orderData[name].productName}\n出貨量大於庫存量`,3)
+      }
+    },
   },
   watch: {
     temperatureCategory: function(val) {
@@ -1788,7 +1791,7 @@ export default {
         this.volume = 1
         this.shippingFeeCaluelate()
       }
-    }
+    },
   },
   computed: {
     totalAmountPrice() {
@@ -1831,10 +1834,8 @@ export default {
                     placeholder="請輸入"
                     value={row[key]}
                     vModel={row[key]}
-                    onKeyup={() =>
-                      (key === 'discount' || key === 'amount') &&
-                      (row[key] = row[key].replace(/[^\d]/g, ''))
-                    }
+                    onKeyup={() =>(key === 'discount' || key === 'amount') &&(row[key] = row[key].replace(/[^\d]/g, ''))}
+                    onChange={() => key === 'amount'? this.amountChecking(row):''}
                     vOn:Keyup_enter={() => this.addNewItem(row, editKey)}
                   />
                 </div>
