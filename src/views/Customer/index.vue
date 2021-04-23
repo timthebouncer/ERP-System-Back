@@ -175,6 +175,7 @@
                       <a-form-model-item
                         class="custom-form-item"
                         label="連絡電話"
+                        prop="contactPersonTel"
                       >
                         <a-input
                           v-model="list.contactPersonTel"
@@ -202,6 +203,7 @@
                       <a-form-model-item
                         class="custom-form-item"
                         label="連絡電話"
+                        prop="reconciliationContactPersonTel"
                       >
                         <a-input
                           v-model="list.reconciliationContactPersonTel"
@@ -229,6 +231,7 @@
                       <a-form-model-item
                         class="custom-form-item"
                         label="連絡電話"
+                        prop="procurementContactPersonTel"
                       >
                         <a-input
                           v-model="list.procurementContactPersonTel"
@@ -529,7 +532,7 @@ export default {
   name: 'Customer',
   data() {
     const validatorTelReg = new RegExp(
-      /^0((([2-8]|37|49|89|836|82)-?)|9)\d{8}$/
+      /^[\d-]*$/
     )
     return {
       form: this.$form.createForm(this),
@@ -677,6 +680,27 @@ export default {
             message: '請輸入正確傳真號碼格式',
             trigger: 'blur'
           }
+        ],
+        contactPersonTel:[
+          {
+            pattern: validatorTelReg,
+            message: '請輸入正確電話格式',
+            trigger: 'blur'
+          }
+        ],
+        reconciliationContactPersonTel:[
+          {
+            pattern: validatorTelReg,
+            message: '請輸入正確電話格式',
+            trigger: 'blur'
+          }
+        ],
+        procurementContactPersonTel:[
+          {
+            pattern: validatorTelReg,
+            message: '請輸入正確電話格式',
+            trigger: 'blur'
+          }
         ]
       },
       receiverVerify: [
@@ -688,7 +712,8 @@ export default {
           },
           tel: {
             required: false,
-            message: '請輸入',
+            pattern:validatorTelReg,
+            message: '請輸入正確電話格式',
             trigger: 'blur'
           },
           postCode: {
