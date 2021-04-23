@@ -495,6 +495,7 @@ export default {
                 this.clearInput()
               })
               .catch(() => {
+                this.$message.error(err.response.data.message)
                 this.visible = true
                 if (!this.list.tagId) {
                   this.$message.error('請先設定標籤')
@@ -540,7 +541,8 @@ export default {
                 this.visible = false
                 this.clearInput()
               })
-              .catch(() => {
+              .catch((err) => {
+                this.$message.error(err.response.data.message)
                 this.visible = true
                 if (!this.list.tagId) {
                   this.$message.error('請先設定標籤')
@@ -663,6 +665,7 @@ export default {
     },
     passTagId(id) {
       this.list.tagId = id
+      this.$refs.ruleForm.clearValidate()
     }
   },
   computed: {
