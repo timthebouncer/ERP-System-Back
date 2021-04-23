@@ -24,7 +24,7 @@
                   <a-form-model-item
                     class="custom-form-item"
                     label="客戶類別"
-                    prop="classes"
+                    prop="classes.id"
                   >
                     <a-select v-model="list.classes.id" placeholder="請選擇">
                       <a-select-option v-for="item in classify" :key="item.id">
@@ -549,7 +549,7 @@ export default {
       tableData: [],
       classify: [],
       list: {
-        classes: { id: '', className: '' },
+        classes: { id: '', className:''},
         name: '',
         tel: '',
         postCode: undefined,
@@ -634,7 +634,7 @@ export default {
         }
       ],
       rules: {
-        classes: [{ required: true, message: '請選擇', trigger: 'blur' }],
+        'classes.id': [{ required: true, message: '請選擇客戶類別', trigger:'blur' }],
         name: [{ required: true, message: '請輸入姓名', trigger: 'blur' }],
         tel: [
           {
@@ -943,6 +943,17 @@ export default {
       })
     }
   },
+  watch:{
+    recipientList(){
+      this.receiverInputVerify()
+},
+    'list.classes.id'(val){
+      if(val){
+        // this.rules.classes[0].required = false
+        this.$refs.ruleForm.clearValidate()
+      }
+}
+  },
   methods: {
     receiverInputVerify() {
       this.recipientList.forEach((item, idx) => {
@@ -1092,6 +1103,7 @@ export default {
                       tel: ''
                     }
                   ]
+
                 })
                 .catch(err => {
                   console.log(err)
@@ -1153,13 +1165,14 @@ export default {
                       tel: ''
                     }
                   ]
+                  this.visible = false
+                  this.clearInput()
                 })
                 .catch(err => {
                   console.log(err)
                   this.$message.error('新增客戶失敗')
+                  this.visible = true
                 })
-              this.visible = false
-              this.clearInput()
             }
           } else {
             this.$api.Customer.update({
@@ -1208,7 +1221,40 @@ export default {
           this.discountTable = []
           if (res.data !== '') {
             this.recipientList = res.data.recipientList
-            this.receiverInputVerify()
+            if(this.recipientList.length < 1){
+              this.recipientList.push({
+                address: '',
+                id: '',
+                postCode: '',
+                receiver: '',
+                tel: ''
+              })
+            }
+            for(let i=0; i < res.data.recipientList.length; i++){
+              this.receiverVerify.push({
+                receiver: {
+                  required: false,
+                  message: '請輸入',
+                  trigger: 'blur'
+                },
+                tel: {
+                  required: false,
+                  message: '請輸入',
+                  trigger: 'blur'
+                },
+                postCode: {
+                  required: false,
+                  pattern: /^\d+$/,
+                  message: '請輸入數字',
+                  trigger: 'blur'
+                },
+                address: {
+                  required: false,
+                  message: '請輸入',
+                  trigger: 'blur'
+                }
+              })
+            }
             this.list = res.data
             this.receiveInfo = res.data.defaultReceiveInfo
             this.$api.Customer.discountNoPages({
@@ -1283,7 +1329,6 @@ export default {
             console.log(err)
           }
         } else {
-          console.log(index)
           this.discountTable.splice(index, 1)
           this.keepSelection()
         }
