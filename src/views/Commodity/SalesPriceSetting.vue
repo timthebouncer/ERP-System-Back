@@ -494,7 +494,7 @@ export default {
                 this.visible = true
                 this.clearInput()
               })
-              .catch(() => {
+              .catch((err) => {
                 this.$message.error(err.response.data.message)
                 this.visible = true
                 if (!this.list.tagId) {
@@ -580,7 +580,8 @@ export default {
                 this.clearInput()
                 this.visible = false
               })
-              .catch(() => {
+              .catch((err) => {
+                this.$message.error(err.response.data.message)
                 this.visible = true
                 if (!this.list.tagId) {
                   this.$message.error('請先設定標籤')
