@@ -581,7 +581,7 @@
                         this.clearInput()
                         this.visible = false
                       })
-                      .catch(() => {
+                      .catch((err) => {
                         this.$message.error(err.response.data.message)
                         this.visible = true
                         if (!this.list.tagId) {
