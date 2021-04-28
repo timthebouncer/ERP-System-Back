@@ -27,9 +27,9 @@
         rowKey="id"
         :loading="isLoading"
       >
-        <template slot="showFront" slot-scope="value, record">
-          <a-switch :checked="value" @change="onChange($event, record)" />
-        </template>
+<!--        <template slot="showFront" slot-scope="value, record">-->
+<!--          <a-switch :checked="value" @change="onChange($event, record)" />-->
+<!--        </template>-->
         <template slot="action" slot-scope="text, record">
           <a-row type="flex">
             <a-col :span="11" align="right"
@@ -48,7 +48,7 @@
                     >確定刪除此標籤資料嗎?</span
                   >
                 </template>
-                <a-button type="link" size="small" v-show="!record.showFront"
+                <a-button type="link" size="small" v-show="tableData.length > 1"
                   >刪除</a-button
                 >
               </a-popconfirm>
@@ -88,20 +88,20 @@ export default {
         {
           title: '標籤名稱',
           dataIndex: 'tagName',
-          width: '10%',
+          width: '20%',
           align: 'center'
         },
-        {
-          title: '前台顯示',
-          dataIndex: 'showFront',
-          width: '10%',
-          align: 'center',
-          scopedSlots: { customRender: 'showFront' }
-        },
+        // {
+        //   title: '前台顯示',
+        //   dataIndex: 'showFront',
+        //   width: '10%',
+        //   align: 'center',
+        //   scopedSlots: { customRender: 'showFront' }
+        // },
         {
           title: '最後修改時間',
           dataIndex: 'updateDate',
-          width: '20%',
+          width: '10%',
           align: 'center'
         },
         {
