@@ -227,9 +227,10 @@ export default {
         content: JSON.stringify(canvasJson),
         action:'tag'
       }
-      // this.$api.Distribute.printTag(data).then((res)=>{
-      //   console.log(res)
-      // })
+
+      this.$api.Distribute.printTag(data).then((res)=>{
+        console.log(res)
+      })
 
       setTimeout(()=>{
         this.parentHandleCancel()
