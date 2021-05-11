@@ -355,6 +355,7 @@ export default {
   },
   methods: {
     uploadChange(info) {
+      console.log(info.file.originFileObj)
       if (info.file.status === 'uploading') {
         this.loading = true
         setTimeout(() => {

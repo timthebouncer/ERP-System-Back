@@ -493,6 +493,7 @@
                         this.getCommodity()
                         this.$message.success(`新增${res.data.name}成功`)
                         this.visible = true
+                        this.rules.barcode[0].required = false
                         this.clearInput()
                       })
                       .catch((err) => {
