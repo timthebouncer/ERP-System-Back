@@ -46,7 +46,17 @@
                     label="客戶電話"
                     prop="tel"
                   >
-                    <a-input v-model="list.tel" placeholder="請輸入" />
+                    <a-input v-model="list.tel" placeholder="請輸入" style="width: 250px;" />
+                  </a-form-model-item>
+                  <a-form-model-item
+                          style="display: flex;flex: 0; margin-left: -120px; margin-right: 10px"
+                          label="性別"
+                  >
+                    <a-select v-model="list.sex" style="width: 70px">
+                      <a-select-option v-for="item in sexList" :key="item.id">
+                        {{item.sex}}
+                      </a-select-option>
+                    </a-select>
                   </a-form-model-item>
                   <a-form-model-item
                     class="custom-form-item"
@@ -538,6 +548,7 @@ export default {
       form: this.$form.createForm(this),
       receiveInfo: 0,
       recipientList: [],
+      sexList:[{id:0,sex: '男性'}, {id:1,sex: '女性'}],
       newCurrent: 1,
       newPageSizeOptions: ['10', '30', '50', '100'],
       newPageSize: 10,
@@ -552,6 +563,7 @@ export default {
         classes: { id: '', className:''},
         name: '',
         tel: '',
+        sex:'',
         postCode: undefined,
         address: '',
         email: null,
@@ -638,7 +650,7 @@ export default {
         name: [{ required: true, message: '請輸入姓名', trigger: 'blur' }],
         tel: [
           {
-            required: true,
+            required: false,
             pattern: validatorTelReg,
             message: '請輸入正確電話格式',
             trigger: 'blur'
