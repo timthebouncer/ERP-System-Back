@@ -372,9 +372,9 @@ export default {
     },
     beforeUpload(file) {
       this.logoImageUrl = ''
-      const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
+      const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/svg+xml'
       if (!isJpgOrPng) {
-        this.$message.error('請上傳JPEG、PNG檔案格式圖片!')
+        this.$message.error('請上傳JPEG、PNG、SVG檔案格式圖片!')
         return isJpgOrPng && isLt2M
       }
       const isLt2M = file.size / 1024 / 1024 < 2
