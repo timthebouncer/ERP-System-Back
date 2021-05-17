@@ -34,6 +34,7 @@
                   placeholder="請輸入商品條碼"
                   @change="getStock"
                   v-model="list.searchBarcode"
+                  ref="inputDom"
                 />
               </a-form-model-item>
             </div>
@@ -325,7 +326,6 @@ export default {
           dataIndex: 'totalListPrice',
           align: 'center',
           customRender: (val, row) => {
-            console.log(row,3232)
             let count = 0
             row.inventoryList.forEach(item => (count += item.price))
             return {
@@ -552,7 +552,13 @@ export default {
     showAddPurchaseView() {
       this.purchaseViewVisible = true
       this.list.searchBarcode = ''
-      this.form.resetFields()
+      this.$refs.ruleForm.resetFields()
+      setTimeout(() => {
+        this.$refs.inputDom.focus()
+      }, 100)
+      setTimeout(()=>{
+        document.querySelector('.addPurchaseView').addEventListener('keyup',this.addInventory,)
+      },100)
     },
     onSearch() {
       this.current = 1
@@ -587,20 +593,17 @@ export default {
           this.openNotificationWithIcon('error')
         })
     },
-    handleCancel() {
-      this.purchaseViewVisible = false
-      this.list = {}
-      this.remark = ''
-      this.selectList = []
-    },
     addInventoryCancel() {
-      this.purchaseViewVisible = false
       this.list.searchBarcode = ''
       this.inventoryList.inventoryId = ''
       this.inventoryList.productName = ''
       this.inventoryList.unit = ''
       this.inventoryList.weight = ''
       this.addInventoryAmount = 1
+      setTimeout(()=>{
+        document.querySelector('.addPurchaseView').removeEventListener('keyup',this.addInventory,)
+      },150)
+      this.$refs.ruleForm.resetFields()
     },
     submitNonStop() {
       this.$refs.ruleForm.validate(valid => {
@@ -619,12 +622,7 @@ export default {
               .then(res => {
                 console.log(res)
                 this.purchaseViewVisible = true
-                this.list.searchBarcode = ''
-                this.inventoryList.inventoryId = ''
-                this.inventoryList.productName = ''
-                this.inventoryList.unit = ''
-                this.inventoryList.weight = ''
-                this.addInventoryAmount = 1
+                this.addInventoryCancel()
                 this.getInventoryList(this.search)
                 this.$message.success('入庫成功')
               })
@@ -641,12 +639,7 @@ export default {
               .then(res => {
                 console.log(res)
                 this.purchaseViewVisible = true
-                this.list.searchBarcode = ''
-                this.inventoryList.inventoryId = ''
-                this.inventoryList.productName = ''
-                this.inventoryList.unit = ''
-                this.inventoryList.weight = ''
-                this.addInventoryAmount = 1
+                this.addInventoryCancel()
                 this.getInventoryList(this.search)
                 this.$message.success('入庫成功')
               })
@@ -657,57 +650,49 @@ export default {
         }
       })
     },
-    addInventory() {
+    addInventory(e) {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
-          if (
-            this.inventoryList.unit === '包' ||
-            this.inventoryList.unit === '件'
-          ) {
-            if (!/^\d+$/.test(this.addInventoryAmount)) return
-            const data = {}
-            data.id = this.inventoryList.inventoryId
-            data.amount =
-              parseInt(this.addInventoryAmount) + this.inventoryList.amount
-            data.barcode = this.list.searchBarcode
-            this.$api.Inventory.edit(data)
-              .then(res => {
-                console.log(res)
-                this.purchaseViewVisible = false
-                this.list.searchBarcode = ''
-                this.inventoryList.inventoryId = ''
-                this.inventoryList.productName = ''
-                this.inventoryList.unit = ''
-                this.inventoryList.weight = ''
-                this.addInventoryAmount = 1
-                this.getInventoryList(this.search)
-                this.$message.success('入庫成功')
-              })
-              .catch(err => {
-                console.log(err)
-              })
-          } else {
-            if (!/^\d+$/.test(this.addInventoryAmount)) return
-            const data = {}
-            data.id = this.inventoryList.inventoryId
-            data.amount = this.inventoryList.amount + 1
-            data.barcode = this.list.searchBarcode
-            this.$api.Inventory.edit(data)
-              .then(res => {
-                console.log(res)
-                this.purchaseViewVisible = false
-                this.list.searchBarcode = ''
-                this.inventoryList.inventoryId = ''
-                this.inventoryList.productName = ''
-                this.inventoryList.unit = ''
-                this.inventoryList.weight = ''
-                this.addInventoryAmount = 1
-                this.getInventoryList(this.search)
-                this.$message.success('入庫成功')
-              })
-              .catch(err => {
-                console.log(err)
-              })
+          if (e.target.innerTEXT === '儲 存' || e.key === 'Enter') {
+            if (
+              this.inventoryList.unit === '包' ||
+              this.inventoryList.unit === '件'
+            ) {
+              if (!/^\d+$/.test(this.addInventoryAmount)) return
+              const data = {}
+              data.id = this.inventoryList.inventoryId
+              data.amount =
+                parseInt(this.addInventoryAmount) + this.inventoryList.amount
+              data.barcode = this.list.searchBarcode
+              this.$api.Inventory.edit(data)
+                .then(res => {
+                  console.log(res)
+                  this.purchaseViewVisible = false
+                  this.addInventoryCancel()
+                  this.getInventoryList(this.search)
+                  this.$message.success('入庫成功')
+                })
+                .catch(err => {
+                  console.log(err)
+                })
+            } else {
+              if (!/^\d+$/.test(this.addInventoryAmount)) return
+              const data = {}
+              data.id = this.inventoryList.inventoryId
+              data.amount = this.inventoryList.amount + 1
+              data.barcode = this.list.searchBarcode
+              this.$api.Inventory.edit(data)
+                .then(res => {
+                  console.log(res)
+                  this.purchaseViewVisible = false
+                  this.addInventoryCancel()
+                  this.getInventoryList(this.search)
+                  this.$message.success('入庫成功')
+                })
+                .catch(err => {
+                  console.log(err)
+                })
+            }
           }
         }
       })
