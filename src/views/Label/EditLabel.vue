@@ -51,7 +51,7 @@
                   <div class="ant-upload-text" style="width: 300px;">
                     <p>上傳圖片</p>
                     <p style="color: red;">
-                      (*請使用JPEG、PNG格式且大小不超過2MB)
+                      (*請使用JPEG、PNG、SVG格式且大小不超過2MB)
                     </p>
                   </div>
                 </div>
