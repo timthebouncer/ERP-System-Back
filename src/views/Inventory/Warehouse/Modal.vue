@@ -17,9 +17,11 @@
                 label="倉庫名稱"
         >
           <a-input
+                  ref="inputDom"
                   v-model="warehouse"
                   autoFocus
                   placeholder="請輸入"
+                  @keyup.enter="handleOk"
           />
         </a-form-model-item>
       </div>
@@ -51,6 +53,9 @@ export default {
   methods:{
     showModal(record){
       this.visible = true
+      setTimeout(()=>{
+        this.$refs.inputDom.focus()
+      },100)
       if(!record){
         this.changeTitle = "新增倉庫"
       }else {
@@ -59,7 +64,8 @@ export default {
         this.updateId = record.id
       }
     },
-    handleOk(){
+    handleOk(e){
+      console.log(e)
       if(this.changeTitle === "新增倉庫"){
         this.$api.Depot.addDepot({
           'name':this.warehouse

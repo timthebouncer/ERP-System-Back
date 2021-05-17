@@ -100,6 +100,7 @@
 
     <div class="addOrderView">
       <a-modal
+        id="modal-wrapper"
         v-model="orderViewVisible"
         :title="orderModalTitle"
         width="1000px"
@@ -968,6 +969,9 @@ export default {
           })
         })
       }
+      setTimeout(()=>{
+        document.querySelector('#modal-wrapper').addEventListener('keyup',this.handleOk,)
+      },100)
     },
     editHandler(record) {
       this.orderViewVisible = true
@@ -1115,6 +1119,12 @@ export default {
       })
       this.orderNumber = record.orderNo
       this.dateForOrderNo = record.date
+      setTimeout(()=>{
+        document.querySelector('#modal-wrapper').addEventListener('keyup',this.handleOk,)
+      },100)
+      setTimeout(()=>{
+        document.querySelector('#modal-wrapper').removeEventListener('keyup',this.handleCancel)
+      },150)
     },
     handleCancel() {
       this.purchaseViewVisible = false
@@ -1371,184 +1381,187 @@ export default {
         let productId = this.orderData.map(item => item.productId)
         this.$refs.ruleForm.validate(valid => {
           if (valid) {
-            if (this.orderModalTitle === '新增出貨') {
-              if (this.list.id) {
-                if (this.orderData.length !== 0) {
-                  if (productId[0] !== undefined) {
-                    this.$api.Distribute.addOrder({
-                      recipientId: this.recipientId,
-                      clientId: this.list.id,
-                      remark: this.remark,
-                      payment: this.payments,
-                      shipment: this.shipment,
-                      temperatureCategory: this.temperatureCategory,
-                      volume: this.volume,
-                      orderNo: this.orderNumber,
-                      stockOutDate: this.dateForOrderNo,
-                      trackingNo: this.trackingNo,
-                      shippingFee: this.shipment === 3 ? 0 : this.shippingFee,
-                      defaultReceiveInfo: this.defaultReceiver,
-                      orderItemRequestList: this.orderData.map(item => {
-                        return {
-                          barcode: item.barCode,
-                          amount: item.amount,
-                          weight: item.weight,
-                          discount: parseInt(item.discount),
-                          price:
-                            item.clientPrice > 0
-                              ? item.clientPrice * item.amount - item.discount
-                              : item.price * item.amount - item.discount,
-                          remark: item.remark
-                        }
+            if(this.templateType || e === '貼箱標籤' || e.key === 'Enter' || e.target.innerText === '儲 存'){
+              if (this.orderModalTitle === '新增出貨') {
+                if (this.list.id) {
+                  if (this.orderData.length !== 0) {
+                    if (productId[0] !== undefined) {
+                      this.$api.Distribute.addOrder({
+                        recipientId: this.recipientId,
+                        clientId: this.list.id,
+                        remark: this.remark,
+                        payment: this.payments,
+                        shipment: this.shipment,
+                        temperatureCategory: this.temperatureCategory,
+                        volume: this.volume,
+                        orderNo: this.orderNumber,
+                        stockOutDate: this.dateForOrderNo,
+                        trackingNo: this.trackingNo,
+                        shippingFee: this.shipment === 3 ? 0 : this.shippingFee,
+                        defaultReceiveInfo: this.defaultReceiver,
+                        orderItemRequestList: this.orderData.map(item => {
+                          return {
+                            barcode: item.barCode,
+                            amount: item.amount,
+                            weight: item.weight,
+                            discount: parseInt(item.discount),
+                            price:
+                                    item.clientPrice > 0
+                                            ? item.clientPrice * item.amount - item.discount
+                                            : item.price * item.amount - item.discount,
+                            remark: item.remark
+                          }
+                        })
                       })
-                    })
-                      .then(res => {
-                          this.$message.success('出貨確認成功')
+                              .then(res => {
+                                this.$message.success('出貨確認成功')
+                                if (this.templateType || e === '貼箱標籤') {
+                                  this.$api.Distribute.getDistributeDetail({
+                                    orderId: res.data.orderId
+                                  }).then(response => {
+                                    this.orderData =
+                                            response.data.orderDetailItemResponseList
+                                    let count = 0
+                                    let totalPrice = 0
+                                    this.orderData.forEach(item => {
+                                      count +=
+                                              item.unit === '件' || item.unit === '包'
+                                                      ? parseInt(item.amount)
+                                                      : parseFloat(item.weight.toFixed(3))
+                                      totalPrice +=
+                                              item.clientPrice > 0
+                                                      ? item.clientPrice * item.amount -
+                                                      item.discount
+                                                      : item.price * item.amount - item.discount
+                                    })
+                                    this.Calculate = { count, totalPrice }
+                                    this.orderDetail = response.data
+                                    this.printed = true
+                                    this.templateType = ''
+                                    resolve()
+                                  })
+                                  setTimeout(() => {
+                                    this.orderViewVisible = false
+                                  }, 3000)
+                                  setTimeout(() => {
+                                    this.handleCancel()
+                                  }, 3500)
+                                } else {
+                                  this.orderViewVisible = false
+                                  this.handleCancel()
+                                  this.templateType = ''
+                                }
+                                this.resetPage()
+                              })
+                              .catch((err) => {
+                                console.log(err.response.data.message)
+                                const stock = this.orderData.reduce((p, c) => {
+                                  p[c.productId] = parseInt(c.amount)
+                                  return p
+                                }, {})
+                                const quantity = this.selectList.some(item => {
+                                  return item.amount < stock[item.productId]
+                                })
+                                if (quantity) {
+                                  this.$message.error(`${err.response.data.message}`,3)
+                                }
+                              })
+                    } else {
+                      this.$message.error('請選擇商品')
+                    }
+                  } else {
+                    this.$message.error('請先新增商品')
+                  }
+                } else {
+                  this.$message.error('請選擇客戶')
+                }
+              } else {
+                this.$api.Distribute.editOrder({
+                  orderId: this.orderId,
+                  recipientId: this.receiverList.id,
+                  remark: this.remark,
+                  payment: this.payments,
+                  shipment: this.shipment,
+                  temperatureCategory: this.temperatureCategory,
+                  volume: this.volume,
+                  orderNo: this.orderNumber,
+                  stockOutDate: this.dateForOrderNo,
+                  trackingNo: this.trackingNo,
+                  shippingFee: this.shipment === 3 ? 0 : this.shippingFee,
+                  defaultReceiveInfo: this.defaultReceiver,
+                  orderItemRequestList: this.orderData.map(item => {
+                    return {
+                      id: item.id,
+                      barcode: item.barCode,
+                      amount: item.amount,
+                      weight: item.weight,
+                      discount: parseInt(item.discount),
+                      price:
+                              item.clientPrice > 0
+                                      ? item.clientPrice * item.amount - item.discount
+                                      : item.price * item.amount - item.discount,
+                      remark: item.remark
+                    }
+                  })
+                })
+                        .then(() => {
+                          this.$message.success('編輯出貨成功')
                           if (this.templateType || e === '貼箱標籤') {
                             this.$api.Distribute.getDistributeDetail({
-                              orderId: res.data.orderId
+                              orderId: this.orderId
                             }).then(response => {
+                              this.orderDetail = response.data
                               this.orderData =
-                                response.data.orderDetailItemResponseList
+                                      response.data.orderDetailItemResponseList
                               let count = 0
                               let totalPrice = 0
                               this.orderData.forEach(item => {
                                 count +=
-                                  item.unit === '件' || item.unit === '包'
-                                    ? parseInt(item.amount)
-                                    : parseFloat(item.weight.toFixed(3))
+                                        item.unit === '件' || item.unit === '包'
+                                                ? parseInt(item.amount)
+                                                : parseFloat(item.weight.toFixed(3))
                                 totalPrice +=
-                                  item.clientPrice > 0
-                                    ? item.clientPrice * item.amount -
-                                      item.discount
-                                    : item.price * item.amount - item.discount
+                                        item.clientPrice > 0
+                                                ? item.clientPrice * item.amount - item.discount
+                                                : item.price * item.amount - item.discount
                               })
                               this.Calculate = { count, totalPrice }
-                              this.orderDetail = response.data
-                              this.printed = true
-                              this.templateType = ''
                               resolve()
                             })
+                            this.templateType = ''
+                            // setTimeout(() => {
+                            //   console.log(3)
+                            //   this.orderViewVisible = false
+                            // }, 4000)
                             setTimeout(() => {
-                              this.orderViewVisible = false
-                            }, 3000)
-                            setTimeout(() => {
+                              console.log('關彈窗')
                               this.handleCancel()
-                            }, 5000)
+                            }, 3500)
                           } else {
                             this.orderViewVisible = false
                             this.handleCancel()
                             this.templateType = ''
                           }
+                          this.templateType = ''
                           this.resetPage()
-                      })
-                      .catch((err) => {
-                        console.log(err.response.data.message)
-                        const stock = this.orderData.reduce((p, c) => {
-                          p[c.productId] = parseInt(c.amount)
-                          return p
-                        }, {})
-                        const quantity = this.selectList.some(item => {
-                          return item.amount < stock[item.productId]
-                        })
-                        if (quantity) {
-                          this.$message.error(`${err.response.data.message}`,3)
-                        }
-                      })
-                  } else {
-                    this.$message.error('請選擇商品')
-                  }
-                } else {
-                  this.$message.error('請先新增商品')
-                }
-              } else {
-                this.$message.error('請選擇客戶')
-              }
-            } else {
-              this.$api.Distribute.editOrder({
-                orderId: this.orderId,
-                recipientId: this.receiverList.id,
-                remark: this.remark,
-                payment: this.payments,
-                shipment: this.shipment,
-                temperatureCategory: this.temperatureCategory,
-                volume: this.volume,
-                orderNo: this.orderNumber,
-                stockOutDate: this.dateForOrderNo,
-                trackingNo: this.trackingNo,
-                shippingFee: this.shipment === 3 ? 0 : this.shippingFee,
-                defaultReceiveInfo: this.defaultReceiver,
-                orderItemRequestList: this.orderData.map(item => {
-                  return {
-                    id: item.id,
-                    barcode: item.barCode,
-                    amount: item.amount,
-                    weight: item.weight,
-                    discount: parseInt(item.discount),
-                    price:
-                      item.clientPrice > 0
-                        ? item.clientPrice * item.amount - item.discount
-                        : item.price * item.amount - item.discount,
-                    remark: item.remark
-                  }
-                })
-              })
-                .then(() => {
-                    this.$message.success('編輯出貨成功')
-                    if (this.templateType || e === '貼箱標籤') {
-                      this.$api.Distribute.getDistributeDetail({
-                        orderId: this.orderId
-                      }).then(response => {
-                        this.orderDetail = response.data
-                        this.orderData =
-                          response.data.orderDetailItemResponseList
-                        let count = 0
-                        let totalPrice = 0
-                        this.orderData.forEach(item => {
-                          count +=
-                            item.unit === '件' || item.unit === '包'
-                              ? parseInt(item.amount)
-                              : parseFloat(item.weight.toFixed(3))
-                          totalPrice +=
-                            item.clientPrice > 0
-                              ? item.clientPrice * item.amount - item.discount
-                              : item.price * item.amount - item.discount
-                        })
-                        this.Calculate = { count, totalPrice }
-                        resolve()
-                      })
-                      this.templateType = ''
-                      // setTimeout(() => {
-                      //   console.log(3)
-                      //   this.orderViewVisible = false
-                      // }, 4000)
-                      setTimeout(() => {
-                        console.log('關彈窗')
-                        this.handleCancel()
-                      }, 4000)
-                    } else {
-                      this.orderViewVisible = false
-                      this.handleCancel()
-                      this.templateType = ''
-                    }
-                    this.templateType = ''
-                    this.resetPage()
 
-                })
-                .catch((err) => {
-                  console.log(err.response.data.message)
-                  const stock = this.orderData.reduce((p, c) => {
-                    p[c.productId] = parseInt(c.amount)
-                    return p
-                  }, {})
-                  const quantity = this.selectList.some(item => {
-                    return item.amount < stock[item.productId]
-                  })
-                  if (quantity) {
-                    this.$message.error(`${err.response.data.message}`,3)
-                  }
-                })
+                        })
+                        .catch((err) => {
+                          console.log(err.response.data.message)
+                          const stock = this.orderData.reduce((p, c) => {
+                            p[c.productId] = parseInt(c.amount)
+                            return p
+                          }, {})
+                          const quantity = this.selectList.some(item => {
+                            return item.amount < stock[item.productId]
+                          })
+                          if (quantity) {
+                            this.$message.error(`${err.response.data.message}`,3)
+                          }
+                        })
+              }
             }
+
           }
         })
       })

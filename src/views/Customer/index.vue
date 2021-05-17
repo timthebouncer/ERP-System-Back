@@ -11,6 +11,7 @@
           :title="changeTitle"
           width="1000px"
           @cancel="clearInput"
+          id="modal-wrapper"
         >
           <div class="modal-body">
             <a-form-model
@@ -426,7 +427,7 @@
               key="submit"
               type="primary"
               :loading="loading"
-              @click="handleOk()"
+              @click="handleOk"
             >
               儲存
             </a-button>
@@ -1036,6 +1037,9 @@ export default {
         }
       ]
       this.receiverInputVerify()
+      setTimeout(()=>{
+        document.querySelector('#modal-wrapper').addEventListener('keyup',this.handleOk,)
+      },100)
     },
     clearInput() {
       this.list = {
@@ -1128,7 +1132,7 @@ export default {
         }
       })
     },
-    handleOk() {
+    handleOk(e) {
       this.$refs.ruleForm.validate(valid => {
         const verify = this.$refs.ruleForReceiver.reduce((p, e) => {
           //P初始值:true
@@ -1141,77 +1145,79 @@ export default {
           return p
         }, true)
         if (valid && verify) {
-          if (this.changeTitle === '新增客戶') {
-            if (
-              this.receiveInfo > 1 &&
-              this.recipientList.some(item => item.receiver === '')
-            ) {
-              this.$message.error('請填寫收件人')
+          if(e.target.innerText === '儲 存' || e.key === 'Enter'){
+            if (this.changeTitle === '新增客戶') {
+              if (
+                      this.receiveInfo > 1 &&
+                      this.recipientList.some(item => item.receiver === '')
+              ) {
+                this.$message.error('請填寫收件人')
+              } else {
+                this.$api.Customer.add({
+                  ...this.list,
+                  classesId: this.list.classes.id,
+                  defaultReceiveInfo: this.receiveInfo,
+                  recipientList: this.recipientList.filter(
+                          item => item.receiver !== ''
+                  ),
+                  discountList: this.discountTable.map(item => {
+                    return {
+                      discountId: '',
+                      productId: item.productId,
+                      discountPrice: item.discountPrice,
+                      remark: item.remark,
+                      unit: item.unit
+                    }
+                  })
+                })
+                        .then(() => {
+                          this.getCustomerList()
+                          this.$message.success('新增客戶成功')
+                          this.recipientList = [
+                            {
+                              address: '',
+                              id: '',
+                              postCode: '',
+                              receiver: '',
+                              tel: ''
+                            }
+                          ]
+                          this.visible = false
+                          this.clearInput()
+                        })
+                        .catch(err => {
+                          console.log(err)
+                          this.$message.error('新增客戶失敗')
+                          this.visible = true
+                        })
+              }
             } else {
-              this.$api.Customer.add({
+              this.$api.Customer.update({
                 ...this.list,
                 classesId: this.list.classes.id,
+                clientId: this.track,
                 defaultReceiveInfo: this.receiveInfo,
-                recipientList: this.recipientList.filter(
-                  item => item.receiver !== ''
-                ),
+                recipientList: this.recipientList,
                 discountList: this.discountTable.map(item => {
                   return {
-                    discountId: '',
+                    discountId: item.id,
                     productId: item.productId,
                     discountPrice: item.discountPrice,
                     remark: item.remark,
-                    unit: item.unit
                   }
                 })
               })
-                .then(() => {
-                  this.getCustomerList()
-                  this.$message.success('新增客戶成功')
-                  this.recipientList = [
-                    {
-                      address: '',
-                      id: '',
-                      postCode: '',
-                      receiver: '',
-                      tel: ''
-                    }
-                  ]
-                  this.visible = false
-                  this.clearInput()
-                })
-                .catch(err => {
-                  console.log(err)
-                  this.$message.error('新增客戶失敗')
-                  this.visible = true
-                })
+                      .then(() => {
+                        this.getCustomerList()
+                        this.$message.success('編輯客戶成功')
+                      })
+                      .catch(err => {
+                        console.log(err)
+                        this.$message.error('編輯客戶失敗')
+                      })
+              this.visible = false
+              this.clearInput()
             }
-          } else {
-            this.$api.Customer.update({
-              ...this.list,
-              classesId: this.list.classes.id,
-              clientId: this.track,
-              defaultReceiveInfo: this.receiveInfo,
-              recipientList: this.recipientList,
-              discountList: this.discountTable.map(item => {
-                return {
-                  discountId: item.id,
-                  productId: item.productId,
-                  discountPrice: item.discountPrice,
-                  remark: item.remark,
-                }
-              })
-            })
-              .then(() => {
-                this.getCustomerList()
-                this.$message.success('編輯客戶成功')
-              })
-              .catch(err => {
-                console.log(err)
-                this.$message.error('編輯客戶失敗')
-              })
-            this.visible = false
-            this.clearInput()
           }
         }
       })
@@ -1297,6 +1303,9 @@ export default {
         .catch(err => {
           console.log(err)
         })
+      setTimeout(()=>{
+        document.querySelector('#modal-wrapper').addEventListener('keyup',this.handleOk,)
+      },100)
     },
     onDelete(record) {
       this.$api.Customer.delete(record)
