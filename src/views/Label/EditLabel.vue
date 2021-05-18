@@ -102,7 +102,7 @@
                   class="tags"
                   @drag="handleDrag(todayTag, 'today')"
                   draggable
-                  >當天時間</a-col
+                  >{{ todayTag }}</a-col
                 >
                 <a-col
                   :span="3"
@@ -110,14 +110,14 @@
                   @drag="handleDrag(pSolarDayTag, 'pSolarDay')"
                   draggable
                   style="margin-left: 20px; margin-right: 20px;"
-                  >正向太陽日</a-col
+                  >{{ pSolarDayTag }}</a-col
                 >
                 <a-col
                   :span="3"
                   class="tags"
                   @drag="handleDrag(rSolarDayTag, 'rSolarDay')"
                   draggable
-                  >反向太陽日</a-col
+                  >{{ rSolarDayTag }}</a-col
                 >
               </a-row>
               <a-divider style="background-color: black; height: 1px;" />
@@ -416,6 +416,9 @@ export default {
       let item = {}
       item = this.productData.find(x => x.id === value)
       this.searchProductName = item.name
+      this.todayTag = this.today
+      this.pSolarDayTag = this.pSolarDay.toString()
+      this.rSolarDayTag = this.rSolarDay.toString()
       this.productNameTag = '商品名稱:' + item.name
       this.productNoTag = '1'
       this.barcodeTag = '商品條碼' + item.barcode
@@ -431,9 +434,9 @@ export default {
       this.currentDrag.find(
         x => x.name == 'productName'
       ).text = this.productNameTag
-      this.currentDrag.find(x => x.name == 'today').text = this.today
-      this.currentDrag.find(x => x.name == 'pSolarDay').text = this.pSolarDay.toString()
-      this.currentDrag.find(x => x.name == 'rSolarDay').text = this.rSolarDay.toString()
+      this.currentDrag.find(x => x.name == 'today').text = this.todayTag
+      this.currentDrag.find(x => x.name == 'pSolarDay').text = this.pSolarDayTag
+      this.currentDrag.find(x => x.name == 'rSolarDay').text = this.rSolarDayTag
       this.currentDrag.find(x => x.name == 'productNo').text = this.productNoTag
       this.currentDrag.find(x => x.name == 'barcode').text = this.barcodeTag
       // this.currentDrag.find(x => x.name == 'costPrice').text = this.costPriceTag
@@ -496,6 +499,9 @@ export default {
       this.productData = []
       this.previewed = false
       this.searchProductName = ''
+      this.todayTag = '當天時間'
+      this.pSolarDayTag = '正向太陽日'
+      this.rSolarDayTag = '反向太陽日'
       this.productNameTag = '商品名稱'
       this.barcodeTag = '商品條碼'
       this.productNoTag = '商品序號'
@@ -510,9 +516,9 @@ export default {
       this.currentDrag.find(
         x => x.name == 'productName'
       ).text = this.productNameTag
-      this.currentDrag.find(x => x.name == 'today').text = '當天時間'
-      this.currentDrag.find(x => x.name == 'pSolarDay').text = '正向太陽日'
-      this.currentDrag.find(x => x.name == 'rSolarDay').text = '反向太陽日'
+      this.currentDrag.find(x => x.name == 'today').text = this.todayTag
+      this.currentDrag.find(x => x.name == 'pSolarDay').text = this.pSolarDayTag
+      this.currentDrag.find(x => x.name == 'rSolarDay').text = this.rSolarDayTag
       this.currentDrag.find(x => x.name == 'productNo').text = this.productNoTag
       this.currentDrag.find(x => x.name == 'barcode').text = this.barcodeTag
       // this.currentDrag.find(x => x.name == 'costPrice').text = this.costPriceTag
