@@ -327,6 +327,9 @@ export default {
       todayTag: '當天時間',
       pSolarDayTag: '正向太陽日',
       rSolarDayTag: '反向太陽日',
+      today:'',
+      pSolarDay:'',
+      rSolarDay:'',
       productNameTag: '商品名稱',
       barcodeTag: '商品條碼',
       productNoTag: '商品序號',
@@ -355,7 +358,7 @@ export default {
   },
   methods: {
     uploadChange(info) {
-      console.log(info.file.originFileObj)
+      // console.log(info.file.originFileObj)
       if (info.file.status === 'uploading') {
         this.loading = true
         setTimeout(() => {
@@ -375,14 +378,14 @@ export default {
       const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/svg+xml'
       if (!isJpgOrPng) {
         this.$message.error('請上傳JPEG、PNG、SVG檔案格式圖片!')
-        return isJpgOrPng && isLt2M
+        return false
       }
       const isLt2M = file.size / 1024 / 1024 < 2
       if (!isLt2M) {
         this.$message.error('圖片大小超過2MB!')
-        return isJpgOrPng && isLt2M
+        return false
       }
-      return isJpgOrPng && isLt2M
+      return true
     },
     showImage() {
       this.showModalVisible = true
@@ -400,9 +403,7 @@ export default {
         .then(res => {
           let data = []
           res.data.map(item => {
-            if (item.barcode != '') {
               data.push(item)
-            }
           })
           this.productData = data
         })
@@ -430,6 +431,9 @@ export default {
       this.currentDrag.find(
         x => x.name == 'productName'
       ).text = this.productNameTag
+      this.currentDrag.find(x => x.name == 'today').text = this.today
+      this.currentDrag.find(x => x.name == 'pSolarDay').text = this.pSolarDay.toString()
+      this.currentDrag.find(x => x.name == 'rSolarDay').text = this.rSolarDay.toString()
       this.currentDrag.find(x => x.name == 'productNo').text = this.productNoTag
       this.currentDrag.find(x => x.name == 'barcode').text = this.barcodeTag
       // this.currentDrag.find(x => x.name == 'costPrice').text = this.costPriceTag
@@ -449,8 +453,9 @@ export default {
           resolve(true)
         })
       }
-
-      await loadImage.bind(this)()
+      if(item.barcodeBase64!=null){
+        await loadImage.bind(this)()
+      }
 
       let imgElement
       await this.$nextTick(() => {
@@ -505,6 +510,9 @@ export default {
       this.currentDrag.find(
         x => x.name == 'productName'
       ).text = this.productNameTag
+      this.currentDrag.find(x => x.name == 'today').text = '當天時間'
+      this.currentDrag.find(x => x.name == 'pSolarDay').text = '正向太陽日'
+      this.currentDrag.find(x => x.name == 'rSolarDay').text = '反向太陽日'
       this.currentDrag.find(x => x.name == 'productNo').text = this.productNoTag
       this.currentDrag.find(x => x.name == 'barcode').text = this.barcodeTag
       // this.currentDrag.find(x => x.name == 'costPrice').text = this.costPriceTag
@@ -556,9 +564,7 @@ export default {
       this.$api.Label.searchProduct('', '')
         .then(res => {
           res.data.map(item => {
-            if (item.barcode != '') {
               this.productData.push(item)
-            }
           })
         })
         .catch(err => {
@@ -971,13 +977,29 @@ export default {
       }
     })
 
+    let today = new Date();
+    this.today =
+            today.getFullYear() +
+            "-" +
+            (today.getMonth() + 1 < 10 ? "0" : "") +
+            (today.getMonth() + 1) +
+            "-" +
+            (today.getDate() < 10 ? "0" : "") +
+            today.getDate();
+
+    //正向太陽日 今天是一年中的第幾天
+    this.pSolarDay = Math.ceil(
+            (new Date() - new Date(new Date().getFullYear().toString())) /
+            (24 * 60 * 60 * 1000)
+    );
+    //反向太陽日 一年幾天-正向太陽日+今天
+    this.rSolarDay = 365 - this.pSolarDay + 1;
+
     this.productData = []
     this.$api.Label.searchProduct('', '')
       .then(res => {
         res.data.map(item => {
-          if (item.barcode != '') {
             this.productData.push(item)
-          }
         })
       })
       .catch(err => {
