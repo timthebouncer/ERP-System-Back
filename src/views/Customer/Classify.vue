@@ -77,10 +77,12 @@
       <div class="class-input">
         <label>類別名稱:</label>
         <a-input
+          ref="inputDom"
           v-model="list.className"
           autoFocus
           label="類別名稱"
           placeholder="請輸入"
+          @keyup.enter="handleOk"
         />
       </div>
       <template slot="footer">
@@ -156,6 +158,9 @@ export default {
       this.changeTitle = '新增類別'
       this.visible = true
       this.list = { id: '', className: '' }
+      setTimeout(()=>{
+        this.$refs.inputDom.focus()
+      },100)
     },
     clearInput() {
       this.list.className = ''
@@ -207,6 +212,9 @@ export default {
         this.list.className = record.className
         this.visible = true
       }
+      setTimeout(()=>{
+        this.$refs.inputDom.focus()
+      },100)
     },
     onDelete(record) {
       this.$api.Classify.deleteClass(record.id)

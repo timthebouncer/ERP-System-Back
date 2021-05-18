@@ -199,7 +199,7 @@ export default {
       disableFooter: [],
       column: {
         type: {
-          title: () => <h2>商品名稱</h2>,
+          title: () => <h3>商品名稱</h3>,
           dataIndex: 'name',
           scopedSlots: {
             customRender: 'name'
@@ -209,7 +209,7 @@ export default {
           }
         },
         type2: {
-          title: () => <h2>數量</h2>,
+          title: () => <h3>數量</h3>,
           dataIndex: 'amount',
           customRender: (val, row) => {
             return (
@@ -222,42 +222,42 @@ export default {
           }
         },
         type3: {
-          title: () => <h2>單位</h2>,
+          title: () => <h3>單位</h3>,
           dataIndex: 'unit',
           customRender: (val, row) => {
             return <h3>{row.unit}</h3>
           }
         },
         type4: {
-          title: () => <h2>建議售價</h2>,
+          title: () => <h3>建議售價</h3>,
           dataIndex: 'salesPrice',
           customRender: (val, row) => {
             return <h3>{row.price * row.amount}</h3>
           }
         },
         type5: {
-          title: () => <h2>出貨售價</h2>,
+          title: () => <h3>出貨售價</h3>,
           dataIndex: 'sellsPrice',
           customRender: (val, row) => {
             return <h3>{row.clientPrice * row.amount}</h3>
           }
         },
         type6: {
-          title: () => <h2>折讓</h2>,
+          title: () => <h3>折讓</h3>,
           dataIndex: 'discount',
           customRender: (val, row) => {
             return <h3>{row.discount}</h3>
           }
         },
         type7: {
-          title: () => <h2>總計</h2>,
+          title: () => <h3>總計</h3>,
           dataIndex: 'orderPrice',
           customRender: (val, row) => {
             return <h3>{row.orderPrice}</h3>
           }
         },
         type8: {
-          title: () => <h2>備註</h2>,
+          title: () => <h3>備註</h3>,
           dataIndex: 'reference',
           customRender: (val, row) => {
             return <h3>{row.remark}</h3>
@@ -512,35 +512,13 @@ export default {
             img.width = 1110;
             myWindow.document.write(img.outerHTML);
           }
-
-          // this.reportImage.forEach((value, index) => {
-
-          // });
-
-          // this.reportImage2.forEach((value, index) => {
-          //   let img = new Image();
-          //
-          //   img.src = value;
-          //   img.width = 1110;
-          //   myWindow.document.write(img.outerHTML);
-          // });
-
-
-          // myWindow.document.close()
           myWindow.focus()
           myWindow.print()
           myWindow.close()
 
         },2000)
-
-        this.visible = false
-        // this.handleCancel()
       }
     },
-    // handleCancel() {
-    //   let printPage = document.querySelector('.printImage')
-    //   printPage.parentNode.removeChild(printPage)
-    // },
     getColumn(columns) {
       return columns === null
         ? Object.values(this.column)
@@ -606,7 +584,7 @@ export default {
 .top-wrapper {
   flex: 1;
   display: flex;
-  width: 100%;
+  width: 90%;
   /*justify-content: space-between;*/
   align-items: center;
   height: 120px;
@@ -632,7 +610,7 @@ img {
   opacity: 0;
 }
 .table-content {
-  padding: 0px 60px 0 10px;
+  padding: 0px 380px 0 0;
 }
 .detail-wrapper {
   display: flex;
@@ -645,7 +623,7 @@ img {
     line-height: 30px;
     left: 0;
     span {
-      font-size: 25px;
+      font-size: 20px;
       margin-bottom: 10px;
     }
   }
@@ -655,7 +633,7 @@ img {
     position: relative;
     right: 30px;
     span {
-      font-size: 25px;
+      font-size: 20px;
     }
   }
 }
@@ -668,6 +646,7 @@ img {
   position: relative;
   top: 20px;
   margin-bottom: 20px;
+  width: 725px;
 }
 .footer {
   margin-top: 50px;
@@ -682,21 +661,21 @@ img {
     position: relative;
     left: 0;
     span:nth-child(1) {
-      font-size: 25px;
+      font-size: 20px;
       margin-bottom: 20px;
     }
     span {
-      font-size: 22px;
+      font-size: 18px;
     }
   }
   .sign-wrapper {
     position: relative;
     right: 30px;
     span:nth-child(1) {
-      font-size: 25px;
+      font-size: 20px;
     }
     span {
-      font-size: 22px;
+      font-size: 18px;
     }
   }
   .sign-block {
