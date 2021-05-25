@@ -51,6 +51,9 @@
             </template>
             <template v-else>
               <div :style="{color: record.using === true? 'black':'#ACB9BF'}">
+                <span v-show="col === 'barcode'" style="text-align: left">
+                  <a-icon type="menu" />
+                </span>
                 {{ text }}
               </div>
             </template>
@@ -113,6 +116,7 @@ export default {
       isClick2:false,
       track: '',
       search: '',
+      categories:'',
       list: {
         name: '',
         unit: 'KG',
@@ -197,23 +201,24 @@ export default {
     }
   },
   created() {
-    this.getCommodity()
+    this.categories = 'COMMERCIAL'
+    this.getCommodity(this.categories)
+    this.isClick = true
   },
   mounted() {
     this.initSortable()
     },
   methods: {
     initSortable () {
-      var that = this
-      var el = this.$el.querySelector('.sort-table tbody')
+      let that = this
+      let el = this.$el.querySelector('.sort-table tbody')
       Sortable.create(el, {
         handle: '.ant-table-row',
         animation: 150,
         group: { name: 'name', pull: true, put: true },
-        //这里千万不要用onEnd 方法
         onUpdate: function (evt) {
-          var o = evt.oldIndex
-          var n = evt.newIndex
+          let o = evt.oldIndex
+          let n = evt.newIndex
           if (o === n) {
             return
           }
@@ -222,24 +227,28 @@ export default {
       })
     },
     sortList (list, o, n) {
-      var newTableData = JSON.parse(JSON.stringify(list))
-      var data = newTableData.splice(o, 1, null)
+      let newTableData = JSON.parse(JSON.stringify(list))
+      let data = newTableData.splice(o, 1, null)
       newTableData.splice(o < n ? n + 1 : n, 0, data[0])
       newTableData.splice(o > n ? o + 1 : o, 1)
       return newTableData
     },
     sortListAndUpdate (list, o, n) {
-      var newTableData = this.sortList(list, o, n)
+      let nData = [];
+      let newTableData = this.sortList(list, o, n)
       newTableData.forEach((item, index) => {
         item.sort = index + 1
+        nData.push({productId: item.id, sortId: index})
       })
       this.$nextTick(() => {
+        this.$api.Commodity.sortProduct(nData)
         this.tableData = newTableData
-        that.$refs.table2 && this.$refs.table2.refresh(true)
+        // that.$refs.table2 && this.$refs.table2.refresh(true)
       })
     },
     getCommodity() {
       this.$api.Commodity.getCommodityList({
+        categories:this.categories,
         productName: this.search,
         pageNumber: this.current,
         pageSize: this.pageSize
@@ -284,10 +293,17 @@ export default {
     setBusinessSort(){
       this.isClick = true
       this.isClick2 = false
+      this.categories = 'COMMERCIAL'
+      this.getCommodity(this.categories)
     },
     setRetailSort(){
       this.isClick = false
       this.isClick2 = true
+      this.categories = 'RETAIL'
+      this.getCommodity(this.categories)
+    },
+    sortProduct(){
+
     }
   }
 }
@@ -323,5 +339,4 @@ export default {
 .retailSort-btn{
   color: black;
 }
-
 </style>
