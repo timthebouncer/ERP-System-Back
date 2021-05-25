@@ -55,7 +55,7 @@
               </a-form-model-item>
               <a-form-model-item
                 class="custom-form-commodity"
-                style="margin:5px 0 -10px -17px"
+                style="margin:1px 0 0 -20px"
                 label="定重重量"
               >
                 <div
@@ -100,6 +100,20 @@
                 />
               </a-form-model-item>
               <a-form-model-item
+                      class="custom-form-commodity alone"
+                      label="商品類別"
+                      prop="categories"
+              >
+                <a-select
+                        v-model="list.categories"
+                        style="z-index: 1"
+                >
+                  <a-select-option v-for="item in categoryList" :key="item.id">
+                    {{ item.category }}
+                  </a-select-option>
+                </a-select>
+              </a-form-model-item>
+              <a-form-model-item
                 class="custom-form-commodity alone"
                 label="預設標籤"
                 prop="tagId"
@@ -107,7 +121,7 @@
                 <a-select
                   v-model="list.tagId"
                   @change="passTagId"
-                  style="z-index: 1"
+                  style="z-index: 1;width:350px"
                 >
                   <a-select-option v-for="item in tagList" :key="item.id">
                     {{ item.tagName }}
@@ -212,6 +226,7 @@ export default {
       loading: false,
       visible: false,
       changeTitle: '',
+      categoryList:[{id:'COMMERCIAL',category: '商用包'}, {id:'RETAIL',category: '零售包'}],
       classesList: [],
       list: {
         name: '',
@@ -223,6 +238,7 @@ export default {
         using: undefined,
         updateTime: '',
         tagId: '',
+        categories:'',
         alias: '',
         weight: 0,
         weightUnit: ''
@@ -245,6 +261,13 @@ export default {
             required: true,
             pattern: /^\d+$/,
             message: '請輸入數字',
+            trigger: 'blur'
+          }
+        ],
+        categories: [
+          {
+            required: true,
+            message: '請選擇',
             trigger: 'blur'
           }
         ]
@@ -368,7 +391,7 @@ export default {
         this.rules.weightUnit[0].required = false
         this.$refs.ruleForm.clearValidate()
       }
-    }
+    },
   },
   methods: {
     barCodeVerify() {
@@ -450,6 +473,7 @@ export default {
             this.list.weight = record.fixedWeight.toFixed(3)
             this.list.weightUnit =
               record.weightUnit === null ? '' : record.weightUnit
+            this.list.categories = record.productCategories
             this.list.tagId = record.tagId
             this.visible = true
 
@@ -490,10 +514,13 @@ export default {
               price: parseInt(this.list.listPrice),
               description: this.list.description,
               fixedWeight:
-                this.list.barcode === ''
-                  ? 0
-                  : parseFloat(this.list.weight).toFixed(3),
+                      this.list.barcode === ''
+                              ? 0
+                              : this.list.weight
+                              ? parseFloat(this.list.weight).toFixed(3)
+                              : 0,
               weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
+              productCategories : this.list.categories,
               tagId: this.list.tagId,
               alias: this.list.alias,
               using: true,
@@ -545,6 +572,7 @@ export default {
                                 ? parseFloat(this.list.weight).toFixed(3)
                                 : 0,
                 weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
+                productCategories : this.list.categories,
                 tagId: this.list.tagId,
                 alias: this.list.alias,
                 using: true,
@@ -588,6 +616,7 @@ export default {
                                 ? parseFloat(this.list.weight).toFixed(3)
                                 : 0,
                 weightUnit: this.list.barcode === '' ? '' : this.list.weightUnit,
+                productCategories : this.list.categories,
                 tagId: this.list.tagId,
                 alias: this.list.alias,
                 using: true,

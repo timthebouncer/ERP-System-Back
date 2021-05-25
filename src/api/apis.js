@@ -116,6 +116,9 @@ const api = {
           '&status=' +
           data.status
       )
+    },
+    sortProduct(data){
+      return request.post('./product/changeProductSort',data)
     }
   },
   Distribute: {

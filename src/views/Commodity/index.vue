@@ -3,109 +3,6 @@
   <div class="container">
     <div class="action">
       <CustomPrice ref="Modal" :getCommodity="getCommodity" :tableData="tableData" />
-      <!--<div class="addM">
-
-
-        <a-button class="button1" @click="showModal"
-          >新增<a-icon type="plus"
-        /></a-button>
-        <a-modal
-          v-model="visible"
-          :title="changeTitle"
-          width="1000px"
-          @cancel="clearInput"
-        >
-          <div class="modal-body">
-            <a-form-model :model="list" ref="ruleForm" :rules="rules">
-              <div class="firstPart">
-                <div class="firstPart-item">
-                  <a-form-model-item
-                    class="custom-form-item"
-                    label="商品名稱"
-                    prop="name"
-                  >
-                    <a-input v-model="list.name" placeholder="請輸入" />
-                  </a-form-model-item>
-                  <a-form-model-item
-                    class="custom-form-item"
-                    label="出貨名稱"
-                  >
-                    <a-input placeholder="請輸入" />
-                  </a-form-model-item>
-                  <a-form-model-item class="custom-form-item" label="商品條碼" prop="barcode">
-                    <a-input v-model="list.barcode" placeholder="請輸入" />
-                  </a-form-model-item>
-                  <a-form-model-item
-                    class="custom-form-item"
-                    label="計價單位"
-                    labelAlign="left"
-                    prop="unit"
-                  >
-                    <translate v-model="list.unit" style="width: 175px" />
-                  </a-form-model-item>
-
-                  <a-form-model-item class="custom-form-item" label="定重重量">
-                    <div class="weight-wrapper">
-                      <a-input style="width: 115px" placeholder="請輸入" />
-                      <a-select style="width: 60px">
-                        <option></option>
-                      </a-select>
-                    </div>
-                  </a-form-model-item>
-
-                  <a-form-model-item class="custom-form-item" label="單價" prop="listPrice">
-                    <a-input v-model="list.listPrice" placeholder="請輸入" />
-                  </a-form-model-item>
-
-                  <a-form-model-item class="custom-form-item" label="預設標籤">
-                    <a-select style="width: 175px">
-                      <option></option>
-                    </a-select>
-                  </a-form-model-item>
-
-                  <a-form-model-item
-                    class="custom-form-item"
-                    label="商品描述"
-                    style="width: 100%"
-                  >
-                    <a-textarea
-                      v-model="list.description"
-                      placeholder="請輸入"
-                      style="height: 100px"
-                    />
-                  </a-form-model-item>
-                </div>
-              </div>
-            </a-form-model>
-          </div>
-          <template slot="footer">
-            <div v-if="list.updateTime">
-              <span>上次更新時間: {{list.updateTime.split(" ")[0]}}<span style="display: inline-block; width: 10px;" />
-                {{list.updateTime.split(" ")[1]}}</span>
-            </div>
-            <a-button
-              v-show="changeTitle === '新增商品'"
-              type="primary"
-              :loading="loading"
-              @click="submitNonstop"
-            >
-              儲存並新增
-            </a-button>
-            <a-button
-              key="submit"
-              type="primary"
-              :loading="loading"
-              @click="handleOk"
-            >
-              儲存
-            </a-button>
-            <a-button key="back" @click="handleCancel">
-              取消
-            </a-button>
-          </template>
-        </a-modal>
-      </div> -->
-
       <div class="search">
         <a-input-search
           v-model="search"
@@ -117,7 +14,15 @@
       </div>
     </div>
     <div class="itemMenu">
+      <a-button :style="{backgroundColor: this.isClick === true? '#81D3F8':'white'}" class="busSort-btn" @click="setBusinessSort">
+        商用包
+      </a-button>
+      <a-button :style="{backgroundColor: this.isClick2 === true? '#81D3F8':'white'}" class="retailSort-btn" @click="setRetailSort">
+        零售包
+      </a-button>
       <a-table
+              class="sort-table"
+              ref="table"
         :columns="columns"
         :data-source="tableData"
         bordered
@@ -146,6 +51,9 @@
             </template>
             <template v-else>
               <div :style="{color: record.using === true? 'black':'#ACB9BF'}">
+                <span v-show="col === 'barcode'" style="text-align: left">
+                  <a-icon type="menu" />
+                </span>
                 {{ text }}
               </div>
             </template>
@@ -185,7 +93,6 @@
     >
       <template slot="buildOptionText" slot-scope="props">
         <span>{{ props.value }}筆/頁</span>
-        <!--        <span v-if="props.value === '50'">全部</span>-->
       </template>
     </a-pagination>
     <!--    <AAA v-model="list.unit" />-->
@@ -193,6 +100,7 @@
 </template>
 
 <script>
+import Sortable from 'sortablejs'
 import { computedWeight } from '@/unit/dictionary/computed'
 import CustomPrice from './SalesPriceSetting'
 import formatPrice from "../../components/thousand";
@@ -204,8 +112,11 @@ export default {
     return {
       loading: false,
       visible: false,
+      isClick:false,
+      isClick2:false,
       track: '',
       search: '',
+      categories:'',
       list: {
         name: '',
         unit: 'KG',
@@ -290,11 +201,54 @@ export default {
     }
   },
   created() {
-    this.getCommodity()
+    this.categories = 'COMMERCIAL'
+    this.getCommodity(this.categories)
+    this.isClick = true
   },
+  mounted() {
+    this.initSortable()
+    },
   methods: {
+    initSortable () {
+      let that = this
+      let el = this.$el.querySelector('.sort-table tbody')
+      Sortable.create(el, {
+        handle: '.ant-table-row',
+        animation: 150,
+        group: { name: 'name', pull: true, put: true },
+        onUpdate: function (evt) {
+          let o = evt.oldIndex
+          let n = evt.newIndex
+          if (o === n) {
+            return
+          }
+          that.sortListAndUpdate(that.tableData, o, n)
+        },
+      })
+    },
+    sortList (list, o, n) {
+      let newTableData = JSON.parse(JSON.stringify(list))
+      let data = newTableData.splice(o, 1, null)
+      newTableData.splice(o < n ? n + 1 : n, 0, data[0])
+      newTableData.splice(o > n ? o + 1 : o, 1)
+      return newTableData
+    },
+    sortListAndUpdate (list, o, n) {
+      let nData = [];
+      let newTableData = this.sortList(list, o, n)
+      newTableData.forEach((item, index) => {
+        item.sort = index + 1
+        nData.push({productId: item.id, sortId: index})
+      })
+      this.$nextTick(() => {
+        this.$api.Commodity.sortProduct(nData)
+        this.tableData = newTableData
+        // that.$refs.table2 && this.$refs.table2.refresh(true)
+      })
+    },
     getCommodity() {
       this.$api.Commodity.getCommodityList({
+        categories:this.categories,
         productName: this.search,
         pageNumber: this.current,
         pageSize: this.pageSize
@@ -335,6 +289,21 @@ export default {
       } else {
         this.$message.error('庫存量大於0')
       }
+    },
+    setBusinessSort(){
+      this.isClick = true
+      this.isClick2 = false
+      this.categories = 'COMMERCIAL'
+      this.getCommodity(this.categories)
+    },
+    setRetailSort(){
+      this.isClick = false
+      this.isClick2 = true
+      this.categories = 'RETAIL'
+      this.getCommodity(this.categories)
+    },
+    sortProduct(){
+
     }
   }
 }
@@ -364,5 +333,10 @@ export default {
 .weight-wrapper {
   display: flex;
 }
-
+.busSort-btn{
+  color: black;
+}
+.retailSort-btn{
+  color: black;
+}
 </style>
