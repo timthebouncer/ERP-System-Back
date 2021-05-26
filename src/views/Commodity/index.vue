@@ -95,7 +95,6 @@
         <span>{{ props.value }}筆/頁</span>
       </template>
     </a-pagination>
-    <!--    <AAA v-model="list.unit" />-->
   </div>
 </template>
 
