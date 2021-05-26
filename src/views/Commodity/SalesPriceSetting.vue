@@ -683,6 +683,7 @@ export default {
     clearInput() {
       this.list = {
         name: '',
+        categories: '',
         unit: 'KG',
         barcode: '',
         listPrice: '',
