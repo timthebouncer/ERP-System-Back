@@ -151,9 +151,9 @@ const api = {
     addLabel(data) {
       return request.post('/tag/addProductTag', data)
     },
-    searchProduct(searchKey, barcode) {
+    searchProduct(searchKey, barcode, categories) {
       return request.get(
-        '/product/getProduct?searchKey=' + searchKey + '&barcode=' + barcode
+        '/product/getProduct?searchKey=' + searchKey + '&barcode=' + barcode + '&categories=' + categories
       )
     },
     getTagList(tagName, pageNumber, pageSize) {

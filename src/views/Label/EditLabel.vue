@@ -399,7 +399,7 @@ export default {
     },
     searchProduct(value) {
       this.productData = []
-      this.$api.Label.searchProduct(value, '')
+      this.$api.Label.searchProduct(value, '', 'COMMERCIAL')
         .then(res => {
           let data = []
           res.data.map(item => {
@@ -410,6 +410,15 @@ export default {
         .catch(err => {
           console.log(err)
         })
+      this.$api.Label.searchProduct(value, '', 'RETAIL')
+              .then(res => {
+                res.data.map(item => {
+                  this.productData.push(item)
+                })
+              })
+              .catch(err => {
+                console.log(err)
+              })
     },
     async selectProduct(value) {
       this.searchProductName = ''
@@ -452,7 +461,7 @@ export default {
 
       function loadImage() {
         return new Promise(resolve => {
-          this.barcodeImageUrl = 'data:image/png;base64,' + item.barcodeBase64
+          this.barcodeImageUrl = 'data:image/svg+xml;base64,' + item.barcodeBase64
           resolve(true)
         })
       }
@@ -567,7 +576,7 @@ export default {
 
       this.barcodeImageUrl = ''
       this.productData = []
-      this.$api.Label.searchProduct('', '')
+      this.$api.Label.searchProduct('', '', 'COMMERCIAL')
         .then(res => {
           res.data.map(item => {
               this.productData.push(item)
@@ -576,6 +585,15 @@ export default {
         .catch(err => {
           console.log(err)
         })
+      this.$api.Label.searchProduct('', '', 'RETAIL')
+              .then(res => {
+                res.data.map(item => {
+                  this.productData.push(item)
+                })
+              })
+              .catch(err => {
+                console.log(err)
+              })
     },
     handleDrag(text, name) {
       this.currentDragText = text
@@ -621,6 +639,9 @@ export default {
             element.width = 210
             element.height = 45
           }
+          element.setControlsVisibility({
+            mtr: false,
+          })
         } else if (this.currentDragName === 'Logo') {
           this.hasTags.push(this.currentDragName)
           let imgElement = document.getElementsByClassName('logoImg')[0]
@@ -773,6 +794,9 @@ export default {
         data.showFront = this.$store.state.labelData.showFront
         data.height = this.tagDrawHeight
         data.wide = this.tagDrawWidth
+
+        console.log(data,'export data');
+        console.log(svgJson,'export svgJson');
         this.$api.Label.editTag(data)
           .then(() => {
             this.$message.success('標籤儲存成功')
@@ -808,6 +832,10 @@ export default {
         } else if (o.type == 'rect') {
           this.clipRectangle = o
           o.selectable = false
+        } else if (o.name == 'barcode') {
+          o.setControlsVisibility({
+            mtr: false,
+          })
         }
 
         if (o.name != 'text') {
@@ -1002,7 +1030,7 @@ export default {
     this.rSolarDay = 365 - this.pSolarDay + 1;
 
     this.productData = []
-    this.$api.Label.searchProduct('', '')
+    this.$api.Label.searchProduct('', '', 'COMMERCIAL')
       .then(res => {
         res.data.map(item => {
             this.productData.push(item)
@@ -1011,6 +1039,15 @@ export default {
       .catch(err => {
         console.log(err)
       })
+    this.$api.Label.searchProduct('', '', 'RETAIL')
+            .then(res => {
+              res.data.map(item => {
+                this.productData.push(item)
+              })
+            })
+            .catch(err => {
+              console.log(err)
+            })
 
     if (this.labelMode == 'edit') {
       this.tagName = this.$store.state.labelData.tagName
