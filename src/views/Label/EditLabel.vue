@@ -169,7 +169,7 @@
                     class="barcodeImg"
                     :src="barcodeImageUrl"
                     alt="avatar"
-                    style="width: 190px; height: 45px;"
+                    style="height: 45px; transform: scale(2.5, 1);"
                   />
                   <span v-else>{{ barcodeTag }}</span>
                 </a-col>
@@ -406,19 +406,20 @@ export default {
               data.push(item)
           })
           this.productData = data
+          this.$api.Label.searchProduct(value, '', 'RETAIL')
+                  .then(res => {
+                    res.data.map(item => {
+                      this.productData.push(item)
+                    })
+                  })
+                  .catch(err => {
+                    console.log(err)
+                  })
         })
         .catch(err => {
           console.log(err)
         })
-      this.$api.Label.searchProduct(value, '', 'RETAIL')
-              .then(res => {
-                res.data.map(item => {
-                  this.productData.push(item)
-                })
-              })
-              .catch(err => {
-                console.log(err)
-              })
+
     },
     async selectProduct(value) {
       this.searchProductName = ''
@@ -487,9 +488,17 @@ export default {
               top: top,
               name: 'barcode'
             })
-
-            element.scaleX = (width * scaleX) / element.width
-            element.scaleY = (height * scaleY) / element.height
+            element.scaleX = scaleX
+            element.scaleY = scaleY
+            element.width = 95
+            element.height = 71
+            element.setControlsVisibility({
+              mt: false,
+              mb: false,
+              ml: false,
+              mr: false,
+              mtr: false,
+            })
             this.canvas.add(element)
             element.on('moved', e => {
               this.checkInArea(e)
@@ -505,6 +514,9 @@ export default {
       this.canvas.renderAll()
     },
     resetTag() {
+      if(!this.previewed){
+        return
+      }
       this.productData = []
       this.previewed = false
       this.searchProductName = ''
@@ -549,16 +561,25 @@ export default {
             let { width, height, left, top, scaleX, scaleY } = o
             this.canvas.remove(o)
             let element
-            element = new fabric.Text(`{{商品條碼}}`, {
+            element = new fabric.Text(`\n{{商品條碼}}`, {
               fontFamily: '微軟正黑體',
+              fontSize: 18,
               hasControls: true,
               left: left,
               top: top,
               name: 'barcode'
             })
-
-            element.scaleX = (width * scaleX) / element.width
-            element.scaleY = (height * scaleY) / element.height
+            element.scaleX = scaleX
+            element.scaleY = scaleY
+            element.width = 95
+            element.height = 71
+            element.setControlsVisibility({
+              mt: false,
+              mb: false,
+              ml: false,
+              mr: false,
+              mtr: false,
+            })
             this.canvas.add(element)
             element.on('moved', e => {
               this.checkInArea(e)
@@ -581,19 +602,20 @@ export default {
           res.data.map(item => {
               this.productData.push(item)
           })
+          this.$api.Label.searchProduct('', '', 'RETAIL')
+                  .then(res => {
+                    res.data.map(item => {
+                      this.productData.push(item)
+                    })
+                  })
+                  .catch(err => {
+                    console.log(err)
+                  })
         })
         .catch(err => {
           console.log(err)
         })
-      this.$api.Label.searchProduct('', '', 'RETAIL')
-              .then(res => {
-                res.data.map(item => {
-                  this.productData.push(item)
-                })
-              })
-              .catch(err => {
-                console.log(err)
-              })
+
     },
     handleDrag(text, name) {
       this.currentDragText = text
@@ -618,28 +640,35 @@ export default {
           if (this.barcodeImageUrl) {
             let imgElement = document.getElementsByClassName('barcodeImg')[0]
             element = new fabric.Image(imgElement, {
-              name: 'barcode'
+              name: 'barcode',
+              scaleX: 1.5,
+              scaleY: 1.5,
             })
-
-            element.scaleX = 210 / element.width
-            element.scaleY = 45 / element.height
+            element.width = 95
+            element.height = 71
           } else {
             element = new fabric.Text(
               this.previewed
                 ? this.currentDragText
-                : `{{${this.currentDragText}}}`,
+                : `\n{{${this.currentDragText}}}`,
               {
                 fontFamily: '微軟正黑體',
+                fontSize: 18,
                 hasControls: true,
-                scaleX: 1,
-                scaleY: 1,
-                name: this.currentDragName
+                scaleX: 1.5,
+                scaleY: 1.5,
+                name: this.currentDragName,
+                textAlign: 'center',
               }
             )
-            element.width = 210
-            element.height = 45
+            element.width = 95
+            element.height = 71
           }
           element.setControlsVisibility({
+            mt: false,
+            mb: false,
+            ml: false,
+            mr: false,
             mtr: false,
           })
         } else if (this.currentDragName === 'Logo') {
@@ -833,19 +862,46 @@ export default {
           this.clipRectangle = o
           o.selectable = false
         } else if (o.name == 'barcode') {
-          o.setControlsVisibility({
+          let { width, height, left, top, scaleX, scaleY } = o
+          this.canvas.remove(o)
+          let element
+          element = new fabric.Text(`\n{{商品條碼}}`, {
+            fontFamily: '微軟正黑體',
+            fontSize: 18,
+            hasControls: true,
+            left: left,
+            top: top,
+            name: 'barcode'
+          })
+          element.scaleX = scaleX
+          element.scaleY = scaleY
+          element.width = 95
+          element.height = 71
+          element.setControlsVisibility({
+            mt: false,
+            mb: false,
+            ml: false,
+            mr: false,
             mtr: false,
           })
+          this.canvas.add(element)
+          element.on('moved', e => {
+            this.checkInArea(e)
+            this.canvas.renderAll()
+          })
+          this.canvas.renderAll()
         }
 
         if (o.name != 'text') {
           this.hasTags.push(o.name)
         }
+        if(o.name != 'barcode'){
+          o.on('moved', e => {
+            this.checkInArea(e)
+            this.canvas.renderAll()
+          })
+        }
 
-        o.on('moved', e => {
-          this.checkInArea(e)
-          this.canvas.renderAll()
-        })
       })
       this.canvas.controlsAboveOverlay = true
 
@@ -1035,19 +1091,20 @@ export default {
         res.data.map(item => {
             this.productData.push(item)
         })
+        this.$api.Label.searchProduct('', '', 'RETAIL')
+                .then(res => {
+                  res.data.map(item => {
+                    this.productData.push(item)
+                  })
+                })
+                .catch(err => {
+                  console.log(err)
+                })
       })
       .catch(err => {
         console.log(err)
       })
-    this.$api.Label.searchProduct('', '', 'RETAIL')
-            .then(res => {
-              res.data.map(item => {
-                this.productData.push(item)
-              })
-            })
-            .catch(err => {
-              console.log(err)
-            })
+
 
     if (this.labelMode == 'edit') {
       this.tagName = this.$store.state.labelData.tagName
