@@ -51,10 +51,12 @@
             </template>
             <template v-else>
               <div :style="{color: record.using === true? 'black':'#ACB9BF'}">
-                <span v-show="col === 'barcode'" style="text-align: left">
+                <span v-show="col === 'barcode'" style="float:left">
                   <a-icon type="menu" />
                 </span>
-                {{ text }}
+                <span>
+                  {{ text }}
+                </span>
               </div>
             </template>
           </div>
