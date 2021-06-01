@@ -23,10 +23,11 @@
       width="500px"
       :title="changeTitle"
       @cancel="clearInput"
+      id="modal-wrapper"
     >
       <div class="class-input" v-if="!edited">
         <label><span style="color: red;">*</span>物料名稱:</label>
-        <a-input v-model="list.name" autoFocus placeholder="請輸入" />
+        <a-input v-model="list.name" autoFocus @keyup.enter="handleOk" placeholder="請輸入" />
       </div>
       <div class="class-input" v-else>
         <label style="margin-left: 5px;">物料名稱:</label>
@@ -177,6 +178,9 @@ export default {
         })
     },
     showModal() {
+      setTimeout(()=>{
+        document.querySelector('#modal-wrapper').removeEventListener('keyup',this.handleOk,)
+      },10)
       this.changeTitle = '新增物料'
       this.edited = false
       this.visible = true
@@ -191,23 +195,25 @@ export default {
           console.log(err)
         })
     },
-    handleOk() {
+    handleOk(e) {
       this.list.name = this.list.name.replace(/\s*/g, '')
       if (this.list.name.length == 0) {
         this.$message.warning(`請輸入物料名稱`)
         return
       }
       if (this.edited) {
-        let data = { id: this.materialsId, depotId: this.list.depotId }
+        let data = {id: this.materialsId, depotId: this.list.depotId}
+        if (e.target.innerText === '儲 存' || e.key === 'Enter') {
         this.$api.Materials.updateMaterial(data)
-          .then(() => {
-            this.$message.success(`修改成功`)
-            this.visible = false
-            this.onSearch()
-          })
-          .catch(err => {
-            this.$message.error(err.response.data.message)
-          })
+                .then(() => {
+                  this.$message.success(`修改成功`)
+                  this.visible = false
+                  this.onSearch()
+                })
+                .catch(err => {
+                  this.$message.error(err.response.data.message)
+                })
+      }
       } else {
         this.$api.Materials.addMaterial(this.list)
           .then(() => {
@@ -241,8 +247,10 @@ export default {
         .catch(err => {
           console.log(err)
         })
-
       this.visible = true
+      setTimeout(()=>{
+        document.querySelector('#modal-wrapper').addEventListener('keyup',this.handleOk,)
+      },100)
     },
     onDelete(item) {
       this.$api.Materials.delMaterial(item.id)

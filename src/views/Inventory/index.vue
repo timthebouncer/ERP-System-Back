@@ -31,6 +31,7 @@
               >
                 <a-input
                   style="width: 200px"
+                  autoFocus
                   placeholder="請輸入商品條碼"
                   @change="getStock"
                   v-model="list.searchBarcode"
@@ -555,10 +556,10 @@ export default {
       this.$refs.ruleForm.resetFields()
       setTimeout(() => {
         this.$refs.inputDom.focus()
-      }, 100)
+      }, 10)
       setTimeout(()=>{
         document.querySelector('.addPurchaseView').addEventListener('keyup',this.addInventory,)
-      },100)
+      },10)
     },
     onSearch() {
       this.current = 1
@@ -600,9 +601,9 @@ export default {
       this.inventoryList.unit = ''
       this.inventoryList.weight = ''
       this.addInventoryAmount = 1
-      setTimeout(()=>{
-        document.querySelector('.addPurchaseView').removeEventListener('keyup',this.addInventory,)
-      },150)
+      // setTimeout(()=>{
+      //   document.querySelector('.addPurchaseView').removeEventListener('keyup',this.addInventory,)
+      // },150)
       this.$refs.ruleForm.resetFields()
     },
     submitNonStop() {
@@ -647,13 +648,16 @@ export default {
                 console.log(err)
               })
           }
+          setTimeout(() => {
+            this.$refs.inputDom.focus()
+          }, 10)
         }
       })
     },
     addInventory(e) {
       this.$refs.ruleForm.validate(valid => {
         if (valid) {
-          if (e.target.innerTEXT === '儲 存' || e.key === 'Enter') {
+          if (e.target.innerText === '儲 存' || e.key === 'Enter') {
             if (
               this.inventoryList.unit === '包' ||
               this.inventoryList.unit === '件'

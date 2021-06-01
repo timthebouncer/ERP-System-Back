@@ -65,7 +65,6 @@ export default {
       }
     },
     handleOk(e){
-      console.log(e)
       if(this.changeTitle === "新增倉庫"){
         this.$api.Depot.addDepot({
           'name':this.warehouse
