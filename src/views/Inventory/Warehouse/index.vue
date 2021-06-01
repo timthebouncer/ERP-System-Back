@@ -10,7 +10,6 @@
               v-model="search"
               placeholder="搜尋倉庫名稱"
               enter-button
-              autoFocus
               @search="handleSearch"
           />
         </div>

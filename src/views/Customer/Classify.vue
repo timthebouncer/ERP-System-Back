@@ -12,7 +12,6 @@
             v-model="search"
             placeholder="搜尋類別"
             enter-button
-            autoFocus
             @search="handleSearch"
           />
         </div>

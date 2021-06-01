@@ -20,7 +20,6 @@
             v-model="search"
             placeholder="搜尋單號"
             enter-button
-            autoFocus
             @search="searchHandler"
           />
         </div>

@@ -12,7 +12,6 @@
             v-model="searchValue"
             placeholder="搜尋物料倉庫名稱"
             enter-button
-            autoFocus
             @search="onSearch"
           />
         </div>

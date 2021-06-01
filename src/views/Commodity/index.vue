@@ -8,7 +8,6 @@
           v-model="search"
           placeholder="搜尋商品名稱"
           enter-button
-          autoFocus
           @search="onSearch"
         />
       </div>
