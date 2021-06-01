@@ -25,7 +25,7 @@
     >
       <div class="class-input">
         <label>物料倉庫名稱:</label>
-        <a-input v-model="depotName" autoFocus placeholder="請輸入" />
+        <a-input ref="inputDom" v-model="depotName" autoFocus placeholder="請輸入" @keyup.enter="handleOk" />
       </div>
       <template slot="footer">
         <a-button key="back" @click="handleCancel"> 取消 </a-button>
@@ -134,17 +134,18 @@ export default {
       this.changeTitle = '新增物料倉庫'
       this.edited = false
       this.visible = true
+      setTimeout(()=>{
+        this.$refs.inputDom.focus()
+      },10)
       this.depotName = ''
     },
     handleSearch() {},
     handleOk() {
-      // if(this.depotName == '')
       this.depotName = this.depotName.replace(/\s*/g, '')
       if (this.depotName.length == 0) {
         this.$message.warning(`請輸入物料倉庫名稱`)
         return
       }
-
       if (this.edited) {
         let data = { depotId: this.depotId, name: this.depotName }
         this.$api.Materials.updateDepot(data)
@@ -181,6 +182,9 @@ export default {
       this.depotId = item.id
       this.depotName = item.name
       this.visible = true
+      setTimeout(()=>{
+        this.$refs.inputDom.focus()
+      },10)
     },
     onDelete(item) {
       this.$api.Materials.deleteDepot(item.id)

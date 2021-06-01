@@ -38,7 +38,7 @@
                     label="客戶名稱"
                     prop="name"
                   >
-                    <a-input v-model="list.name" placeholder="請輸入" />
+                    <a-input ref="inputRef" v-model="list.name" placeholder="請輸入" />
                   </a-form-model-item>
                 </div>
                 <div class="firstPart-item">
@@ -964,6 +964,7 @@ export default {
       if(val){
         // this.rules.classes[0].required = false
         this.$refs.ruleForm.clearValidate()
+        this.$refs.inputRef.focus()
       }
 }
   },

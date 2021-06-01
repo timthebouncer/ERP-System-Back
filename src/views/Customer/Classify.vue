@@ -159,7 +159,7 @@ export default {
       this.list = { id: '', className: '' }
       setTimeout(()=>{
         this.$refs.inputDom.focus()
-      },100)
+      },10)
     },
     clearInput() {
       this.list.className = ''
