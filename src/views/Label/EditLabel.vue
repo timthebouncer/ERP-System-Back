@@ -3,7 +3,7 @@
     <a-layout style="padding:20px;">
       <a-space>
         <span style="color: red;">*</span><span>標籤名稱</span
-        ><a-input v-model="tagName" placeholder="請輸入"></a-input>
+        ><a-input v-model="tagName" autoFocus placeholder="請輸入"></a-input>
         <span style="color: red; margin-left: 20px;">*</span
         ><span>標籤尺寸</span><span>寬</span
         ><a-input-number

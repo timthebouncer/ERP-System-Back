@@ -26,7 +26,7 @@
     >
       <div class="class-input" v-if="!edited">
         <label><span style="color: red;">*</span>物料名稱:</label>
-        <a-input v-model="list.name" autoFocus @keyup.enter="handleOk" placeholder="請輸入" />
+        <a-input ref="inputRef" v-model="list.name" autoFocus @keyup.enter="handleOk" placeholder="請輸入" />
       </div>
       <div class="class-input" v-else>
         <label style="margin-left: 5px;">物料名稱:</label>
@@ -179,6 +179,7 @@ export default {
     showModal() {
       setTimeout(()=>{
         document.querySelector('#modal-wrapper').removeEventListener('keyup',this.handleOk,)
+        this.$refs.inputRef.focus()
       },10)
       this.changeTitle = '新增物料'
       this.edited = false
