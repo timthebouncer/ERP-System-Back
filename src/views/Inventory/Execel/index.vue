@@ -440,16 +440,23 @@ export default {
       if (this.templateType !== '貼箱標籤') {
         console.log('執行列印')
         this.$nextTick(() => {
-          if (this.orderData.length > 15) {
-            let pages = 0;
-            if (this.orderData.length / 15 >parseInt(this.orderData.length / 15)) {
-              pages = parseInt(this.orderData.length / 15) + 1
+          if (this.orderData.length > 7) {
+            let pages = 1;
+            let lastLength = this.orderData.length - 7
+            if (lastLength / 12 > parseInt(lastLength / 12)
+            ) {
+              pages = pages + parseInt(lastLength / 12) + 1;
             } else {
-              pages = this.orderData.length / 15
+              pages = pages + (lastLength / 12);
             }
 
             for (let i = 0; i < pages; i++) {
-              this.tableList.push(this.orderData.slice(i * 15, i * 15 + 15))
+              console.log(pages)
+              if(i === 0){
+                this.tableList.push(this.orderData.slice(i * 7, i * 7 + 7))
+              }else {
+                this.tableList.push(this.orderData.slice(((i-1) * 12)+7,(i * 12)+7))
+              }
               this.pageClassName.push('page' + (i + 1))
               if (i == 0) {
                 this.disableTitle.push(false)
@@ -516,7 +523,7 @@ export default {
           myWindow.print()
           myWindow.close()
 
-        },2000)
+        },2500)
       }
     },
     getColumn(columns) {
